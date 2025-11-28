@@ -16,12 +16,12 @@ use App\Http\Controllers\DepartementController;
 
 
 // User Routes
-Route::get('/sas', [UserController::class, 'index'])->name('homepage');
+Route::get('/', [UserController::class, 'index'])->name('homepage');
 
 // Route Form Input Data User
-Route::get('/sas/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan')->Middleware('Role:Teknisi');
-Route::get('/sas/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
-Route::post('/sas/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
+Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan')->Middleware('Role:Teknisi');
+Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
+Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');

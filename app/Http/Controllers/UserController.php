@@ -58,7 +58,7 @@ class UserController extends Controller
             'id_merkac' => 'required|exists:merkac,id',
             'id_jenisac' => 'required|exists:jenisac,id',
             'id_ruangan' => 'required|exists:ruangan,id',
-            'no_ac' => 'required|string|digits:4',
+            'no_ac' => 'required|string|digits:3',
             'no_seri_indoor' => 'required|string|max:100|unique:acdetail,no_seri_indoor',
             'no_seri_outdoor' => 'required|string|max:100|unique:acdetail,no_seri_outdoor',
             'pk_ac' => 'required|numeric',

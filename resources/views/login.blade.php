@@ -140,7 +140,7 @@
                             </div>
                         </div>
                         <div class="text-center mb-3">
-                            <a href="/sas"><i clas="align-middle" data-feather="arrow-left-circle"></i> Kembali</a>
+                            <a href="/"><i clas="align-middle" data-feather="arrow-left-circle"></i> Kembali</a>
                         </div>
                     </div>
                 </div>

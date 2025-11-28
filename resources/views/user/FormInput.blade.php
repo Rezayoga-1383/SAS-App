@@ -385,7 +385,7 @@ $(document).ready(function () {
         $('#id_ruangan').html('<option value="">Memuat...</option>');
 
         $.ajax({
-            url: "{{ url('sas/get-ruangan') }}/" + departementID,
+            url: "{{ url('/get-ruangan') }}/" + departementID,
             type: 'GET',
             success: function(data) {
                 $('#id_ruangan').empty();
