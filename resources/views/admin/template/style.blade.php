@@ -53,4 +53,4 @@
 }
 
 </style>
-@stack('style')
+@stack('styles')

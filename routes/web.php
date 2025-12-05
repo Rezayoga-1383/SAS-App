@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SPKController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MerkacController;
 use App\Http\Controllers\JenisacController;
 use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\AdminSPKController;
 use App\Http\Controllers\DetailacController;
 use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\DashboardController;
@@ -18,10 +20,14 @@ use App\Http\Controllers\DepartementController;
 // User Routes
 Route::get('/', [UserController::class, 'index'])->name('homepage');
 
-// Route Form Input Data User
+// Route Form Input Data AC
 Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan')->Middleware('Role:Teknisi');
 Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
 Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
+
+// Route Form Input Data SPK
+Route::get('/input-data-spk', [SPKController::class, 'create'])->name('formcreatespk')->middleware('Role:Teknisi');
+Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk.store')->middleware('Role:Teknisi');
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -32,6 +38,24 @@ Route::get('/admin/dashboard', [LoginController::class, 'admin'])->name('dashboa
 
 // View Dashboard
 // Route::get('/admin/dashboard', [DashboardController::class, 'show'])->name('dashboard');
+
+// ============================== SPK Routes =================================
+Route::get('/admin/spk', [AdminSPKController::class, 'index'])->name('admin.spk')->middleware('Role:Admin');
+Route::get('/admin/spk/data', [AdminSPKController::class, 'getData'])->name('spk.data')->middleware('Role:Admin');
+
+// Create SPK Route
+Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');
+Route::post('/admin/spk/store', [AdminSPKController::class, 'store'])->name('spkadmin.store')->middleware('Role:Admin');
+
+// Edit SPK Route
+Route::get('/admin/spk/{id}/edit', [AdminSPKController::class, 'edit'])->name('spk.edit')->middleware('Role:Admin');
+Route::put('/admin/spk/{id}', [AdminSPKController::class, 'update'])->name('spk.update')->middleware('Role:Admin');
+
+// Delete SPK Route
+Route::delete('/admin/spk/{id}', [AdminSPKController::class, 'destroy'])->name('spk.destroy')->middleware('Role:Admin');
+
+// Detail SPK Route
+Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->name('spk.detail')->middleware('Role:Admin');
 
 
 // ================================ Merk AC ==================================

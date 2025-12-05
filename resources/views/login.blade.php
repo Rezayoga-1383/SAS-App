@@ -14,7 +14,7 @@
 
     <link rel="canonical" href="https://demo-basic.adminkit.io/pages-sign-in.html" />
 
-    <title>Login | SAS Dashboard</title>
+    <title>Login | SAS</title>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/image/logo.png') }}">
 
@@ -92,7 +92,7 @@
                                 <img src="{{ asset('assets/image/logo-sas.png') }}" alt="SAS Logo" style="max-width:160px; height:auto;">
                             </div>
                             <p class="lead">
-                                P.T Sarana Agung Sejahtera
+                                PT Sarana Agung Sejahtera
                             </p>
                         </div>
                         

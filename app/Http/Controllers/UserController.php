@@ -95,11 +95,7 @@ class UserController extends Controller
             'tanggal_habis_garansi' => $request->tanggal_habis_garansi,
         ]);
 
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('homepage')->with('success', 'Data AC Berhasil Dikirim dan Anda Sudah Logout, Terimakasih.');
+        return redirect()->back()->with('success', 'Data AC Berhasil Dikirim, Terimakasih.');
     }
 
 

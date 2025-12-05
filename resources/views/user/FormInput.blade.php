@@ -16,6 +16,9 @@
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
+  <!-- SweetAlert2 JS -->
+  <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+
   <!-- Vendor CSS Files -->
   <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
@@ -65,25 +68,15 @@
             <!-- <li><a href="#services">Services</a></li> -->
             <!-- <li><a href="#departments">Departments</a></li> -->
             <li><a href="/input-data-ac" class="active">Form Input Data</a></li>
+            <li><a href="/input-data-spk">Form Input SPK</a></li>
             <li></li>
-            <!-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            {{-- <li class="dropdown"><a href="#"><span>Input Data</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
               <ul>
-                <li><a href="#">Dropdown 1</a></li>
-                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Dropdown 1</a></li>
-                    <li><a href="#">Deep Dropdown 2</a></li>
-                    <li><a href="#">Deep Dropdown 3</a></li>
-                    <li><a href="#">Deep Dropdown 4</a></li>
-                    <li><a href="#">Deep Dropdown 5</a></li>
-                  </ul>
-                </li>
-                <li><a href="#">Dropdown 2</a></li>
-                <li><a href="#">Dropdown 3</a></li>
-                <li><a href="#">Dropdown 4</a></li>
+                <li><a href="#">Form Input Data AC</a></li>
+                <li><a href="#">Form Input Data AC</a></li>
               </ul>
-            </li> -->
-            <!-- <li><a href="#contact">Contact</a></li> -->
+            </li>
+            <li></li> --}}
           </ul>
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf
@@ -99,6 +92,25 @@
   </header>
 
   <main class="main">
+      @if(session('success'))
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                background: '#f0fff4',
+                color: '#155724',
+                customClass: {
+                  popup: 'swal2-border-radius'
+                }
+              });
+            });
+          </script>
+      @endif
   <!-- Contact Section -->
   <section id="forminput" class="contact section">
 

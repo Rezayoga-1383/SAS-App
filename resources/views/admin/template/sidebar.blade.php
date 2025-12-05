@@ -1,7 +1,7 @@
 <nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand" href="index.html">
-                    <span class="align-middle">P.T SAS <br> Sarana Agung Sejahtera</span>
+                    <span class="align-middle">PT SAS <br> Sarana Agung Sejahtera</span>
                 </a>
                 <!-- Dashboard -->
 		        <ul class="sidebar-nav">
@@ -13,11 +13,14 @@
                             <i class="align-middle" data-feather="home"></i> <span class="align-middle">Dashboard</span>
                         </a>
 					</li>
-					{{-- <li class="sidebar-item">
-						<a class="sidebar-link" href="index.html">
-                            <i class="align-middle" data-feather="clock"></i> <span class="align-middle">History</span>
+					<li class="sidebar-header">
+						SPK
+					</li>
+					<li class="sidebar-item {{ request()->routeIs('admin.spk') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('admin.spk') }}">
+                            <i class="align-middle" data-feather="file"></i> <span class="align-middle">SPK</span>
                         </a>
-					</li> --}}
+					</li>
                     <!-- Management Data AC -->
 					<li class="sidebar-header">
 						Management Data AC
