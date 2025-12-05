@@ -80,6 +80,22 @@ class AdminSPKController extends Controller
             'hormat_kami'       => 'required|string|max:100',
             'pelaksana_ttd'     => 'required|exists:pengguna,id',
             'file_spk'          => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ],[
+            'id_acdetail.required'      => 'Nomor AC wajib dipilih',
+            'no_spk.required'           => 'Nomor SPK wajib diisi',
+            'tanggal.required'          => 'Tanggal SPK wajib diisi',
+            'waktu_mulai.required'      => 'Waktu mulai wajib diisi',
+            'waktu_selesai.required'    => 'Waktu selesai wajib diisi',
+            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai',
+            'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi',
+            'teknisi.required'          => 'Teknisi wajib dipilih',
+            'keluhan.required'          => 'Keluhan wajib diisi',
+            'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi',
+            'kepada.required'           => 'Kepada wajib diisi',
+            'mengetahui.required'       => 'Mengetahui wajib diisi',
+            'hormat_kami.required'      => 'Hormat kami wajib diisi',
+            'pelaksana_ttd.required'    => 'Pelaksana SPK wajib dipilih',
+            'file_spk.required'         => 'File SPK wajib diunggah',
         ]);
 
         DB::beginTransaction();
@@ -161,6 +177,22 @@ class AdminSPKController extends Controller
             'hormat_kami'       => 'required|string|max:100',
             'pelaksana_ttd'     => 'required|exists:pengguna,id',
             'file_spk'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ], [
+            'id_acdetail.required'      => 'Nomor AC wajib dipilih',
+            'no_spk.required'           => 'Nomor SPK wajib diisi',
+            'tanggal.required'          => 'Tanggal SPK wajib diisi',
+            'waktu_mulai.required'      => 'Waktu mulai wajib diisi',
+            'waktu_selesai.required'    => 'Waktu selesai wajib diisi',
+            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai',
+            'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi',
+            'teknisi.required'          => 'Teknisi wajib dipilih',
+            'keluhan.required'          => 'Keluhan wajib diisi',
+            'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi',
+            'kepada.required'           => 'Kepada wajib diisi',
+            'mengetahui.required'       => 'Mengetahui wajib diisi',
+            'hormat_kami.required'      => 'Hormat kami wajib diisi',
+            'pelaksana_ttd.required'    => 'Pelaksana SPK wajib dipilih',
+            'file_spk.required'         => 'File SPK wajib diunggah',
         ]);
 
         DB::beginTransaction();
@@ -227,7 +259,22 @@ class AdminSPKController extends Controller
 
     public function detail($id)
     {
-        $spk = LogService::with(['acdetail', 'teknisi', 'pengguna'])->findOrFail($id);
+        $spk = LogService::with(['acdetail', 'teknisi', 'pengguna', 'hormatKamiUser'])->findOrFail($id);
         return view('admin.detailspk', compact('spk'));
+    }
+
+    public function generatePdf($id)
+    {
+        $spk = LogService::with(['pengguna','hormatKamiUser'])->findOrFail($id);
+
+        $pdf = \PDF::loadView('admin.spkprint', compact('spk'))
+                ->setPaper('A4', 'portrait');
+        
+        // jika link pakai ?download=1 maka download
+        if (request()->has('download')) {
+            return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
+        }
+
+        return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
     }
 }

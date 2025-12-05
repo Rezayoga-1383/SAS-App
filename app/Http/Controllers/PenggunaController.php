@@ -38,6 +38,17 @@ class PenggunaController extends Controller
             'nama' => ['required','string','max:255','regex:/^[a-zA-Z\s]+$/'],
             'password' => 'required|string|min:8',
             'role'      => 'required',
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'nama.required' => 'Nama wajib diisi.',
+            'nama.string' => 'Nama harus berupa teks.',
+            'nama.max' => 'Nama maksimal 255 karakter.',
+            'nama.regex' => 'Nama hanya boleh mengandung huruf dan spasi.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'role.required'      => 'Role wajib diisi',
         ]);
 
         // Simpan data pengguna baru

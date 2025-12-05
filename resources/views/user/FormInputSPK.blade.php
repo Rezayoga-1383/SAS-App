@@ -213,14 +213,14 @@
               </div>
 
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Jumlah Orang</label>
+                <label for="jumlah_orang" class="form-label">Jumlah Teknisi</label>
                 <input
                     type="number"
                     id="jumlah_orang"
                     name="jumlah_orang"
                     required
                     class="form-control form-control-md @error('jumlah_orang') is-invalid @enderror"
-                    placeholder="Jumlah orang yang mengerjakan"
+                    placeholder="Jumlah teknisi yang mengerjakan"
                     value="{{ old('jumlah_orang') }}">
                 @error('jumlah_orang')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -230,7 +230,7 @@
               <div class="col-sm-6">
                 <label class="form-label">Teknisi</label>
                 <div class="border rounded p-2 @error('teknisi') is-invalid @enderror" style="max-height: 150px; overflow-y: auto;">
-                    @foreach($pengguna as $user)
+                    @foreach($teknisi as $user)
                         <div class="form-check">
                             <input 
                                 class="form-check-input teknisi-checkbox" 
@@ -307,26 +307,26 @@
               </div>
               
               <div class="col-sm-6">
-                <label for="hormat_kami" class="form-label">Hormat Kami</label>
-                <input
-
-                    id="hormat_kami"
-                    name="hormat_kami"
-                    required
-                    class="form-control form-control-md @error('hormat_kami') is-invalid @enderror"
-                    placeholder="Hormat Kami"
-                    value="{{ old('hormat_kami') }}">
-                @error('hormat_kami')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                  <label for="hormat_kami" class="form-label">Hormat Kami</label>
+                  <select name="hormat_kami" id="hormat_kami" class="form-select @error('hormat_kami') is-invalid @enderror" required>
+                      <option value="">-- Pilih Admin --</option>
+                      @foreach($admin as $user)
+                          <option value="{{ $user->id }}" {{ old('pelaksana_ttd') == $user->id ? 'selected' : '' }}>
+                              {{ $user->nama }}
+                          </option>
+                      @endforeach
+                  </select>
+                  @error('hormat_kami')
+                      <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
               </div>
 
               <div class="col-sm-6">
                   <label for="pelaksana_ttd" class="form-label">Pelaksana SPK</label>
                   <select name="pelaksana_ttd" id="pelaksana_ttd" class="form-select @error('pelaksana_ttd') is-invalid @enderror" required>
                       <option value="">-- Pilih Pelaksana --</option>
-                      @foreach($pengguna as $user)
-                          <option value="{{ $user->id }}" {{ old('pelaksana_ttd') == $user->id ? 'selected' : '' }}>
+                      @foreach($teknisi as $user)
+                          <option value="{{ $user->id }}">
                               {{ $user->nama }}
                           </option>
                       @endforeach
@@ -452,40 +452,59 @@
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
 <script>
-    const jumlahInput = document.getElementById('jumlah_orang');
-    const checkboxes = document.querySelectorAll('.teknisi-checkbox');
+  const jumlahInput = document.getElementById('jumlah_orang');
+  const checkboxes = document.querySelectorAll('.teknisi-checkbox');
+  const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 
-    function updateCheckboxLimit() {
-        const maxTeknisi = parseInt(jumlahInput.value) || 0;
-        const checkedCount = document.querySelectorAll('.teknisi-checkbox:checked').length;
+  function updateCheckboxLimit() {
+      const maxTeknisi = parseInt(jumlahInput.value) || 0;
+      const checkedCount = document.querySelectorAll('.teknisi-checkbox:checked').length;
 
-        checkboxes.forEach(cb => {
-            if (!cb.checked && checkedCount >= maxTeknisi) {
-                cb.disabled = true;
-            } else {
-                cb.disabled = false;
-            }
-        });
-    }
+      checkboxes.forEach(cb => {
+          if (!cb.checked && checkedCount >= maxTeknisi) {
+              cb.disabled = true;
+          } else {
+              cb.disabled = false;
+          }
+      });
 
-    // Update limit saat checkbox berubah
-    checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
+      updatePelaksanaOptions();
+  }
 
-    // Update limit saat input jumlah_orang berubah
-    jumlahInput.addEventListener('input', () => {
-        // Jika ada yang sudah dicentang lebih dari limit baru, hentikan seleksi ekstra
-        const maxTeknisi = parseInt(jumlahInput.value) || 0;
-        const checked = document.querySelectorAll('.teknisi-checkbox:checked');
-        if (checked.length > maxTeknisi) {
-            checked.forEach((cb, index) => {
-                if (index >= maxTeknisi) cb.checked = false;
-            });
-        }
-        updateCheckboxLimit();
-    });
+  function updatePelaksanaOptions() {
+      const selectedIds = Array.from(checkboxes)
+                              .filter(cb => cb.checked)
+                              .map(cb => cb.value);
 
-    // Jalankan sekali saat load
-    updateCheckboxLimit();
+      Array.from(pelaksanaSelect.options).forEach(option => {
+          if(option.value === "") return; // placeholder
+          option.style.display = selectedIds.includes(option.value) ? 'block' : 'none';
+      });
+
+      // Reset value dropdown jika tidak ada lagi di list
+      if(!selectedIds.includes(pelaksanaSelect.value)) {
+          pelaksanaSelect.value = "";
+      }
+  }
+
+  // Event listeners
+  checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
+  jumlahInput.addEventListener('input', () => {
+      const maxTeknisi = parseInt(jumlahInput.value) || 0;
+      const checked = document.querySelectorAll('.teknisi-checkbox:checked');
+
+      // Jika checked lebih dari limit, hapus yang kelebihan
+      if (checked.length > maxTeknisi) {
+          checked.forEach((cb, index) => {
+              if (index >= maxTeknisi) cb.checked = false;
+          });
+      }
+
+      updateCheckboxLimit();
+  });
+
+  // Jalankan saat load untuk inisialisasi
+  updateCheckboxLimit();
 </script>
 
 </body>

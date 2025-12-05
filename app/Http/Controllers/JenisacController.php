@@ -38,6 +38,13 @@ class JenisacController extends Controller
                     'unique:jenisac,nama_jenis',
                     'regex:/^[A-Za-z\s]+$/',
             ],
+            
+        ], [
+                'nama_jenis.required' => 'Jenis AC wajib diisi.',
+                'nama_jenis.string' => 'Jenis AC harus berupa teks.',
+                'nama_jenis.max' => 'Jenis AC maksimal 255 karakter.',
+                'nama_jenis.unique' => 'Jenis AC sudah ada di database.',
+                'nama_jenis.regex' => 'Jenis AC hanya boleh mengandung huruf dan spasi.',
         ]);
 
         JenisAC::create([

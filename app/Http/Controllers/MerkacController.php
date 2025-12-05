@@ -38,6 +38,12 @@ class MerkacController extends Controller
                     'unique:merkac,nama_merk',
                     'regex:/^[A-Za-z\s]+$/'
             ],
+        ], [
+                'nama_merk.required' => 'Merk AC wajib diisi.',
+                'nama_merk.string' => 'Merk AC harus berupa teks.',
+                'nama_merk.max' => 'Merk AC maksimal 255 karakter.',
+                'nama_merk.unique' => 'Merk AC sudah ada di database.',
+                'nama_merk.regex' => 'Merk AC hanya boleh mengandung huruf dan spasi.',
         ]);
 
         MerkAC::create([
@@ -56,9 +62,11 @@ class MerkacController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-        'nama_merk' => 'required|string|max:255',
+            'nama_merk' => 'required|string|max:255',
         ], [
-            'nama_merk.required' => 'Merk AC wajib diisi',
+            'nama_merk.required' => 'Merk AC wajib diisi.',
+            'nama_merk.string' => 'Merk AC harus berupa teks.',
+            'nama_merk.max' => 'Merk AC maksimal 255 karakter.',
         ]);
 
         $merk = MerkAC::findOrFail($id);

@@ -57,6 +57,8 @@ Route::delete('/admin/spk/{id}', [AdminSPKController::class, 'destroy'])->name('
 // Detail SPK Route
 Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->name('spk.detail')->middleware('Role:Admin');
 
+// Generate SPK PDF Route
+Route::get('/admin/spk/{id}/generate-pdf', [AdminSPKController::class, 'generatePdf'])->name('spk.generatePdf')->middleware('Role:Admin');
 
 // ================================ Merk AC ==================================
 // Merk AC Routes

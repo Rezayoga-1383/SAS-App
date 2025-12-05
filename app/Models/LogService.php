@@ -42,4 +42,8 @@ class LogService extends Model
             Pengguna::class, 'log_service_teknisi', 'log_service_id', 'id_pengguna'
         );
     }
+    public function hormatKamiUser()
+    {
+        return $this->belongsTo(Pengguna::class, 'hormat_kami'); // kolom di log_service yang menyimpan id user
+    }
 }

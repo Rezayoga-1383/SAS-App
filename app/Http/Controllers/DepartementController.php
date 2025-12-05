@@ -36,7 +36,12 @@ class DepartementController extends Controller
                     'string',
                     'max:255',
                     'unique:departement,nama_departement',
-            ],
+            ], 
+        ], [
+                'nama_departement.required' => 'Nama Departement wajib diisi.',
+                'nama_departement.string' => 'Nama Departement harus berupa string.',
+                'nama_departement.max' => 'Nama Departement maksimal 255 karakter.',
+                'nama_departement.unique' => 'Nama Departement sudah ada di database.',
         ]);
 
         Departement::create([

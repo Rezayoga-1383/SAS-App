@@ -23,9 +23,10 @@ class SPKController extends Controller
      */
     public function create()
     {
-        $acdetail = DetailAC::All();
-        $pengguna = Pengguna::where('role', 'Teknisi')->get();
-        return view ('user.FormInputSPK', compact('acdetail', 'pengguna'));
+        $acdetail   = DetailAC::All();
+        $teknisi    = Pengguna::where('role', 'Teknisi')->get();
+        $admin      = Pengguna::where('role', 'Admin')->get();
+        return view ('user.FormInputSPK', compact('acdetail', 'teknisi', 'admin'));
     }
 
     /**
@@ -46,9 +47,25 @@ class SPKController extends Controller
             'jenis_pekerjaan'   => 'required|string', 
             'kepada'            => 'required|string|max:100',
             'mengetahui'        => 'required|string|max:100',
-            'hormat_kami'       => 'required|string|max:100',
+            'hormat_kami'       => 'required|exists:pengguna,id',
             'pelaksana_ttd'     => 'required|exists:pengguna,id',
             'file_spk'          => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ], [
+            'id_acdetail.required'      => 'Nomor AC wajib dipilih',
+            'no_spk.required'           => 'Nomor SPK wajib diisi',
+            'tanggal.required'          => 'Tanggal SPK wajib diisi',
+            'waktu_mulai.required'      => 'Waktu mulai wajib diisi',
+            'waktu_selesai.required'    => 'Waktu selesai wajib diisi',
+            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai',
+            'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi',
+            'teknisi.required'          => 'Teknisi wajib dipilih',
+            'keluhan.required'          => 'Keluhan wajib diisi',
+            'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi',
+            'kepada.required'           => 'Kepada wajib diisi',
+            'mengetahui.required'       => 'Mengetahui wajib diisi',
+            'hormat_kami.required'      => 'Hormat kami wajib dipilih',
+            'pelaksana_ttd.required'    => 'Pelaksana SPK wajib dipilih',
+            'file_spk.required'         => 'File SPK wajib diunggah',
         ]);
 
         DB::beginTransaction();

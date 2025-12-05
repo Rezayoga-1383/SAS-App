@@ -12,22 +12,7 @@
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h4 class="card-title mb-3">Tambah Jenis AC</h4>
 						</div>
-						@if(session('success'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if($errors->any())
-                            <div class="alert alert-danger mb-3" role="alert">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
+			
                         <form action="{{ route('jenis-ac.store') }}" method="POST" novalidate>
                             @csrf
                             <div class="mb-3">
