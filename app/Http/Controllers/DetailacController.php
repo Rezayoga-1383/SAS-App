@@ -69,7 +69,7 @@ class DetailacController extends Controller
     {
         // Format otomatis: hapus non-angka, pad 3 digit, tambahkan prefix I-
         $angka = preg_replace('/[^0-9]/', '', $request->no_ac);
-        $angka = str_pad($angka, 3, '0', STR_PAD_LEFT);
+        $angka = str_pad($angka, 4, '0', STR_PAD_LEFT);
         $no_ac = 'I-' . $angka;
 
         // Validator manual
@@ -187,7 +187,7 @@ class DetailacController extends Controller
             'id_merkac' => 'required|exists:merkac,id',
             'id_jenisac' => 'required|exists:jenisac,id',
             'id_ruangan' => 'required|exists:ruangan,id',
-            'no_ac' => 'required|string|max:100|unique:acdetail,no_ac,' . $id,
+            'no_ac' => 'required|string|max:100|unique:acdetail,no_ac,digits:4,' . $id,
             'no_seri_indoor' => 'required|string|max:100|unique:acdetail,no_seri_indoor,' . $id,
             'no_seri_outdoor' => 'required|string|max:100|unique:acdetail,no_seri_outdoor,' . $id,
             'pk_ac' => 'required|numeric',
@@ -200,7 +200,7 @@ class DetailacController extends Controller
         // --- Format otomatis untuk no_ac ---
         $inputNoAc = trim($validatedData['no_ac']);
         $angka = preg_replace('/[^0-9]/', '', $inputNoAc); // hapus non-digit
-        $angka = str_pad($angka, 3, '0', STR_PAD_LEFT); // pastikan 3 digit
+        $angka = str_pad($angka, 4, '0', STR_PAD_LEFT); // pastikan 4 digit
         $validatedData['no_ac'] = 'I-' . $angka; // overwrite no_ac dengan format I-XXX
 
         // Perbarui data detail AC
