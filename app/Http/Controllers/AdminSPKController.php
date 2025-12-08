@@ -180,7 +180,7 @@ class AdminSPKController extends Controller
             'mengetahui'        => 'required|string|max:100',
             'hormat_kami'       => 'required|string|max:100',
             'pelaksana_ttd'     => 'required|exists:pengguna,id',
-            'file_spk'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'file_spk'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ], [
             'id_acdetail.required'      => 'Nomor AC wajib dipilih',
             'no_spk.required'           => 'Nomor SPK wajib diisi',
