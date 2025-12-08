@@ -311,7 +311,7 @@
                   <select name="hormat_kami" id="hormat_kami" class="form-select @error('hormat_kami') is-invalid @enderror" required>
                       <option value="">-- Pilih Admin --</option>
                       @foreach($admin as $user)
-                          <option value="{{ $user->id }}" {{ old('pelaksana_ttd') == $user->id ? 'selected' : '' }}>
+                          <option value="{{ $user->id }}" {{ old('hormat_kami') == $user->id ? 'selected' : '' }}>
                               {{ $user->nama }}
                           </option>
                       @endforeach

@@ -119,7 +119,7 @@
                                         $selectedTeknisi = old('teknisi', $spk->teknisi->pluck('id')->toArray());
                                     @endphp
 
-                                    @foreach ($pengguna as $user )
+                                    @foreach ($teknisi as $user )
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input teknisi-checkbox" name="teknisi[]" id="teknisi{{ $user->id }}" value="{{ $user->id }}" {{ in_array($user->id, $selectedTeknisi) ? 'checked' : ''}}>
                                             <label class="form-check-label" for="teknisi{{ $user->id }}">
@@ -191,14 +191,14 @@
                             
                             <div class="mb-3">
                                 <label for="hormat_kami" class="form-label">Hormat Kami</label>
-                                <input
-                                    type="text"
-                                    id="hormat_kami"
-                                    name="hormat_kami"
-                                    required
-                                    class="form-control form-control-md @error('hormat_kami') is-invalid @enderror"
-                                    placeholder="Hormat Kami"
-                                    value="{{ old('hormat_kami', $spk->hormat_kami) }}">
+                                <select name="hormat_kami" id="hormat_kami" class="form-select @error('hormat_kami') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Admin --</option>
+                                    @foreach ($admin as $user )
+                                        <option value="{{ $user->id }}" {{ old('hormat_kami', $spk->hormat_kami) == $user->id ? 'selected' : ''}}>
+                                            {{ $user->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('hormat_kami')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -260,4 +260,59 @@
 @endsection
 
 @push('script')
+<script>
+    const jumlahInput = document.getElementById('jumlah_orang');
+    const checkboxes = document.querySelectorAll('.teknisi-checkbox');
+    const pelaksanaSelect = document.getElementById('pelaksana_ttd');
+
+    function updateCheckboxLimit() {
+        const maxTeknisi = parseInt(jumlahInput.value) || 0;
+        const checkedCount = document.querySelectorAll('.teknisi-checkbox:checked').length;
+
+        checkboxes.forEach(cb => {
+            if (!cb.checked && checkedCount >= maxTeknisi) {
+                cb.disabled = true;
+            } else {
+                cb.disabled = false;
+            }
+        });
+
+        updatePelaksanaOptions();
+    }
+
+    function updatePelaksanaOptions() {
+        const selectedIds = Array.from(checkboxes)
+                                .filter(cb => cb.checked)
+                                .map(cb => cb.value);
+
+        Array.from(pelaksanaSelect.options).forEach(option => {
+            if(option.value === "") return; // placeholder
+            option.style.display = selectedIds.includes(option.value) ? 'block' : 'none';
+        });
+
+        // Reset value dropdown jika tidak ada lagi di list
+        if(!selectedIds.includes(pelaksanaSelect.value)) {
+            pelaksanaSelect.value = "";
+        }
+    }
+
+    // Event listeners
+    checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
+    jumlahInput.addEventListener('input', () => {
+        const maxTeknisi = parseInt(jumlahInput.value) || 0;
+        const checked = document.querySelectorAll('.teknisi-checkbox:checked');
+
+        // Jika checked lebih dari limit, hapus yang kelebihan
+        if (checked.length > maxTeknisi) {
+            checked.forEach((cb, index) => {
+                if (index >= maxTeknisi) cb.checked = false;
+            });
+        }
+
+        updateCheckboxLimit();
+    });
+
+    // Jalankan saat load untuk inisialisasi
+    updateCheckboxLimit();
+</script>
 @endpush

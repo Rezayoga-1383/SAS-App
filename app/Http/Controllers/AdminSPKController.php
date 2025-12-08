@@ -27,7 +27,9 @@ class AdminSPKController extends Controller
     {
         $acdetail = DetailAC::all();
         $pengguna = Pengguna::all();
-        return view('admin.formtambahspk', compact('acdetail','pengguna'));
+        $teknisi = Pengguna::where('role', 'Teknisi')->get();
+        $admin = Pengguna::where('role', 'Admin')->get();
+        return view('admin.formtambahspk', compact('acdetail','pengguna', 'teknisi', 'admin'));
     }
     public function getData()
     {
@@ -150,8 +152,10 @@ class AdminSPKController extends Controller
         $spk = LogService::with(['acdetail', 'teknisi'])->findOrFail($id);
         $acdetail = DetailAC::all();
         $pengguna = Pengguna::all();
+        $admin = Pengguna::where('role', 'Admin')->get();
+        $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
-        return view('admin.formeditspk', compact('spk', 'acdetail', 'pengguna'));
+        return view('admin.formeditspk', compact('spk', 'acdetail', 'pengguna', 'admin', 'teknisi'));
     }
 
     /**
