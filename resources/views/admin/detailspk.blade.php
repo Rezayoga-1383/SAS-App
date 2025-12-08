@@ -34,6 +34,7 @@
                 <tr><th style="width:30%;">No. SPK</th><td>: {{ $spk->no_spk }}</td></tr>
                 <tr><th>Tanggal</th><td>: {{ optional($spk->tanggal) ? \Carbon\Carbon::parse($spk->tanggal)->format('d M Y') : '-' }}</td></tr>
                 <tr><th>No AC</th><td>: {{ $spk->acdetail->no_ac ?? '-' }}</td></tr>
+                <tr><th>Departement (Ruangan)</th><td>: {{ ($spk->acdetail->ruangan->departement->nama_departement ?? '-') . ' (' . ($spk->acdetail->ruangan->nama_ruangan ?? '-') . ')' }}</td></tr>
                 <tr><th>Keluhan</th><td>: {{ $spk->keluhan }}</td></tr>
                 <tr><th>Jenis Pekerjaan</th><td>: {{ $spk->jenis_pekerjaan }}</td></tr>
                 <tr><th>Jumlah Teknisi</th><td>: {{ $spk->jumlah_orang }}</td></tr>
