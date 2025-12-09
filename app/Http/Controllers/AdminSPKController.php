@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailAC;
 use App\Models\Pengguna;
 use App\Models\LogService;
+use App\Models\Departement;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -26,10 +27,11 @@ class AdminSPKController extends Controller
     public function create()
     {
         $acdetail = DetailAC::all();
+        $departement = Departement::all();
         $pengguna = Pengguna::all();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
         $admin = Pengguna::where('role', 'Admin')->get();
-        return view('admin.formtambahspk', compact('acdetail','pengguna', 'teknisi', 'admin'));
+        return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin'));
     }
     public function getData()
     {
@@ -192,11 +194,12 @@ class AdminSPKController extends Controller
     {
         $spk = LogService::with(['acdetail', 'teknisi'])->findOrFail($id);
         $acdetail = DetailAC::all();
+        $departement = Departement::all();
         $pengguna = Pengguna::all();
         $admin = Pengguna::where('role', 'Admin')->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
-        return view('admin.formeditspk', compact('spk', 'acdetail', 'pengguna', 'admin', 'teknisi'));
+        return view('admin.formeditspk', compact('spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi'));
 
     }
 

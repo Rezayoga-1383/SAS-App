@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailAC;
 use App\Models\Pengguna;
 use App\Models\LogService;
+use App\Models\Departement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,9 +25,10 @@ class SPKController extends Controller
     public function create()
     {
         $acdetail   = DetailAC::All();
+        $departement= Departement::All();
         $teknisi    = Pengguna::where('role', 'Teknisi')->get();
         $admin      = Pengguna::where('role', 'Admin')->get();
-        return view ('user.FormInputSPK', compact('acdetail', 'teknisi', 'admin'));
+        return view ('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin'));
     }
 
     /**

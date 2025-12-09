@@ -133,14 +133,14 @@
 
                             <div class="mb-3">
                                 <label for="kepada" class="form-label">Kepada</label>
-                                <input
-                                    type="text"
-                                    id="kepada"
-                                    name="kepada"
-                                    required
-                                    class="form-control form-control-md @error('kepada') is-invalid @enderror"
-                                    placeholder="Kepada"
-                                    value="{{ old('kepada', $spk->kepada) }}">
+                                <select name="kepada" id="kepada" required class="form-select form-control-md @error('kepada') is-invalid @enderror">
+                                    <option value="">-- Pilih Kepada --</option>
+                                    @foreach ($departement as $dept)
+                                        <option value="{{ $dept->nama_departement }}" {{ old('kepada', $spk->kepada) == $dept->nama_departement ? 'selected' : '' }}>
+                                            {{ $dept->nama_departement }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('kepada')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
