@@ -13,16 +13,12 @@ return new class extends Migration
     {
         Schema::create('log_service', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_acdetail');
 
             $table->string('no_spk', 10);
             $table->date('tanggal');
             $table->time('waktu_mulai');
             $table->time('waktu_selesai');
             $table->integer('jumlah_orang');
-
-            $table->text('keluhan');
-            $table->text('jenis_pekerjaan');
 
             $table->string('kepada', 100);
             $table->string('mengetahui', 100);
@@ -34,7 +30,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('pelaksana_ttd')->references('id')->on('pengguna')->onDelete('set null');
-            $table->foreign('id_acdetail')->references('id')->on('acdetail')->onDelete('cascade');
         });
     }
 

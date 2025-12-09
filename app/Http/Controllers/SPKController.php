@@ -35,37 +35,72 @@ class SPKController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_acdetail'       => 'required|exists:acdetail,id',
-            'no_spk'            => 'required|string|max:10',
-            'tanggal'           => 'required|date',
-            'waktu_mulai'       => 'required',
-            'waktu_selesai'     => 'required|after:waktu_mulai',
-            'jumlah_orang'      => 'required|integer|min:1',
-            'teknisi'           => 'required|array|min:1',
-            'teknisi.*'         => 'exists:pengguna,id',
-            'keluhan'           => 'required|string',
-            'jenis_pekerjaan'   => 'required|string', 
-            'kepada'            => 'required|string|max:100',
-            'mengetahui'        => 'required|string|max:100',
-            'hormat_kami'       => 'required|exists:pengguna,id',
-            'pelaksana_ttd'     => 'required|exists:pengguna,id',
-            'file_spk'          => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'acdetail_ids'       => 'required|array|min:1',
+            'acdetail_ids.*'     => 'required|exists:acdetail,id',
+
+            'no_spk'             => 'required|string|max:10|digits:5',
+            'tanggal'            => 'required|date',
+            'waktu_mulai'        => 'required|date_format:H:i',
+            'waktu_selesai'      => 'required|after:waktu_mulai|date_format:H:i',
+
+            'jumlah_orang'       => 'required|integer|min:1',
+
+            'teknisi'            => 'required|array|min:1',
+            'teknisi.*'          => 'required|exists:pengguna,id',
+
+            'keluhan'            => 'required|array|min:1',
+            'keluhan.*'          => 'required|string',
+
+            'jenis_pekerjaan'    => 'required|array|min:1',
+            'jenis_pekerjaan.*'  => 'required|string',
+
+            'kepada'             => 'required|string|max:100',
+            'mengetahui'         => 'required|string|max:100',
+            'hormat_kami'        => 'required|exists:pengguna,id',
+            'pelaksana_ttd'      => 'required|exists:pengguna,id',
+
+            'file_spk'           => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ], [
-            'id_acdetail.required'      => 'Nomor AC wajib dipilih',
-            'no_spk.required'           => 'Nomor SPK wajib diisi',
-            'tanggal.required'          => 'Tanggal SPK wajib diisi',
-            'waktu_mulai.required'      => 'Waktu mulai wajib diisi',
-            'waktu_selesai.required'    => 'Waktu selesai wajib diisi',
-            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai',
-            'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi',
-            'teknisi.required'          => 'Teknisi wajib dipilih',
-            'keluhan.required'          => 'Keluhan wajib diisi',
-            'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi',
-            'kepada.required'           => 'Kepada wajib diisi',
-            'mengetahui.required'       => 'Mengetahui wajib diisi',
-            'hormat_kami.required'      => 'Hormat kami wajib dipilih',
-            'pelaksana_ttd.required'    => 'Pelaksana SPK wajib dipilih',
-            'file_spk.required'         => 'File SPK wajib diunggah',
+
+            // ===== AC =====
+            'acdetail_ids.required'     => 'Jumlah AC wajib diisi.',
+            'acdetail_ids.*.required'   => 'Nomor AC wajib dipilih.',
+            'acdetail_ids.*.exists'     => 'Nomor AC tidak valid.',
+
+            // ===== NOMOR SPK =====
+            'no_spk.required'           => 'Nomor SPK wajib diisi.',
+            'no_spk.digits'             => 'Nomor SPK harus terdiri dari 5 digit angka.',
+
+            // ===== TANGGAL & WAKTU =====
+            'tanggal.required'          => 'Tanggal SPK wajib diisi.',
+            'waktu_mulai.required'      => 'Waktu mulai wajib diisi.',
+            'waktu_selesai.required'    => 'Waktu selesai wajib diisi.',
+            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai.',
+
+            // ===== TEKNISI =====
+            'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi.',
+            'teknisi.required'          => 'Teknisi wajib dipilih.',
+            'teknisi.*.required'        => 'Teknisi wajib dipilih.',
+            'teknisi.*.exists'          => 'Teknisi tidak valid.',
+
+            // ===== KELUHAN =====
+            'keluhan.required'          => 'Keluhan wajib diisi.',
+            'keluhan.*.required'        => 'Keluhan wajib diisi.',
+
+            // ===== JENIS PEKERJAAN =====
+            'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi.',
+            'jenis_pekerjaan.*.required'=> 'Jenis pekerjaan wajib diisi.',
+
+            // ===== BAGIAN ADMIN =====
+            'kepada.required'           => 'Bagian “Kepada” wajib diisi.',
+            'mengetahui.required'       => 'Bagian “Mengetahui” wajib diisi.',
+            'hormat_kami.required'      => 'Hormat Kami wajib dipilih.',
+            'pelaksana_ttd.required'    => 'Pelaksana SPK wajib dipilih.',
+
+            // ===== FILE SPK =====
+            'file_spk.required'         => 'File SPK wajib diunggah.',
+            'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG, atau PNG.',
+            'file_spk.max'              => 'Ukuran file SPK maksimal adalah 20MB.',
         ]);
 
         DB::beginTransaction();
@@ -78,14 +113,11 @@ class SPKController extends Controller
             }
 
             $spk = LogService::create([
-                'id_acdetail'       => $validated['id_acdetail'],
                 'no_spk'            => $validated['no_spk'],
                 'tanggal'           => $validated['tanggal'],
                 'waktu_mulai'       => $validated['waktu_mulai'],
                 'waktu_selesai'     => $validated['waktu_selesai'],
                 'jumlah_orang'      => $validated['jumlah_orang'],
-                'keluhan'           => $validated['keluhan'],
-                'jenis_pekerjaan'   => $validated['jenis_pekerjaan'],
                 'kepada'            => $validated['kepada'],
                 'mengetahui'        => $validated['mengetahui'],
                 'hormat_kami'       => $validated['hormat_kami'],
@@ -93,6 +125,15 @@ class SPKController extends Controller
                 'file_spk'          => $filePath,
             ]);
 
+            // Menyimpan detail AC beserta keluhan dan jenis pekerjaan
+            $acData = [];
+            foreach ($validated['acdetail_ids'] as $index => $acdetailId) {
+                $acData[$acdetailId] = [
+                    'keluhan' => $validated['keluhan'][$index],
+                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
+                ];
+            }
+            $spk->acdetail()->sync($acData);
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();

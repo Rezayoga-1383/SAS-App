@@ -61,45 +61,18 @@
 
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
-            {{-- <li>
-              <a href="/">Beranda</a>
-            </li> --}}
-            <!-- <li><a href="#about">About</a></li> -->
-            <!-- <li><a href="#services">Services</a></li> -->
-            <!-- <li><a href="#departments">Departments</a></li> -->
             <li><a href="/input-data-ac">Form Input Data</a></li>
             <li><a href="/input-data-spk" class="active">Form Input SPK</a></li>
             <li></li>
-            <!-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-              <ul>
-                <li><a href="#">Dropdown 1</a></li>
-                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Dropdown 1</a></li>
-                    <li><a href="#">Deep Dropdown 2</a></li>
-                    <li><a href="#">Deep Dropdown 3</a></li>
-                    <li><a href="#">Deep Dropdown 4</a></li>
-                    <li><a href="#">Deep Dropdown 5</a></li>
-                  </ul>
-                </li>
-                <li><a href="#">Dropdown 2</a></li>
-                <li><a href="#">Dropdown 3</a></li>
-                <li><a href="#">Dropdown 4</a></li>
-              </ul>
-            </li> -->
-            <!-- <li><a href="#contact">Contact</a></li> -->
           </ul>
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf
             <button type="submit" class="btn btn-outline-primary btn-sm">Keluar</button>
           </form>
-
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
       </div>
-
     </div>
-
   </header>
 
   <main class="main">
@@ -140,20 +113,7 @@
             @csrf
             <div class="row gy-4">
               <div class="col-sm-6">
-                <label for="id_acdetail" class="form-label">Nomor AC</label>
-                <select name="id_acdetail" id="id_acdetail" class="form-select form-select-md @error('id_acdetail') is-invalid @enderror" required>
-                  <option value="">-- Pilih No AC --</option>
-                  @foreach ($acdetail as $item)
-                    <option value="{{ $item->id }}" {{ old('id_acdetail') == $item->id ? 'selected' : '' }}> {{ $item->no_ac }}</option>
-                  @endforeach 
-                </select>
-                @error('id_acdetail')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-
-              <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Nomor SPK</label>
+                <label for="no_spk" class="form-label">Nomor SPK</label>
                 <input
                     type="text"
                     id="no_spk"
@@ -168,7 +128,7 @@
               </div>
 
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Tanggal</label>
+                <label for="tanggal" class="form-label">Tanggal</label>
                 <input
                     type="date"
                     id="tanggal"
@@ -183,7 +143,7 @@
               </div>
 
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Waktu Mulai Pengerjaan</label>
+                <label for="waktu_mulai" class="form-label">Waktu Mulai Pengerjaan</label>
                 <input
                     type="time"
                     id="waktu_mulai"
@@ -198,7 +158,7 @@
               </div>
 
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Waktu Selesai Pengerjaan</label>
+                <label for="waktu_selesai" class="form-label">Waktu Selesai Pengerjaan</label>
                 <input
                     type="time"
                     id="waktu_selesai"
@@ -251,33 +211,33 @@
               </div>
               
               <div class="col-sm-6">
-                <label for="keluhan" class="form-label">Keluhan</label>
-                <textarea
-                    id="keluhan"
-                    name="keluhan"
+                <label for="jumlah_ac_input" class="form-label">Jumlah AC yang ingin diperbaiki</label>
+                <input
+                    type="number"
+                    id="jumlah_ac_input"
+                    name="jumlah_ac_input"
                     required
-                    class="form-control form-control-md @error('keluhan') is-invalid @enderror"
-                    placeholder="Masukkan keluhan">{{ old('keluhan') }}</textarea>
-                @error('keluhan')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    class="form-control form-control-md @error('jumlah_ac_input') is-invalid @enderror"
+                    placeholder="Masukkan jumlah AC yang ingin diperbaiki"
+                    value="{{ old('jumlah_ac_input') }}">
+                @error('jumlah_ac_input')
+                  <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
-              
-              <div class="col-sm-6">
-                <label for="keluhan" class="form-label">Jenis Pekerjaan</label>
-                <textarea
-                    id="jenis_pekerjaan"
-                    name="jenis_pekerjaan"
-                    required
-                    class="form-control form-control-md @error('jenis_pekerjaan') is-invalid @enderror"
-                    placeholder="Masukkan jenis pekerjaan">{{ old('jenis_pekerjaan') }}</textarea>
-                @error('jenis_pekerjaan')
-                    <div class="invalid-feedback">{{ $message }}</div>
+
+              <div class="col-12">
+                <hr>
+                <h5 class="mb-3">Detail AC yang Diperbaiki</h5>
+                <div id="ac_container">
+                  
+                </div>
+                @error('acdetail_ids')
+                  <div class="alert alert-danger mt-2">{{ $message }}</div>
                 @enderror
               </div>
 
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Kepada</label>
+                <label for="kepada" class="form-label">Kepada</label>
                 <input
                     type="text"
                     id="kepada"
@@ -292,7 +252,7 @@
               </div>
               
               <div class="col-sm-6">
-                <label for="no_seri_indoor" class="form-label">Mengetahui</label>
+                <label for="mengetahui" class="form-label">Mengetahui</label>
                 <input
                     type="text"
                     id="mengetahui"
@@ -452,62 +412,128 @@
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
 <script>
-  const jumlahInput = document.getElementById('jumlah_orang');
+  const jumlahAcInput = document.getElementById('jumlah_ac_input');
+  const acContainer = document.getElementById('ac_container');
+  const jumlahOrangInput = document.getElementById('jumlah_orang');
   const checkboxes = document.querySelectorAll('.teknisi-checkbox');
   const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 
-  function updateCheckboxLimit() {
-      const maxTeknisi = parseInt(jumlahInput.value) || 0;
-      const checkedCount = document.querySelectorAll('.teknisi-checkbox:checked').length;
+  // Ambil data dari server (Blade)
+  const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
+  const oldKeluhanData = @json(old('keluhan', []));
+  const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
+  const oldAcdetailIds = @json(old('acdetail_ids', []));
 
-      checkboxes.forEach(cb => {
-          if (!cb.checked && checkedCount >= maxTeknisi) {
-              cb.disabled = true;
-          } else {
-              cb.disabled = false;
-          }
-      });
+  // Error messages
+  const errorAcdetail = @json($errors->get('acdetail_ids.*'));
+  const errorKeluhan = @json($errors->get('keluhan.*'));
+  const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
 
-      updatePelaksanaOptions();
+  function generateAcForms() {
+    const jumlah = parseInt(jumlahAcInput.value) || 0;
+    acContainer.innerHTML = '';
+
+    for (let i = 0; i < jumlah; i++) {
+
+      const acCard = document.createElement('div');
+      acCard.className = 'card mb-3 border';
+
+      const oldAcId = oldAcdetailIds[i] || '';
+      const oldKeluhan = oldKeluhanData[i] || '';
+      const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
+
+      // ambil error dengan key yang benar (Laravel format)
+      const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
+          ? errorAcdetail[`acdetail_ids.${i}`][0]
+          : '';
+
+      const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
+          ? errorKeluhan[`keluhan.${i}`][0]
+          : '';
+
+      const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
+          ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
+          : '';
+
+
+      acCard.innerHTML = `
+        <div class="card-body">
+          <h6 class="card-title mb-3">AC #${i + 1}</h6>
+
+          <!-- Nomor AC -->
+          <div class="mb-3">
+            <label class="form-label">Nomor AC <span class="text-danger">*</span></label>
+            <select name="acdetail_ids[]" class="form-select ${errAc ? 'is-invalid' : ''}">
+              <option value="">-- Pilih No AC --</option>
+              ${Object.entries(acdetailData)
+                .map(([id, noAc]) => `<option value="${id}" ${oldAcId == id ? 'selected' : ''}>${noAc}</option>`)
+                .join('')}
+            </select>
+            ${errAc ? `<div class="invalid-feedback d-block">${errAc}</div>` : ''}
+          </div>
+
+          <!-- Keluhan -->
+          <div class="mb-3">
+            <label class="form-label">Keluhan <span class="text-danger">*</span></label>
+            <textarea name="keluhan[]" class="form-control ${errKeluhan ? 'is-invalid' : ''}"
+              rows="3" placeholder="Masukkan keluhan">${oldKeluhan}</textarea>
+            ${errKeluhan ? `<div class="invalid-feedback d-block">${errKeluhan}</div>` : ''}
+          </div>
+
+          <!-- Jenis Pekerjaan -->
+          <div class="mb-3">
+            <label class="form-label">Jenis Pekerjaan <span class="text-danger">*</span></label>
+            <textarea name="jenis_pekerjaan[]" class="form-control ${errJenis ? 'is-invalid' : ''}"
+              rows="3" placeholder="Masukkan jenis pekerjaan">${oldJenisPekerjaan}</textarea>
+            ${errJenis ? `<div class="invalid-feedback d-block">${errJenis}</div>` : ''}
+          </div>
+        </div>
+      `;
+
+      acContainer.appendChild(acCard);
+    }
   }
 
+  // Limit teknisi sesuai "jumlah orang"
+  function updateCheckboxLimit() {
+    const maxTeknisi = parseInt(jumlahOrangInput.value) || 0;
+    const checkedCount = document.querySelectorAll('.teknisi-checkbox:checked').length;
+
+    checkboxes.forEach(cb => {
+      cb.disabled = !cb.checked && checkedCount >= maxTeknisi;
+    });
+
+    updatePelaksanaOptions();
+  }
+
+  // Pelaksana hanya dari teknisi yang dipilih
   function updatePelaksanaOptions() {
-      const selectedIds = Array.from(checkboxes)
-                              .filter(cb => cb.checked)
-                              .map(cb => cb.value);
+    const selectedIds = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
 
-      Array.from(pelaksanaSelect.options).forEach(option => {
-          if(option.value === "") return; // placeholder
-          option.style.display = selectedIds.includes(option.value) ? 'block' : 'none';
-      });
+    Array.from(pelaksanaSelect.options).forEach(option => {
+      if (option.value === "") return;
+      option.style.display = selectedIds.includes(option.value) ? 'block' : 'none';
+    });
 
-      // Reset value dropdown jika tidak ada lagi di list
-      if(!selectedIds.includes(pelaksanaSelect.value)) {
-          pelaksanaSelect.value = "";
-      }
+    if (!selectedIds.includes(pelaksanaSelect.value)) {
+      pelaksanaSelect.value = "";
+    }
   }
 
   // Event listeners
+  jumlahAcInput.addEventListener('input', generateAcForms);
   checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
-  jumlahInput.addEventListener('input', () => {
-      const maxTeknisi = parseInt(jumlahInput.value) || 0;
-      const checked = document.querySelectorAll('.teknisi-checkbox:checked');
+  jumlahOrangInput.addEventListener('input', updateCheckboxLimit);
 
-      // Jika checked lebih dari limit, hapus yang kelebihan
-      if (checked.length > maxTeknisi) {
-          checked.forEach((cb, index) => {
-              if (index >= maxTeknisi) cb.checked = false;
-          });
-      }
-
-      updateCheckboxLimit();
+  // Initialize saat halaman pertama kali dibuka
+  document.addEventListener('DOMContentLoaded', () => {
+    generateAcForms();
+    updateCheckboxLimit();
   });
-
-  // Jalankan saat load untuk inisialisasi
-  updateCheckboxLimit();
 </script>
 
 </body>
-
 </html>
 

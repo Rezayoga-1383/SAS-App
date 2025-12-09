@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\DetailAC;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -11,14 +12,11 @@ class LogService extends Model
 
     protected $table = 'log_service';
     protected $fillable = [
-        'id_acdetail',
         'no_spk',
         'tanggal',
         'waktu_mulai',
         'waktu_selesai',
         'jumlah_orang',
-        'keluhan',
-        'jenis_pekerjaan',
         'kepada',
         'mengetahui',
         'hormat_kami',
@@ -30,9 +28,11 @@ class LogService extends Model
 
     public function acdetail()
     {
-        return $this->belongsTo(DetailAC::class, 'id_acdetail', 'id');
+        return $this->belongsToMany(
+            DetailAC::class, 'log_service_detail', 'log_service_id', 'acdetail_id'
+        )->withPivot('keluhan', 'jenis_pekerjaan')->withTimestamps();
     }
-    public function pengguna()
+    public function pelaksana()
     {
         return $this->belongsTo(Pengguna::class, 'pelaksana_ttd', 'id');
     }

@@ -11,17 +11,6 @@
           <h4 class="card-title">Detail SPK - {{ $spk->no_spk ?? '-' }}</h4>
           <div>
             <a href="{{ route('admin.spk') }}" class="btn btn-outline-secondary">Kembali</a>
-           {{-- @php
-              // gunakan field spk bukan file_spk
-              $file = $spk->spk ?? $spk->file_spk ?? $spk->file ?? null;
-              $fileUrl = $file ? asset('storage/' . ltrim($file, '/')) : null;
-              $ext = $file ? strtolower(pathinfo($file, PATHINFO_EXTENSION)) : null;
-            @endphp
-
-            @if($file)
-              <a href="{{ $fileUrl }}" target="_blank" class="btn btn-primary">Buka File</a>
-              <a href="{{ $fileUrl }}" download class="btn btn-outline-primary">Unduh</a>
-            @endif --}}
             <a href="{{ route('spk.generatePdf', $spk->id) }}" target="_blank" class="btn btn-primary">Buka SPK</a>
             <a href="{{ route('spk.generatePdf', $spk->id) }}?download=1" class="btn btn-outline-primary">Unduh SPK</a>
           </div>
@@ -33,14 +22,33 @@
               <tbody>
                 <tr><th style="width:30%;">No. SPK</th><td>: {{ $spk->no_spk }}</td></tr>
                 <tr><th>Tanggal</th><td>: {{ optional($spk->tanggal) ? \Carbon\Carbon::parse($spk->tanggal)->format('d M Y') : '-' }}</td></tr>
-                <tr><th>No AC</th><td>: {{ $spk->acdetail->no_ac ?? '-' }}</td></tr>
-                <tr><th>Departement (Ruangan)</th><td>: {{ ($spk->acdetail->ruangan->departement->nama_departement ?? '-') . ' (' . ($spk->acdetail->ruangan->nama_ruangan ?? '-') . ')' }}</td></tr>
-                <tr><th>Keluhan</th><td>: {{ $spk->keluhan }}</td></tr>
-                <tr><th>Jenis Pekerjaan</th><td>: {{ $spk->jenis_pekerjaan }}</td></tr>
+                <tr>
+                  <th>No AC</th>
+                  <td>: 
+                    @if($spk->acdetail && $spk->acdetail->count() > 0)
+                      {{ $spk->acdetail->pluck('no_ac')->join(', ') }}
+                    @else
+                      -
+                    @endif
+                  </td>
+                </tr>
+                <tr>
+                  <th>Departement (Ruangan)</th>
+                  <td>: 
+                    @if($spk->acdetail && $spk->acdetail->count() > 0)
+                      @php
+                        $firstAc = $spk->acdetail->first();
+                      @endphp
+                      {{ ($firstAc->ruangan->departement->nama_departement ?? '-') . ' (' . ($firstAc->ruangan->nama_ruangan ?? '-') . ')' }}
+                    @else
+                      -
+                    @endif
+                  </td>
+                </tr>
                 <tr><th>Jumlah Teknisi</th><td>: {{ $spk->jumlah_orang }}</td></tr>
-                <tr><th>Nama Teknisi</th><td>: {{ $spk->teknisi->pluck('nama')->join(', ') ?? '-' }}</td></tr>
-                <tr><th>Waktu Mulai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i')  }}</td></tr>
-                <tr><th>Waktu Selesai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i')  }}</td></tr>
+                <tr><th>Nama Teknisi</th><td>: {{ $spk->teknisi && $spk->teknisi->count() > 0 ? $spk->teknisi->pluck('nama')->join(', ') : '-' }}</td></tr>
+                <tr><th>Waktu Mulai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i') }}</td></tr>
+                <tr><th>Waktu Selesai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i') }}</td></tr>
               </tbody>
             </table>
 
@@ -49,7 +57,6 @@
                 <header class="hdr">
                 <div class="logo">
                     <img src="{{ asset('assets/image/logo_sas_ori.png') }}" alt="SAS logo" class="logo-img">
-                    <!-- <div class="logo-box">SAS</div> -->
                     <div class="company">
                     <strong>PT. SARANA AGUNG SEJAHTERA</strong><br>
                     General Contractor, Technical, Mechanical, Electrical, Computer & Stationery<br>
@@ -67,8 +74,8 @@
                 <h1 class="title">SURAT PERINTAH KERJA</h1>
 
                 <div class="meta">
-                <div>Datang jam: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i')  }} s/d jam {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i')  }}</div>
-                <div class="right">No: <span class="uline short">{{ $spk->no_spk}}</span></div>
+                <div>Datang jam: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i') }} s/d jam {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i') }}</div>
+                <div class="right">No: <span class="uline short">{{ $spk->no_spk }}</span></div>
                 </div>
 
                 <p class="intro">Dengan hormat, bersama ini kami kirimkan satu team kerja berjumlah {{ $spk->jumlah_orang }} orang untuk melakukan pekerjaan sesuai permintaan dari:</p>
@@ -77,16 +84,26 @@
                 <thead>
                     <tr>
                     <th style="width:6%;">No.</th>
+                    <th>No AC</th>
                     <th>Keluhan</th>
                     <th style="width:40%;">Jenis Pekerjaan</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @if($spk->acdetail && $spk->acdetail->count() > 0)
+                      @foreach($spk->acdetail as $index => $ac)
+                      <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $ac->no_ac }}</td>
+                        <td>{{ $ac->pivot->keluhan ?? '-' }}</td>
+                        <td>{{ $ac->pivot->jenis_pekerjaan ?? '-' }}</td>
+                      </tr>
+                      @endforeach
+                    @else
                     <tr>
-                        <td>1</td>
-                        <td>{{ $spk->keluhan }}</td>
-                        <td>{{ $spk->jenis_pekerjaan }}</td>
+                      <td colspan="3" class="text-center text-muted">Tidak ada data AC</td>
                     </tr>
+                    @endif
                 </tbody>
                 </table>
 
@@ -96,7 +113,7 @@
                 <div class="sig-block">
                     <div class="sig-title">Pelaksana,</div>
                     <br>
-                    <div class="sig-line">( {{ $spk->pengguna->nama ?? '-' }} )</div>
+                    <div class="sig-line">( {{ $spk->pelaksana->nama ?? '-' }} )</div>
                 </div>
                 <div class="sig-block">
                     <div class="sig-title">Mengetahui pemilik AC,</div>
@@ -106,7 +123,7 @@
                 <div class="sig-block">
                     <div class="sig-title">Hormat kami,</div>
                     <br>
-                    <div class="sig-line">( {{ $spk->hormatKamiUser->nama }} )</div>
+                    <div class="sig-line">( {{ $spk->hormatKamiUser->nama ?? '-' }} )</div>
                 </div>
                 </footer>
                 <div class="stamp">SPK ini sah jika ada stempel perusahaan</div>
@@ -153,8 +170,8 @@
    SPK Preview Styling
    ======================== */
 .spk-preview {
-    width: 100%;           /* 100% dari container, termasuk saat sidebar collapse */
-    max-width: 100%;       /* jangan dibatasi 800px */
+    width: 100%;
+    max-width: 100%;
     margin: 20px auto 0;
     padding: 0;
     background-color: #f8f9fa;
@@ -166,7 +183,7 @@
 /* Gambar SPK */
 .spk-preview img {
     display: block;
-    width: 100%;           /* otomatis menyesuaikan container */
+    width: 100%;
     height: auto;
     object-fit: contain;
     border-radius: 0;
@@ -175,7 +192,7 @@
 /* PDF iframe dengan aspect-ratio A4 */
 .spk-preview .ratio {
     width: 100%;
-    aspect-ratio: 210 / 297;   /* Rasio A4 */
+    aspect-ratio: 210 / 297;
     position: relative;
 }
 

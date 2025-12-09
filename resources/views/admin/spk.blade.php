@@ -40,9 +40,9 @@
 								<thead>
 									<tr>
 										<th>No</th>
+										<th>No SPK</th>
 										<th>No AC</th>
 										<th>Tanggal</th>
-										<th>Keluhan</th>
 										<th>Aksi</th>
 									</tr>
 								</thead>
@@ -65,9 +65,9 @@ $(document).ready(function() {
         ajax: "{{ route('spk.data') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'no_spk', name: 'no_spk' },
             { data: 'no_ac', name: 'acdetail.no_ac' },
             { data: 'tanggal', name: 'tanggal' },
-            { data: 'keluhan', name: 'keluhan' },
             { data: 'aksi', name: 'aksi', orderable: false, searchable: false }
         ],
         drawCallback: function() {

@@ -26,6 +26,13 @@ class DetailAC extends Model
 
     public $timestamps = false;
 
+    public function logServices()
+    {
+        return $this->belongsToMany(LogService::class, 'log_service_acdetail', 'acdetail_id', 'log_service_id')
+                    ->withPivot('keluhan', 'jenis_pekerjaan')
+                    ->withTimestamps();
+    }
+
     public function merkac()
     {
         return $this->belongsTo(MerkAC::class, 'id_merkac', 'id');
