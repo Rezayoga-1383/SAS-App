@@ -39,14 +39,14 @@
 								<thead>
 									<tr>
 										<th>No</th>
+										<th>No AC</th>
 										<th>Merk</th>
 										<th>Jenis</th>
 										<th>Ruangan</th>
-										<th>No</th>
 										<!-- <th>No Seri In</th> -->
 										<!-- <th>No Seri Out</th> -->
 										<!-- <th>PK</th> -->
-										<th>Jumlah</th>
+										{{-- <th>Jumlah</th> --}}
 										<!-- <th>Tahun</th> -->
 										<!-- <th>Tgl Pemasangan</th> -->
 										<!-- <th>Tgl Habis Garansi</th> -->
@@ -72,12 +72,12 @@ $(document).ready(function() {
 		ajax: "{{ route('detail-ac.data') }}",
 		columns: [
 			{ data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+			{ data: 'no_ac', name: 'no_ac' },
 			{ data: 'nama_merkac', name: 'merkac.nama_merk' },
 			{ data: 'nama_jenisac', name: 'jenisac.nama_jenis' },
 			{ data: 'nama_ruangan', name: 'ruangan.nama_ruangan' },
 			// { data: 'nama_departement', name: 'ruangan.nama_departement' },
-			{ data: 'no_ac', name: 'no_ac' },
-			{ data: 'jumlah_ac', name: 'jumlah_ac' },
+			// { data: 'jumlah_ac', name: 'jumlah_ac' },
 			{ data: 'aksi', name: 'aksi', orderable: false, searchable: false }
 		],
 		drawCallback: function() {

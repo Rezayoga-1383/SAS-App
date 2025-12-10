@@ -182,32 +182,81 @@ class DetailacController extends Controller
     
     public function update(Request $request, $id)
     {
-        // Validasi input
         $validatedData = $request->validate([
             'id_merkac' => 'required|exists:merkac,id',
             'id_jenisac' => 'required|exists:jenisac,id',
             'id_ruangan' => 'required|exists:ruangan,id',
-            'no_ac' => 'required|string|max:100|unique:acdetail,no_ac,digits:4,' . $id,
-            'no_seri_indoor' => 'required|string|max:100|unique:acdetail,no_seri_indoor,' . $id,
-            'no_seri_outdoor' => 'required|string|max:100|unique:acdetail,no_seri_outdoor,' . $id,
+
+            // validasi awal input user
+            'no_ac' => [
+                'required',
+                'digits:4',
+                Rule::unique('acdetail', 'no_ac')->ignore($id),
+            ],
+
+            'no_seri_indoor' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('acdetail', 'no_seri_indoor')->ignore($id),
+            ],
+
+            'no_seri_outdoor' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('acdetail', 'no_seri_outdoor')->ignore($id),
+            ],
+
             'pk_ac' => 'required|numeric',
             'jumlah_ac' => 'required|integer|min:1',
             'tahun_ac' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
             'tanggal_pemasangan' => 'required|date',
             'tanggal_habis_garansi' => 'required|date|after_or_equal:tanggal_pemasangan',
+        ], [
+            'id_merkac.required' => 'Merk AC wajib dipilih.',
+            'id_merkac.exists' => 'Merk AC tidak valid.',
+            'id_jenisac.required' => 'Jenis AC wajib dipilih.',
+            'id_jenisac.exists' => 'Jenis AC tidak valid.',
+            'id_ruangan.required' => 'Ruangan wajib dipilih.',
+            'id_ruangan.exists' => 'Ruangan tidak valid.',
+            'no_ac.required' => 'Nomor AC wajib diisi.',
+            'no_ac.digits' => 'Nomor AC harus terdiri dari 4 digit.',
+            'no_ac.unique' => 'Nomor AC sudah ada di database.',
+            'no_seri_indoor.required' => 'Nomor Seri Indoor wajib diisi.',
+            'no_seri_indoor.string' => 'Nomor Seri Indoor harus berupa string.',
+            'no_seri_indoor.max' => 'Nomor Seri Indoor maksimal 100 karakter.',
+            'no_seri_indoor.unique' => 'Nomor Seri Indoor sudah ada di database.',
+            'no_seri_outdoor.required' => 'Nomor Seri Outdoor wajib diisi.',
+            'no_seri_outdoor.string' => 'Nomor Seri Outdoor harus berupa string.',
+            'no_seri_outdoor.max' => 'Nomor Seri Outdoor maksimal 100 karakter.',
+            'no_seri_outdoor.unique' => 'Nomor Seri Outdoor sudah ada di database.',
+            'pk_ac.required' => 'PK AC wajib diisi.',
+            'pk_ac.numeric' => 'PK AC harus berupa angka.',
+            'jumlah_ac.required' => 'Jumlah AC wajib diisi.',
+            'jumlah_ac.integer' => 'Jumlah AC harus berupa bilangan bulat.',
+            'jumlah_ac.min' => 'Jumlah AC minimal 1.',
+            'tahun_ac.required' => 'Tahun AC wajib diisi.',
+            'tahun_ac.digits' => 'Tahun AC harus terdiri dari 4 digit.',
+            'tahun_ac.integer' => 'Tahun AC harus berupa bilangan bulat.',
+            'tahun_ac.min' => 'Tahun AC minimal tahun 1900.',
+            'tahun_ac.max' => 'Tahun AC tidak boleh lebih dari tahun saat ini.',
+            'tanggal_pemasangan.required' => 'Tanggal Pemasangan wajib diisi.',
+            'tanggal_pemasangan.date' => 'Tanggal Pemasangan tidak valid.',
+            'tanggal_habis_garansi.required' => 'Tanggal Habis Garansi wajib diisi.',
+            'tanggal_habis_garansi.date' => 'Tanggal Habis Garansi tidak valid.',
+            'tanggal_habis_garansi.after_or_equal' => 'Tanggal Habis Garansi harus sama atau setelah Tanggal Pemasangan.',
         ]);
 
-        // --- Format otomatis untuk no_ac ---
-        $inputNoAc = trim($validatedData['no_ac']);
-        $angka = preg_replace('/[^0-9]/', '', $inputNoAc); // hapus non-digit
-        $angka = str_pad($angka, 4, '0', STR_PAD_LEFT); // pastikan 4 digit
-        $validatedData['no_ac'] = 'I-' . $angka; // overwrite no_ac dengan format I-XXX
+        // Format ulang no_ac menjadi I-XXXX
+        $angka = preg_replace('/[^0-9]/', '', $validatedData['no_ac']);
+        $angka = str_pad($angka, 4, '0', STR_PAD_LEFT);
+        $validatedData['no_ac'] = 'I-' . $angka;
 
-        // Perbarui data detail AC
+        // Simpan update
         $acdetail = DetailAC::findOrFail($id);
         $acdetail->update($validatedData);
 
-        // Redirect ke halaman detail AC dengan pesan sukses
         return redirect()->route('detail-ac')->with('success', 'Detail AC berhasil diperbarui.');
     }
 

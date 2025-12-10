@@ -59,6 +59,11 @@ class RuanganController extends Controller
                 'required',
                 'exists:departement,id',
             ],
+        ], [
+            'nama_ruangan.required' => 'Nama Ruangan wajib diisi.',
+            'nama_ruangan.unique' => 'Nama Ruangan sudah ada di Departemen yang sama.',
+            'id_departement.required' => 'Departemen wajib dipilih.',
+            'id_departement.exists' => 'Departemen tidak valid.',
         ]);
     
         Ruangan::create([
@@ -92,6 +97,11 @@ class RuanganController extends Controller
                 'required',
                 'exists:departement,id',
             ],
+        ], [
+            'nama_ruangan.required' => 'Nama Ruangan wajib diisi.',
+            'nama_ruangan.unique' => 'Nama Ruangan sudah ada di Departemen yang sama.',
+            'id_departement.required' => 'Departemen wajib dipilih.',
+            'id_departement.exists' => 'Departemen tidak valid.',
         ]);
     
         $ruangan = Ruangan::findOrFail($id);

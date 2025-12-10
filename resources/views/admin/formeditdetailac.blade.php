@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Hapus semua karakter selain angka
             val = val.replace(/\D/g, '');
             // Ambil maksimal 3 digit & tambahkan leading zero
-            val = val.substring(0, 3).padStart(3, '0');
+            val = val.substring(0, 4).padStart(4, '0');
             // Tambahkan prefix I-
             noAcInput.value = "I-" + val;
         }
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Format no_ac saat user mengetik
     noAcInput.addEventListener("input", function() {
         let val = this.value.replace(/\D/g, '');
-        val = val.substring(0, 3); // maksimal 3 digit
+        val = val.substring(0, 4); // maksimal 3 digit
         this.value = val;
     });
 
