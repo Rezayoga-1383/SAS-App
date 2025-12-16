@@ -35,11 +35,13 @@
                 <tr>
                   <th>Departement (Ruangan)</th>
                   <td>: 
-                    @if($spk->acdetail && $spk->acdetail->count() > 0)
-                      @php
-                        $firstAc = $spk->acdetail->first();
-                      @endphp
-                      {{ ($firstAc->ruangan->departement->nama_departement ?? '-') . ' (' . ($firstAc->ruangan->nama_ruangan ?? '-') . ')' }}
+                     @if($spk->acdetail && $spk->acdetail->count() > 0)
+                      @foreach($spk->acdetail as $ac)
+                        <span class="dept-item">
+                          <strong>{{ $ac->no_ac }}</strong> — {{ optional($ac->ruangan->departement)->nama_departement ?? '-' }}
+                          <small class="text-muted">({{ optional($ac->ruangan)->nama_ruangan ?? '-' }})</small>
+                        </span>@if(!$loop->last)<span class="dept-sep">, </span>@endif
+                      @endforeach
                     @else
                       -
                     @endif
@@ -224,6 +226,17 @@
     margin-bottom: 30px;
 }
 
+/* inline department items, separated by comma and wrap nicely */
+.dept-item {
+    display: inline-block;
+    margin-right: 6px;
+    line-height: 1.3;
+}
+.dept-sep {
+    margin-right: 6px;
+    color: #6c757d;
+}
+
 /* Header & Logo */
 .hdr { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
 .logo { display: flex; gap: 12px; align-items: flex-start; }
@@ -250,6 +263,11 @@
 .sig-block .sig-title { font-size: 13px; margin-bottom: 36px; color: var(--muted); }
 .sig-line { border-top: 1px solid #333; padding-top: 6px; margin: 0 12px; }
 .stamp { display: inline-block; margin-top: 12px; padding: 6px 10px; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; border-radius: 4px; font-size: 12px; }
+
+/* small responsive tweak: make items stack on narrow screens but still aligned */
+@media (max-width: 576px) {
+    .dept-item { display: block; margin-bottom: 6px; }
+}
 
 /* Responsif untuk mobile */
 @media (max-width: 768px) {
