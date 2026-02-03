@@ -13,6 +13,11 @@
                             <i class="align-middle" data-feather="home"></i> <span class="align-middle">Dashboard</span>
                         </a>
 					</li>
+					<li class=" sidebar-item {{ request()->routeIs('history') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('history') }}">
+                            <i class="align-middle" data-feather="clock"></i> <span class="align-middle">History</span>
+                        </a>
+					</li>
 					<li class="sidebar-header">
 						SPK
 					</li>

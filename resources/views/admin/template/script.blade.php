@@ -3,6 +3,7 @@
 
 <!-- DataTables JS -->
 <script src="{{ asset('js/dataTables.min.js') }}"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
 <!-- SweetAlert2 JS -->
 <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>

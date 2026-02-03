@@ -1,6 +1,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link rel="canonical" href="https://demo-basic.adminkit.io/" />
 
+{{-- datatables css --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
 <!-- Select2 CSS -->
 <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
 

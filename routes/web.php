@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MerkacController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\JenisacController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\AdminSPKController;
@@ -33,8 +34,14 @@ Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/autentikasi', [LoginController::class, 'autentikasi'])->name('autentikasi');
 
+// =============================== Admin Routes =================================
+
 // View Admin Dashboard
 Route::get('/admin/dashboard', [LoginController::class, 'admin'])->name('dashboard')->Middleware('Role:Admin');
+
+// View History
+Route::get('/admin/history', [HistoryController::class, 'index'])->name('history')->Middleware('Role:Admin');
+Route::get('/admin/history/search', [HistoryController::class, 'search'])->name('history.search')->Middleware('Role:Admin');
 
 // View Dashboard
 // Route::get('/admin/dashboard', [DashboardController::class, 'show'])->name('dashboard');

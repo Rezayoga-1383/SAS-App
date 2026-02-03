@@ -48,6 +48,7 @@ class AdminSPKController extends Controller
             })
             ->addColumn('aksi', function($row){
                 return '
+                <div class="aksi-btn">
                     <a href="/admin/spk/'.$row->id.'/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong> Edit</strong></a>
                     <form action="/admin/spk/'.$row->id.'" method="POST" class="d-inline form-delete">
                         '.csrf_field().'
@@ -57,7 +58,7 @@ class AdminSPKController extends Controller
                         </button>
                     </form>
                     <a href="/admin/spk/detail/'.$row->id.'" class="btn btn-md btn-secondary"><i class="align-middle" data-feather="eye"></i><strong> Detail</strong></a>
-                    ';
+                </div>';
                 })
                 ->rawColumns(['aksi'])
                 ->make(true);

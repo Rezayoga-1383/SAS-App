@@ -180,9 +180,9 @@
                                 @enderror
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <a href="{{ route('detail-ac') }}" class="btn btn-outline-secondary">Batal</a>
-                                <button type="submit" class="btn btn-primary">
+                            <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center mt-4">
+                                <a href="{{ route('detail-ac') }}" class="btn btn-outline-secondary w-100 w-md-auto order-2 order-md-1">Batal</a>
+                                <button type="submit" class="btn btn-primary w-100 w-md-auto order-1 order-md-2">
                                     <i data-feather="save" class="me-1"></i> Simpan Data
                                 </button>
                             </div>

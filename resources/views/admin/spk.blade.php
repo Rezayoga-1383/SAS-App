@@ -35,19 +35,17 @@
 						</script>
 						@endif
 						
-						<div class="table-responsive">
-							<table id="TabelSPK" class="table hover stripe" style="width:100%">
-								<thead>
-									<tr>
-										<th>No</th>
-										<th>No SPK</th>
-										<th>No AC</th>
-										<th>Tanggal</th>
-										<th>Aksi</th>
-									</tr>
-								</thead>
-							</table>
-						</div>
+						<table id="TabelSPK" class="table hover stripe nowrap" style="width:100%">
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>No SPK</th>
+									<th>No AC</th>
+									<th>Tanggal</th>
+									<th class="text-center">Aksi</th>
+								</tr>
+							</thead>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -62,13 +60,14 @@ $(document).ready(function() {
 	const table = $('#TabelSPK').DataTable({
         processing: true,
         serverSide: true,
+		responsive: true,
         ajax: "{{ route('spk.data') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'no_spk', name: 'no_spk' },
             { data: 'no_ac', name: 'acdetail.no_ac' },
             { data: 'tanggal', name: 'tanggal' },
-            { data: 'aksi', name: 'aksi', orderable: false, searchable: false }
+            { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' }
         ],
         drawCallback: function() {
             feather.replace();
@@ -121,4 +120,22 @@ $(document).ready(function() {
 	});
 	</script>
 @endif
+@endpush
+
+@push('style')
+<style>
+/* Tombol aksi rapi & responsif */
+.aksi-btn {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	justify-content: center;
+}
+
+@media (max-width: 768px) {
+	.aksi-btn .btn {
+		width: 100%;
+	}
+}
+</style>
 @endpush

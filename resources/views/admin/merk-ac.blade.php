@@ -35,17 +35,15 @@
 						</script>
 						@endif
 						
-						<div class="table-responsive">
-							<table id="TabelMerkAC" class="table hover stripe" style="width:100%">
-								<thead>
-									<tr>
-										<th>No</th>
-										<th>Merk AC</th>
-										<th>Aksi</th>
-									</tr>
-								</thead>
-							</table>
-						</div>
+						<table id="TabelMerkAC" class="table hover stripe nowrap" style="width:100%">
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>Merk AC</th>
+									<th>Aksi</th>
+								</tr>
+							</thead>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -60,6 +58,7 @@ $(document).ready(function() {
 		$('#TabelMerkAC').DataTable({
 		processing: true,
 		serverSide: true,
+		responsive: true,
 		ajax: "{{ route('merk-ac.data') }}",
 		columns: [
 			{ 
@@ -67,6 +66,7 @@ $(document).ready(function() {
 				name: 'no',
 				orderable: false,
 				searchable: false,
+				className: 'text-center',
 				render: function (data, type, row, meta) {
 					return meta.row + meta.settings._iDisplayStart + 1;
 				} 
@@ -76,6 +76,7 @@ $(document).ready(function() {
 				data: 'id',
 				render: function(data) {
 					return `
+					<div class="aksi-btn">
 						<a href="/merk-ac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
 						<form action="/merk-ac/${data}" method="POST" class="d-inline form-delete">
                             @csrf
@@ -84,7 +85,7 @@ $(document).ready(function() {
                                 <i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
                             </button>
                         </form>
-					`;
+					</div>`;
 				}
 			}
 		],
@@ -138,4 +139,25 @@ $(document).ready(function() {
     });
 </script>
 @endif
+@endpush
+
+@push('style')
+<style>
+/* Wrapper tombol aksi */
+.aksi-btn {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	justify-content: center;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+	.aksi-btn .btn {
+		width: 70%;
+		font-size: 13px;
+		padding: 6px 10px;
+	}
+}
+</style>
 @endpush

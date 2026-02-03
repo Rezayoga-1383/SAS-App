@@ -23,56 +23,59 @@
 		<h1 class="h3 mb-3"><strong>Dashboard</strong> Admin</h1>
 
 		    <!-- Row statistik lainnya -->
-				<div class="row mt-3">
-					<div class="col-sm-6">
-						<div class="card">
-							<div class="card-body">
-								<h5 class="card-title">JENIS AC</h5>
-								<h1 class="mt-1 mb-3">{{ $jumlahjenis }}</h1>
-								<div class="mb-0">
-									<span class="text-danger">Count Jenis</span>
-									<span class="text-muted">RSPAL Ramelan</span>
-								</div>
-							</div>
-						</div>
-						<div class="card">
-							<div class="card-body">
-								<h5 class="card-title">MERK AC</h5>
-								<h1 class="mt-1 mb-3">{{ $jumlahmerk }}</h1>
-								<div class="mb-0">
-									<span class="text-success">Count Merk</span>
-									<span class="text-muted">RSPAL Ramelan</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-sm-6">
-						<div class="card">
-							<div class="card-body">
-								<h5 class="card-title">DEPARTEMENT</h5>
-								<h1 class="mt-1 mb-3">{{ $jumlahdepartement }}</h1>
-								<div class="mb-0">
-									<span class="text-success">Count Departement</span>
-									<span class="text-muted">RSPAL Ramelan</span>
-								</div>
-							</div>
-						</div>
-						<div class="card">
-							<div class="card-body">
-								<h5 class="card-title">RUANGAN</h5>
-								<h1 class="mt-1 mb-3">{{ $jumlahruangan }}</h1>
-								<div class="mb-0">
-									<span class="text-danger">Count Ruangan</span>
-									<span class="text-muted">RSPAL Ramelan</span>
-								</div>
+			<div class="row mt-3 g-3">
+				<div class="col-12 col-sm-6 col-lg-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">JENIS AC</h5>
+							<h1 class="mt-1 mb-3">{{ $jumlahjenis }}</h1>
+							<div class="mb-0">
+								<span class="text-danger">Count Jenis</span>
+								<span class="text-muted d-block">RSPAL Ramelan</span>
 							</div>
 						</div>
 					</div>
 				</div>
-			<div class="row">
+				<div class="col-12 col-sm-6 col-lg-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">MERK AC</h5>
+							<h1 class="mt-1 mb-3">{{ $jumlahmerk }}</h1>
+							<div class="mb-0">
+								<span class="text-success">Count Merk</span>
+								<span class="text-muted d-block">RSPAL Ramelan</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-lg-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">DEPARTEMENT</h5>
+							<h1 class="mt-1 mb-3">{{ $jumlahdepartement }}</h1>
+							<div class="mb-0">
+								<span class="text-success">Count Departement</span>
+								<span class="text-muted d-block">RSPAL Ramelan</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-lg-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">RUANGAN</h5>
+							<h1 class="mt-1 mb-3">{{ $jumlahruangan }}</h1>
+							<div class="mb-0">
+								<span class="text-danger">Count Ruangan</span>
+								<span class="text-muted d-block">RSPAL Ramelan</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		<div class="row g-3">
 				<!-- Kolom Kiri -->
-				<div class="col-xl-6">
+			<div class="col-12 col-lg-6">
 					<div class="card">
 						<div class="card-body">
 							<div class="card flex-fill w-100">
@@ -105,7 +108,7 @@
 				</div>
 
 				<!-- Kolom Kanan -->
-				<div class="col-xl-6">
+			<div class="col-12 col-lg-6">
 					<div class="card">
 						<div class="card-body">
 							<div class="card flex-fill w-100">
