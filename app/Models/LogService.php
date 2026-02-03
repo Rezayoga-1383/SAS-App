@@ -21,7 +21,9 @@ class LogService extends Model
         'mengetahui',
         'hormat_kami',
         'pelaksana_ttd',
-        'file_spk'
+        'file_spk',
+        'before_image',
+        'after_image',
     ];
 
     public $timestamps = false;

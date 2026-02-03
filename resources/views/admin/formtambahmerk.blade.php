@@ -16,7 +16,7 @@
                         <form action="{{ route('merk-ac.store') }}" method="POST" novalidate>
                             @csrf
                             <div class="mb-3">
-                                <label for="nama_merk" class="form-label">Merk AC</label>
+                                <label for="nama_merk" class="form-label">Merk AC <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     id="nama_merk"

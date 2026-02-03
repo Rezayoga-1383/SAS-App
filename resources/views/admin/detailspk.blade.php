@@ -132,30 +132,98 @@
                 <div class="stamp">SPK ini sah jika ada stempel perusahaan</div>
             </div>
 
+            <!-- File SPK Preview -->
             @if($spk->file_spk)
               @php
                 $fileUrl = asset('storage/' . $spk->file_spk);
                 $ext = strtolower(pathinfo($spk->file_spk, PATHINFO_EXTENSION));
               @endphp
 
-              <div class="spk-preview text-center">
-                @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
-                  <img src="{{ $fileUrl }}" alt="SPK {{ $spk->no_spk }}" class="img-fluid border" style="max-width:100%; box-shadow:0 6px 18px rgba(0,0,0,0.08);">
-                @elseif($ext === 'pdf')
-                  <div class="ratio ratio-16x9">
-                    <iframe src="{{ $fileUrl }}" frameborder="0"></iframe>
+              <div class="mt-5">
+                <hr>
+                <h5 class="mb-3"><strong>Gambar SPK</strong></h5>
+
+                <div class="card shadow-sm">
+                  <div class="card-body text-center">
+
+                    @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                      <img
+                        src="{{ $fileUrl }}"
+                        alt="Gambar SPK"
+                        class="img-fluid rounded"
+                        style="max-height: 500px; object-fit: contain;"
+                      >
+
+                    @elseif($ext === 'pdf')
+                      <div class="ratio ratio-16x9">
+                        <iframe src="{{ $fileUrl }}" frameborder="0"></iframe>
+                      </div>
+
+                    @else
+                      <p class="text-muted mb-2">
+                        Tipe file tidak didukung untuk preview.
+                      </p>
+                      <a href="{{ $fileUrl }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        Buka File
+                      </a>
+                    @endif
+
                   </div>
-                @else
-                  <p class="text-muted">Tipe file tidak didukung untuk preview. <a href="{{ $fileUrl }}" target="_blank">Buka file</a></p>
-                @endif
+                </div>
               </div>
             @else
-              <div class="alert alert-secondary mb-0">Belum ada file SPK yang diupload.</div>
+              <div class="alert alert-secondary mt-4">
+                Belum ada file SPK yang diupload.
+              </div>
             @endif
 
+            <!-- Sebelum Aksi Images -->
+              @if($spk->before_image)
+                <div class="mt-5">
+                  <hr>
+                  <h5 class="mb-3"><strong>Gambar AC - Sebelum Aksi</strong></h5>
+
+                  <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                      <img 
+                        src="{{ asset('storage/'.$spk->before_image) }}" 
+                        alt="Gambar Sebelum Aksi"
+                        class="img-fluid rounded"
+                        style="max-height: 500px; object-fit: contain;"
+                      >
+                    </div>
+                  </div>
+                </div>
+              @else
+                <div class="alert alert-secondary mt-4">
+                  Belum ada gambar sebelum aksi.
+                </div>
+              @endif
+
+            <!-- Sesudah Aksi Images -->
+            @if($spk->after_image)
+              <div class="mt-5">
+                <hr>
+                <h5 class="mb-3"><strong>Gambar AC - Sesudah Aksi</strong></h5>
+
+                <div class="card shadow-sm">
+                  <div class="card-body text-center">
+                    <img 
+                      src="{{ asset('storage/'.$spk->after_image) }}" 
+                      alt="Gambar Sesudah Aksi"
+                      class="img-fluid rounded"
+                      style="max-height: 500px; object-fit: contain;"
+                    >
+                  </div>
+                </div>
+              </div>
+            @else
+              <div class="alert alert-secondary mt-4">
+                Belum ada gambar sesudah aksi.
+              </div>
+            @endif
           </div>
         </div>
-
       </div>
     </div>
   </div>

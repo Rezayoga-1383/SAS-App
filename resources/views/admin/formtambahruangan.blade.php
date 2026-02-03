@@ -31,7 +31,7 @@
                         <form action="{{ route('ruangan.store') }}" method="POST" novalidate>
                             @csrf
                             <div class="mb-3">
-                                <label for="id_departement" class="form-label">Departement</label>
+                                <label for="id_departement" class="form-label">Departement <span class="text-danger">*</span></label>
                                 <select
                                     id="id_departement"
                                     name="id_departement"
@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="nama_ruangan" class="form-label">Ruangan</label>
+                                <label for="nama_ruangan" class="form-label">Ruangan <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     id="nama_ruangan"

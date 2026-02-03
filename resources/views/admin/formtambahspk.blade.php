@@ -16,7 +16,7 @@
                         <form action="{{ route('spkadmin.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                             @csrf
                             <div class="mb-3">
-                                <label for="no_spk" class="form-label">Nomor SPK</label>
+                                <label for="no_spk" class="form-label">Nomor SPK <span class="text-danger">*</span></label>
                                 <input 
                                 type="text"
                                 id="no_spk"
@@ -30,7 +30,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="tanggal" class="form-label">Tanggal</label>
+                                <label for="tanggal" class="form-label">Tanggal <span class="text-danger">*</span></label>
                                 <input 
                                     type="date"
                                     id="tanggal"
@@ -44,7 +44,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="waktu_mulai" class="form-label">Waktu Mulai</label>
+                                <label for="waktu_mulai" class="form-label">Waktu Mulai <span class="text-danger">*</span></label>
                                 <input 
                                     type="time"
                                     id="waktu_mulai"
@@ -59,7 +59,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="waktu_selesai">Waktu Selesai</label>
+                                <label for="waktu_selesai">Waktu Selesai <span class="text-danger">*</span></label>
                                 <input 
                                     type="time"
                                     id="waktu_selesai"
@@ -74,7 +74,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="jumlah_orang">Jumlah Teknisi</label>
+                                <label for="jumlah_orang">Jumlah Teknisi <span class="text-danger">*</span></label>
                                 <input 
                                     type="number"
                                     id="jumlah_orang"
@@ -89,7 +89,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Teknisi</label>
+                                <label class="form-label">Teknisi <span class="text-danger">*</span></label>
                                 <div class="border rounded p-2 @error('teknisi') is-invalid @enderror" style="max-height: 150px; overflow-y:auto">
                                     @foreach ($teknisi as $user)
                                         <div class="form-check">
@@ -112,7 +112,7 @@
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="jumlah_ac_input" class="form-label">Jumlah AC yang ingin diperbaiki</label>
+                                <label for="jumlah_ac_input" class="form-label">Jumlah AC yang ingin diperbaiki <span class="text-danger">*</span></label>
                                 <input
                                     type="number"
                                     id="jumlah_ac_input"
@@ -128,7 +128,7 @@
 
                             <div class="col-12">
                                 <hr>
-                                <h5 class="mb-3">Detail AC yang Diperbaiki</h5>
+                                <h5 class="mb-3">Detail AC yang Diperbaiki <span class="text-danger">*</span></h5>
                                 <div id="ac_container">
                                 
                                 </div>
@@ -138,9 +138,9 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="kepada" class="form-label">Kepada</label>
-                                <select name="kepada" id="kepada" required class="form-select form-control-md @error('kepada') is-invalid @enderror">
-                                    <option value="">-- Pilih Kepada --</option>
+                                <label for="kepada" class="form-label">Kepada <span class="text-danger">*</span></label>
+                                <select name="kepada" id="kepada" required class="form-select form-control-md select2 @error('kepada') is-invalid @enderror">
+                                    <option value="">-- Pilih Kepada -- </option>
                                     @foreach ($departement as $dept)
                                         <option value="{{ $dept->nama_departement }}" {{ old('kepada') == $dept->nama_departement ? 'selected' : '' }}>
                                             {{ $dept->nama_departement }}
@@ -153,7 +153,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="mengetahui" class="form-label">Mengetahui</label>
+                                <label for="mengetahui" class="form-label">Mengetahui <span class="text-danger">*</span></label>
                                 <input 
                                     type="text"
                                     id="mengetahui"
@@ -168,7 +168,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="hormat_kami" class="form-label">Hormat Kami</label>
+                                <label for="hormat_kami" class="form-label">Hormat Kami <span class="text-danger">*</span></label>
                                 <select name="hormat_kami" id="hormat_kami" class="form-select @error('hormat_kami') is-invalid @enderror" required>
                                     <option value="">-- Pilih Admin --</option>
                                     @foreach ($admin as $user )
@@ -183,7 +183,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="pelaksana_ttd" class="form-label">Pelaksana</label>
+                                <label for="pelaksana_ttd" class="form-label">Pelaksana <span class="text-danger">*</span></label>
                                 <select name="pelaksana_ttd" id="pelaksana_ttd" class="form-select @error('pelaksana_ttd') is-invalid @enderror" required>
                                     <option value="">-- Pilih Pelaksana --</option>
                                     @foreach ($teknisi as $user )
@@ -198,7 +198,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="file_spk">Upload File SPK</label>
+                                <label for="file_spk">Upload File SPK <span class="text-danger">*</span></label>
                                 <input 
                                     type="file"
                                     id="file_spk"
@@ -207,6 +207,34 @@
                                     accept=".pdf,.jpg,.jpeg,.png"
                                     required>
                                 @error('file_spk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="before_image">Upload Foto AC Sebelum Aksi <span class="text-danger">*</span></label>
+                                <input 
+                                    type="file"
+                                    id="before_image"
+                                    name="before_image"
+                                    class="form-control form-control-md @error('before_image') is-invalid @enderror"
+                                    accept=".jpg,.jpeg,.png"
+                                    required>
+                                @error('before_image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="after_image">Upload Foto AC Setelah Aksi <span class="text-danger">*</span></label>
+                                <input 
+                                    type="file"
+                                    id="after_image"
+                                    name="after_image"
+                                    class="form-control form-control-md @error('after_image') is-invalid @enderror"
+                                    accept=".jpg,.jpeg,.png"
+                                    required>
+                                @error('after_image')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -280,7 +308,7 @@
           <!-- Nomor AC -->
           <div class="mb-3">
             <label class="form-label">Nomor AC <span class="text-danger">*</span></label>
-            <select name="acdetail_ids[]" class="form-select ${errAc ? 'is-invalid' : ''}">
+            <select name="acdetail_ids[]" class="form-select select-no ${errAc ? 'is-invalid' : ''}">
               <option value="">-- Pilih No AC --</option>
               ${Object.entries(acdetailData)
                 .map(([id, noAc]) => `<option value="${id}" ${oldAcId == id ? 'selected' : ''}>${noAc}</option>`)
@@ -309,6 +337,8 @@
 
       acContainer.appendChild(acCard);
     }
+    // initialize select2 for new selects
+    initSelect2();    
   }
 
   // Limit teknisi sesuai "jumlah orang"
@@ -349,5 +379,20 @@
     generateAcForms();
     updateCheckboxLimit();
   });
+
+function initSelect2() {
+  $('.select-no').select2({
+    placeholder: '-- Pilih No AC --',
+    allowClear: true,
+    width: '100%'
+  });
+}
+
+// Inisialisasi Select2 untuk Searching Kepada
+    $('.select2').select2({
+        placeholder: "-- Pilih Kepada --",
+        allowClear: true,
+        width: '100%' // pastikan full width
+    });
 </script>
 @endpush

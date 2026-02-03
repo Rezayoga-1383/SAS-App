@@ -16,7 +16,7 @@
                         <form action="{{ route('detail-ac.store') }}" method="POST" novalidate>
                             @csrf
                             <div class="mb-3">
-                                <label for="id_merkac" class="form-label">Merk AC</label>
+                                <label for="id_merkac" class="form-label">Merk AC <span class="text-danger">*</span></label>
                                 <select
                                     id="id_merkac"
                                     name="id_merkac"
@@ -32,7 +32,7 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="id_jenisac" class="form-label">Jenis AC</label>
+                                <label for="id_jenisac" class="form-label">Jenis AC <span class="text-danger">*</span></label>
                                 <select
                                     id="id_jenisac"
                                     name="id_jenisac"
@@ -48,7 +48,7 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="id_ruangan" class="form-label">Ruangan & Departemen</label>
+                                <label for="id_ruangan" class="form-label">Ruangan & Departemen <span class="text-danger">*</span></label>
                                 <select id="id_ruangan" name="id_ruangan"
                                     class="form-select form-select-lg select2 @error('id_ruangan') is-invalid @enderror"
                                     required>
@@ -65,7 +65,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="no_ac" class="form-label">Nomor AC</label>
+                                <label for="no_ac" class="form-label">Nomor AC <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">I-</span>
                                     <input
@@ -83,7 +83,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="no_seri_indoor" class="form-label">No Seri Indoor</label>
+                                <label for="no_seri_indoor" class="form-label">No Seri Indoor <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     id="no_seri_indoor"
@@ -97,7 +97,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="no_seri_outdoor" class="form-label">No Seri Outdoor</label>
+                                <label for="no_seri_outdoor" class="form-label">No Seri Outdoor <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     id="no_seri_outdoor"
@@ -111,7 +111,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="pk_ac" class="form-label">PK AC</label>
+                                <label for="pk_ac" class="form-label">PK AC <span class="text-danger">*</span></label>
                                 <input
                                     type="number"
                                     id="pk_ac"
@@ -125,7 +125,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="jumlah_ac" class="form-label">Jumlah AC</label>
+                                <label for="jumlah_ac" class="form-label">Jumlah AC <span class="text-danger">*</span></label>
                                 <input
                                     type="number"
                                     id="jumlah_ac"
@@ -139,7 +139,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="tahun_ac" class="form-label">Tahun AC</label>
+                                <label for="tahun_ac" class="form-label">Tahun AC <span class="text-danger">*</span></label>
                                 <input
                                     type="number"
                                     id="tahun_ac"
@@ -153,7 +153,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan</label>
+                                <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan <span class="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     id="tanggal_pemasangan"
@@ -167,7 +167,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi</label>
+                                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi <span class="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     id="tanggal_habis_garansi"

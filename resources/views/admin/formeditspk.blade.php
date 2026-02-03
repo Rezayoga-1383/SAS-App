@@ -216,6 +216,56 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="before_image">Upload Gambar AC - Sebelum Aksi (Optional)</label>
+
+                                {{-- Tampilkan file lama jika ada --}}
+                                @if ($spk->before_image)
+                                    <p class="mb-2">
+                                        File saat ini:
+                                        <a href="{{ asset('storage/' . $spk->before_image) }}" target="_blank" class="text-primary">
+                                            Lihat File
+                                        </a>
+                                    </p>
+                                @endif
+
+                                <input 
+                                    type="file"
+                                    id="before_image"
+                                    name="before_image"
+                                    class="form-control form-control-md @error('before_image') is-invalid @enderror"
+                                    accept=".pdf,.jpg,.jpeg,.png">
+
+                                @error('before_image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="after_image">Upload Gambar AC - Setelah Aksi (Optional)</label>
+
+                                {{-- Tampilkan file lama jika ada --}}
+                                @if ($spk->after_image)
+                                    <p class="mb-2">
+                                        File saat ini:
+                                        <a href="{{ asset('storage/' . $spk->after_image) }}" target="_blank" class="text-primary">
+                                            Lihat File
+                                        </a>
+                                    </p>
+                                @endif
+
+                                <input 
+                                    type="file"
+                                    id="after_image"
+                                    name="after_image"
+                                    class="form-control form-control-md @error('after_image') is-invalid @enderror"
+                                    accept=".pdf,.jpg,.jpeg,.png">
+
+                                @error('after_image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="d-flex justify-content-between align-items-center mt-4">
                                 <a href="{{ route('admin.spk') }}" class="btn btn-outline-secondary">Batal</a>
                                 <button type="submit" class="btn btn-primary">

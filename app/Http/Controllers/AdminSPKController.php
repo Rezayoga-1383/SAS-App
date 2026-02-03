@@ -73,7 +73,7 @@ class AdminSPKController extends Controller
             'acdetail_ids'       => 'required|array|min:1',
             'acdetail_ids.*'     => 'required|exists:acdetail,id',
 
-            'no_spk'             => 'required|string|max:10|digits:5',
+            'no_spk'             => 'required|digits:5|unique:log_service,no_spk',
             'tanggal'            => 'required|date',
             'waktu_mulai'        => 'required|date_format:H:i',
             'waktu_selesai'      => 'required|after:waktu_mulai|date_format:H:i',
@@ -95,6 +95,10 @@ class AdminSPKController extends Controller
             'pelaksana_ttd'      => 'required|exists:pengguna,id',
 
             'file_spk'           => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            
+            'before_image'       => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'after_image'        => 'required|image|mimes:jpg,jpeg,png|max:10240',
+
         ], [
 
             // ===== AC =====
@@ -104,6 +108,7 @@ class AdminSPKController extends Controller
 
             // ===== NOMOR SPK =====
             'no_spk.required'           => 'Nomor SPK wajib diisi.',
+            'no_spk.unique'             => 'Nomor SPK sudah digunakan.',
             'no_spk.digits'             => 'Nomor SPK harus terdiri dari 5 digit angka.',
 
             // ===== TANGGAL & WAKTU =====
@@ -136,18 +141,39 @@ class AdminSPKController extends Controller
             'file_spk.required'         => 'File SPK wajib diunggah.',
             'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG, atau PNG.',
             'file_spk.max'              => 'Ukuran file SPK maksimal adalah 20MB.',
+
+            // ===== Image Before & After =====
+            'before_image.required'     => 'Gambar wajib diunggah.',
+            'before_image.mimes'        => 'Tipe gambar sebelum aksi harus berupa JPG, JPEG, atau PNG.',
+            'before_image.max'          => 'Ukuran gambar sebelum aksi maksimal adalah 10MB.',
+
+            'after_image.required'      => 'Gambar wajib diunggah.',
+            'after_image.mimes'         => 'Tipe gambar sesudah aksi harus berupa JPG, JPEG, atau PNG.',
+            'after_image.max'           => 'Ukuran gambar sesudah aksi maksimal adalah 10MB.',
         ]);
+
+        $filePath       = null;
+        $beforeImagePath = null;
+        $afterImagePath  = null;
 
         DB::beginTransaction();
 
         try {
-            if ($request->hasFile('file_spk')){
+            if ($request->hasFile('file_spk')) {
                 $filePath = $request->file('file_spk')->store('spk_files', 'public');
-            } else {
-                $filePath = null;
             }
 
-            $spk = LogService::create([
+            if ($request->hasFile('before_image')) {
+                $beforeImagePath = $request->file('before_image')
+                    ->store('spk_images/before', 'public');
+            }
+
+            if ($request->hasFile('after_image')) {
+                $afterImagePath = $request->file('after_image')
+                    ->store('spk_images/after', 'public');
+            }
+
+           $spk = LogService::create([
                 'no_spk'            => $validated['no_spk'],
                 'tanggal'           => $validated['tanggal'],
                 'waktu_mulai'       => $validated['waktu_mulai'],
@@ -158,25 +184,48 @@ class AdminSPKController extends Controller
                 'hormat_kami'       => $validated['hormat_kami'],
                 'pelaksana_ttd'     => $validated['pelaksana_ttd'],
                 'file_spk'          => $filePath,
+                'before_image'      => $beforeImagePath,
+                'after_image'       => $afterImagePath,
             ]);
 
-            // Menyimpan detail AC beserta keluhan dan jenis pekerjaan
+            // ================= SYNC AC DETAIL =================
             $acData = [];
             foreach ($validated['acdetail_ids'] as $index => $acdetailId) {
                 $acData[$acdetailId] = [
-                    'keluhan' => $validated['keluhan'][$index],
+                    'keluhan'         => $validated['keluhan'][$index],
                     'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
                 ];
             }
+
             $spk->acdetail()->sync($acData);
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();
 
-            return redirect(route('admin.spk'))->with('success', 'Data SPK Berhasil Dikirim!, Terima Kasih.');
+            return redirect()
+                ->route('admin.spk')
+                ->with('success', 'Data SPK berhasil disimpan');
+
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return redirect()->back()->withInput()->withErrors(['error' => 'Terjadi Kesalahan : ' . $e->getMessage()]);
+
+            // ================= CLEANUP FILE =================
+            if ($filePath) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            if ($beforeImagePath) {
+                Storage::disk('public')->delete($beforeImagePath);
+            }
+
+            if ($afterImagePath) {
+                Storage::disk('public')->delete($afterImagePath);
+            }
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
 
@@ -231,6 +280,8 @@ class AdminSPKController extends Controller
             'hormat_kami'         => 'required|string|max:100',
             'pelaksana_ttd'       => 'required|exists:pengguna,id',
             'file_spk'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'before_image'       => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'after_image'        => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ], [
             'acdetail_ids.required'    => 'Nomor AC wajib dipilih',
             'no_spk.required'          => 'Nomor SPK wajib diisi',
@@ -251,17 +302,34 @@ class AdminSPKController extends Controller
         DB::beginTransaction();
 
         try {
-            // handle file update
+            /** ================= FILE SPK ================= */
+            $fileSpkPath = $spk->file_spk;
             if ($request->hasFile('file_spk')) {
-                if ($spk->file_spk && \Storage::disk('public')->exists($spk->file_spk)) {
-                    \Storage::disk('public')->delete($spk->file_spk);
+                if ($fileSpkPath && Storage::disk('public')->exists($fileSpkPath)) {
+                    Storage::disk('public')->delete($fileSpkPath);
                 }
-                $filePath = $request->file('file_spk')->store('spk_files', 'public');
-            } else {
-                $filePath = $spk->file_spk;
+                $fileSpkPath = $request->file('file_spk')->store('spk_files', 'public');
             }
 
-            // update main spk (keluhan/jenis_pekerjaan moved to pivot)
+            /** ================= BEFORE IMAGE ================= */
+            $beforeImagePath = $spk->before_image;
+            if ($request->hasFile('before_image')) {
+                if ($beforeImagePath && Storage::disk('public')->exists($beforeImagePath)) {
+                    Storage::disk('public')->delete($beforeImagePath);
+                }
+                $beforeImagePath = $request->file('before_image')->store('spk_images/before', 'public');
+            }
+
+            /** ================= AFTER IMAGE ================= */
+            $afterImagePath = $spk->after_image;
+            if ($request->hasFile('after_image')) {
+                if ($afterImagePath && Storage::disk('public')->exists($afterImagePath)) {
+                    Storage::disk('public')->delete($afterImagePath);
+                }
+                $afterImagePath = $request->file('after_image')->store('spk_images/after', 'public');
+            }
+
+            /** ================= UPDATE SPK ================= */
             $spk->update([
                 'no_spk'        => $validated['no_spk'],
                 'tanggal'       => $validated['tanggal'],
@@ -272,30 +340,32 @@ class AdminSPKController extends Controller
                 'mengetahui'    => $validated['mengetahui'],
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
-                'file_spk'      => $filePath,
+                'file_spk'      => $fileSpkPath,
+                'before_image'  => $beforeImagePath,
+                'after_image'   => $afterImagePath,
             ]);
 
-            // sync ACs with pivot data (keluhan, jenis_pekerjaan)
+            /** ================= SYNC AC + PIVOT ================= */
             $acPivot = [];
             foreach ($validated['acdetail_ids'] as $index => $acId) {
                 $acPivot[$acId] = [
-                    'keluhan'         => $validated['keluhan'][$index] ?? '',
-                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index] ?? '',
-                    'updated_at'      => now(),
-                    'created_at'      => now(),
+                    'keluhan'         => $validated['keluhan'][$index],
+                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
                 ];
             }
             $spk->acdetail()->sync($acPivot);
 
-            // sync teknisi pivot
+            /** ================= SYNC TEKNISI ================= */
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();
-
             return redirect()->route('admin.spk')->with('success', 'Data SPK berhasil diupdate');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Terjadi Kesalahan : ' . $e->getMessage()]);
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
 
@@ -304,26 +374,44 @@ class AdminSPKController extends Controller
      */
     public function destroy(string $id)
     {
+        DB::beginTransaction();
+
         try {
             $spk = LogService::findOrFail($id);
 
-            // Delete file if exists
+            /** ================= DELETE FILE SPK ================= */
             if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
                 Storage::disk('public')->delete($spk->file_spk);
             }
 
-            // Detach relationships sebelum delete (untuk many-to-many)
+            /** ================= DELETE BEFORE IMAGE ================= */
+            if ($spk->before_image && Storage::disk('public')->exists($spk->before_image)) {
+                Storage::disk('public')->delete($spk->before_image);
+            }
+
+            /** ================= DELETE AFTER IMAGE ================= */
+            if ($spk->after_image && Storage::disk('public')->exists($spk->after_image)) {
+                Storage::disk('public')->delete($spk->after_image);
+            }
+
+            /** ================= DETACH RELATION ================= */
             $spk->acdetail()->detach();
             $spk->teknisi()->detach();
 
-            // Delete SPK record
+            /** ================= DELETE SPK ================= */
             $spk->delete();
 
+            DB::commit();
             return redirect()->route('admin.spk')->with('success', 'Data SPK berhasil dihapus!');
+            
         } catch (\Exception $e) {
-            return redirect()->route('admin.spk')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            DB::rollBack();
+            return redirect()
+                ->route('admin.spk')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
 
     public function detail($id)
     {
@@ -331,18 +419,18 @@ class AdminSPKController extends Controller
         return view('admin.detailspk', compact('spk'));
     }
 
-    public function generatePdf($id)
-    {
-        $spk = LogService::with(['pelaksana','hormatKamiUser'])->findOrFail($id);
+    // public function generatePdf($id)
+    // {
+    //     $spk = LogService::with(['pelaksana','hormatKamiUser'])->findOrFail($id);
 
-        $pdf = \PDF::loadView('admin.spkprint', compact('spk'))
-                ->setPaper('A4', 'portrait');
+    //     $pdf = \PDF::loadView('admin.spkprint', compact('spk'))
+    //             ->setPaper('A4', 'portrait');
         
-        // jika link pakai ?download=1 maka download
-        if (request()->has('download')) {
-            return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
-        }
+    //     // jika link pakai ?download=1 maka download
+    //     if (request()->has('download')) {
+    //         return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
+    //     }
 
-        return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
-    }
+    //     return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
+    // }
 }
