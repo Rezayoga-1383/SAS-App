@@ -42,6 +42,7 @@
 										<th>No AC</th>
 										<th>Merk</th>
 										<th>Jenis</th>
+										<th>Departement</th>
 										<th>Ruangan</th>
 										<!-- <th>No Seri In</th> -->
 										<!-- <th>No Seri Out</th> -->
@@ -70,11 +71,13 @@ $(document).ready(function() {
 		processing: true,
 		serverSide: true,
 		ajax: "{{ route('detail-ac.data') }}",
+		order:[],
 		columns: [
 			{ data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
 			{ data: 'no_ac', name: 'no_ac' },
 			{ data: 'nama_merkac', name: 'merkac.nama_merk' },
 			{ data: 'nama_jenisac', name: 'jenisac.nama_jenis' },
+			{ data: 'nama_departement', name: 'departement.nama_departement' },
 			{ data: 'nama_ruangan', name: 'ruangan.nama_ruangan' },
 			// { data: 'nama_departement', name: 'ruangan.nama_departement' },
 			// { data: 'jumlah_ac', name: 'jumlah_ac' },

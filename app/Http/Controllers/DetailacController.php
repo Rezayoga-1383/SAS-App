@@ -9,8 +9,9 @@ use App\Models\DetailAC;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class DetailacController extends Controller
 {
@@ -25,7 +26,13 @@ class DetailacController extends Controller
         abort(404); // tampilkan halaman not found
         }
 
-        $data = DetailAC::with(['merkac', 'jenisac', 'ruangan'])->select('acdetail.*');
+        $data = DetailAC::query()
+            ->leftJoin('ruangan', 'ruangan.id', '=', 'acdetail.id_ruangan')
+            ->leftJoin('departement', 'departement.id', '=', 'ruangan.id_departement')
+            ->select('acdetail.*', 'departement.nama_departement as nama_departement')
+            ->with(['merkac', 'jenisac', 'ruangan.departement'])
+            ->orderBy('departement.nama_departement', 'asc')
+            ->orderBy('ruangan.nama_ruangan', 'asc');
 
         return DataTables::of($data)
             ->addIndexColumn() // kolom No otomatis
@@ -35,10 +42,11 @@ class DetailacController extends Controller
             ->addColumn('nama_jenisac', function($row) {
                 return $row->jenisac ? $row->jenisac->nama_jenis : '-';
             })
+
+            ->addColumn('nama_departement', fn($row) => $row->ruangan?->departement?->nama_departement ?? '-')
+            
             ->addColumn('nama_ruangan', function($row) {
-                $ruangan = $row->ruangan ? $row->ruangan->nama_ruangan : '-';
-                $departement = $row->ruangan && $row->ruangan->departement ? $row->ruangan->departement->nama_departement : '-';
-                return $ruangan . ' (' . $departement . ')';
+                return $row->ruangan?->nama_ruangan ?? '-';
             })
             ->addColumn('aksi', function($row){
                 return '
