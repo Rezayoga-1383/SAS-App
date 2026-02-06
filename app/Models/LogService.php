@@ -22,18 +22,20 @@ class LogService extends Model
         'hormat_kami',
         'pelaksana_ttd',
         'file_spk',
-        'before_image',
-        'after_image',
     ];
 
-    public $timestamps = false;
-
-    public function acdetail()
+    public function units()
     {
-        return $this->belongsToMany(
-            DetailAC::class, 'log_service_detail', 'log_service_id', 'acdetail_id'
-        )->withPivot('keluhan', 'jenis_pekerjaan')->withTimestamps();
+        return $this->hasMany(LogServiceUnit::class, 'log_service_id');
     }
+
+    // public function acdetail()
+    // {
+    //     return $this->belongsToMany(
+    //         DetailAC::class, 'log_service_detail', 'log_service_id', 'acdetail_id'
+    //     )->withPivot('keluhan', 'jenis_pekerjaan')->withTimestamps();
+    // }
+
     public function pelaksana()
     {
         return $this->belongsTo(Pengguna::class, 'pelaksana_ttd', 'id');
@@ -48,4 +50,10 @@ class LogService extends Model
     {
         return $this->belongsTo(Pengguna::class, 'hormat_kami'); // kolom di log_service yang menyimpan id user
     }
+
+    public function details()
+    {
+        return $this->hasMany(LogServiceDetail::class, 'log_service_id');
+    }
+
 }

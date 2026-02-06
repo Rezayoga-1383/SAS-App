@@ -26,27 +26,33 @@
                 <tr>
                   <th>No AC</th>
                   <td>: 
-                    @if($spk->acdetail && $spk->acdetail->count() > 0)
-                      {{ $spk->acdetail->pluck('no_ac')->join(', ') }}
+                    @if($spk->units->count())
+                      {{ $spk->units->pluck('acdetail.no_ac')->join(', ') }}
                     @else
                       -
                     @endif
                   </td>
                 </tr>
                 <tr>
-                  <th>Departement (Ruangan)</th>
-                  <td>: 
-                     @if($spk->acdetail && $spk->acdetail->count() > 0)
-                      @foreach($spk->acdetail as $ac)
-                        <span class="dept-item">
-                          <strong>{{ $ac->no_ac }}</strong> — {{ optional($ac->ruangan->departement)->nama_departement ?? '-' }}
-                          <small class="text-muted">({{ optional($ac->ruangan)->nama_ruangan ?? '-' }})</small>
-                        </span>@if(!$loop->last)<span class="dept-sep">, </span>@endif
-                      @endforeach
-                    @else
-                      -
-                    @endif
-                  </td>
+                    <th style="vertical-align: top;">Departement (Ruangan)</th>
+                    <td>
+                        <span>:</span>
+                        @if($spk->units->count())
+                            <div class="dept-list">
+                                @foreach($spk->units as $unit)
+                                    <div class="dept-item">
+                                        <strong>{{ $unit->acdetail->no_ac }}</strong> —
+                                        {{ optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-' }}
+                                        <small class="text-muted">
+                                            ({{ optional($unit->acdetail->ruangan)->nama_ruangan ?? '-' }})
+                                        </small>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            -
+                        @endif
+                    </td>
                 </tr>
                 <tr><th>Jumlah Teknisi</th><td>: {{ $spk->jumlah_orang }}</td></tr>
                 <tr><th>Nama Teknisi</th><td>: {{ $spk->teknisi && $spk->teknisi->count() > 0 ? $spk->teknisi->pluck('nama')->join(', ') : '-' }}</td></tr>
@@ -93,19 +99,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($spk->acdetail && $spk->acdetail->count() > 0)
-                      @foreach($spk->acdetail as $index => $ac)
-                      <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $ac->no_ac }}</td>
-                        <td>{{ $ac->pivot->keluhan ?? '-' }}</td>
-                        <td>{{ $ac->pivot->jenis_pekerjaan ?? '-' }}</td>
-                      </tr>
-                      @endforeach
+                    @if($spk->units && $spk->units->count() > 0)
+                        @foreach($spk->units as $index => $unit)
+                            @php
+                                // cari detail sesuai acdetail_id
+                                $detail = $spk->details->firstWhere('acdetail_id', $unit->acdetail_id);
+                            @endphp
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $unit->acdetail->no_ac ?? '-' }}</td>
+                                <td>{{ $detail->keluhan ?? '-' }}</td>
+                                <td>{{ $detail->jenis_pekerjaan ?? '-' }}</td>
+                            </tr>
+                        @endforeach
                     @else
-                    <tr>
-                      <td colspan="3" class="text-center text-muted">Tidak ada data AC</td>
-                    </tr>
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Tidak ada data AC</td>
+                        </tr>
                     @endif
                 </tbody>
                 </table>
@@ -177,51 +187,90 @@
               </div>
             @endif
 
-            <!-- Sebelum Aksi Images -->
-              @if($spk->before_image)
-                <div class="mt-5">
-                  <hr>
-                  <h5 class="mb-3"><strong>Gambar AC - Sebelum Aksi</strong></h5>
+@foreach($spk->units as $unit)
+    <hr>
+    <h5 class="mt-3"><strong> Nomor AC: {{ $unit->acdetail->no_ac }} - {{ $unit->acdetail->ruangan->nama_ruangan ?? '' }}</strong></h5>
 
-                  <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                      <img 
-                        src="{{ asset('storage/'.$spk->before_image) }}" 
-                        alt="Gambar Sebelum Aksi"
-                        class="img-fluid rounded"
-                        style="max-height: 500px; object-fit: contain;"
-                      >
+    <!-- KARTU HISTORY -->
+    @php
+        $historyImages = $unit->historyImages;
+    @endphp
+
+    @if($historyImages->count())
+        <div class="row mb-4">
+            <h6 class="fw-bolder">Kartu History AC</h6>
+            @foreach($historyImages as $img)
+                <div class="col-12 col-md-6 col-lg-6 mb-4">
+                    <div class="card shadow-sm image-card">
+                        <div class="card-body">
+                            <img 
+                                src="{{ asset('storage/'.$img->image_path) }}" 
+                                alt="Kartu History AC"
+                                class="img-fluid rounded"
+                                style="max-height: 300px; object-fit: contain;">
+                        </div>
                     </div>
-                  </div>
                 </div>
-              @else
-                <div class="alert alert-secondary mt-4">
-                  Belum ada gambar sebelum aksi.
-                </div>
-              @endif
+            @endforeach
+        </div>
+    @else
+        <div class="alert alert-secondary mt-2">Belum ada kartu history AC.</div>
+    @endif
 
-            <!-- Sesudah Aksi Images -->
-            @if($spk->after_image)
-              <div class="mt-5">
-                <hr>
-                <h5 class="mb-3"><strong>Gambar AC - Sesudah Aksi</strong></h5>
+                <!-- BEFORE Images -->
+                @php
+                    $beforeImages = $unit->images->where('kondisi', 'before');
+                @endphp
 
-                <div class="card shadow-sm">
-                  <div class="card-body text-center">
-                    <img 
-                      src="{{ asset('storage/'.$spk->after_image) }}" 
-                      alt="Gambar Sesudah Aksi"
-                      class="img-fluid rounded"
-                      style="max-height: 500px; object-fit: contain;"
-                    >
-                  </div>
-                </div>
-              </div>
-            @else
-              <div class="alert alert-secondary mt-4">
-                Belum ada gambar sesudah aksi.
-              </div>
-            @endif
+                @if($beforeImages->count())
+                    <div class="row mb-4">
+                      <hr>
+                        <h6 class="fw-bolder">Sebelum Aksi</h6>
+                        @foreach($beforeImages as $img)
+                            <div class="col-12 col-md-6 col-lg-6 mb-4">
+                                <div class="card shadow-sm image-card">
+                                    <div class="card-body">
+                                        <img 
+                                            src="{{ asset('storage/'.$img->image_path) }}" 
+                                            alt="Gambar Sebelum Aksi"
+                                            class="img-fluid rounded"
+                                            style="max-height: 300px; object-fit: contain;">
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-secondary mt-2">Belum ada gambar sebelum aksi.</div>
+                @endif
+
+                <!-- AFTER Images -->
+                @php
+                    $afterImages = $unit->images->where('kondisi', 'after');
+                @endphp
+
+                @if($afterImages->count())
+                    <div class="row mb-4">
+                      <hr>
+                        <h6 class="fw-bolder">Setelah Aksi</h6>
+                        @foreach($afterImages as $img)
+                            <div class="col-12 col-md-6 col-lg-6 mb-4">
+                                <div class="card shadow-sm image-card">
+                                    <div class="card-body">
+                                        <img 
+                                            src="{{ asset('storage/'.$img->image_path) }}" 
+                                            alt="Gambar Sesudah Aksi"
+                                            class="img-fluid rounded"
+                                            style="max-height: 300px; object-fit: contain;">
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-secondary mt-2">Belum ada gambar sesudah aksi.</div>
+                @endif
+            @endforeach
           </div>
         </div>
       </div>
@@ -332,6 +381,24 @@
 .sig-block .sig-title { font-size: 13px; margin-bottom: 36px; color: var(--muted); }
 .sig-line { border-top: 1px solid #333; padding-top: 6px; margin: 0 12px; }
 .stamp { display: inline-block; margin-top: 12px; padding: 6px 10px; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; border-radius: 4px; font-size: 12px; }
+
+
+.image-card {
+    height: 100%;
+}
+
+.image-card .card-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+}
+
+.image-card img {
+    max-height: 260px;
+    width: 100%;
+    object-fit: contain;
+}
 
 /* small responsive tweak: make items stack on narrow screens but still aligned */
 @media (max-width: 576px) {

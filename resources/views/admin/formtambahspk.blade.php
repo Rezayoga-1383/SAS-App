@@ -210,36 +210,8 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="mb-3">
-                                <label for="before_image">Upload Foto AC Sebelum Aksi <span class="text-danger">*</span></label>
-                                <input 
-                                    type="file"
-                                    id="before_image"
-                                    name="before_image"
-                                    class="form-control form-control-md @error('before_image') is-invalid @enderror"
-                                    accept=".jpg,.jpeg,.png"
-                                    required>
-                                @error('before_image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="after_image">Upload Foto AC Setelah Aksi <span class="text-danger">*</span></label>
-                                <input 
-                                    type="file"
-                                    id="after_image"
-                                    name="after_image"
-                                    class="form-control form-control-md @error('after_image') is-invalid @enderror"
-                                    accept=".jpg,.jpeg,.png"
-                                    required>
-                                @error('after_image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             
+                            {{-- Button --}}
                             <div class="d-flex justify-content-between align-items-center mt-4">
                                 <a href="{{ route('admin.spk') }}" class="btn btn-outline-secondary">Batal</a>
                                 <button type="submit" class="btn btn-primary">
@@ -257,22 +229,25 @@
 
 @push('script')
 <script>
-  const jumlahAcInput = document.getElementById('jumlah_ac_input');
-  const acContainer = document.getElementById('ac_container');
-  const jumlahOrangInput = document.getElementById('jumlah_orang');
-  const checkboxes = document.querySelectorAll('.teknisi-checkbox');
-  const pelaksanaSelect = document.getElementById('pelaksana_ttd');
+    const jumlahAcInput = document.getElementById('jumlah_ac_input');
+    const acContainer = document.getElementById('ac_container');
+    const jumlahOrangInput = document.getElementById('jumlah_orang');
+    const checkboxes = document.querySelectorAll('.teknisi-checkbox');
+    const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 
-  // Ambil data dari server (Blade)
-  const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
-  const oldKeluhanData = @json(old('keluhan', []));
-  const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
-  const oldAcdetailIds = @json(old('acdetail_ids', []));
+    // Ambil data dari server (Blade)
+    const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
+    const oldKeluhanData = @json(old('keluhan', []));
+    const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
+    const oldAcdetailIds = @json(old('acdetail_ids', []));
 
-  // Error messages
-  const errorAcdetail = @json($errors->get('acdetail_ids.*'));
-  const errorKeluhan = @json($errors->get('keluhan.*'));
-  const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
+    // Error messages
+    const errorAcdetail = @json($errors->get('acdetail_ids.*'));
+    const errorKeluhan = @json($errors->get('keluhan.*'));
+    const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
+
+    // all Laravel errors as an object keyed by field name (e.g. 'history_image.0')
+    const laravelErrors = @json($errors->getMessages());
 
   function generateAcForms() {
     const jumlah = parseInt(jumlahAcInput.value) || 0;
@@ -280,25 +255,46 @@
 
     for (let i = 0; i < jumlah; i++) {
 
-      const acCard = document.createElement('div');
-      acCard.className = 'card mb-3 border';
+        const acCard = document.createElement('div');
+        acCard.className = 'card mb-4 border';
 
-      const oldAcId = oldAcdetailIds[i] || '';
-      const oldKeluhan = oldKeluhanData[i] || '';
-      const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
+        const oldAcId = oldAcdetailIds[i] || '';
+        const oldKeluhan = oldKeluhanData[i] || '';
+        const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
 
-      // ambil error dengan key yang benar (Laravel format)
-      const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
-          ? errorAcdetail[`acdetail_ids.${i}`][0]
-          : '';
+    // ambil error dengan key yang benar (Laravel format)
+    const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
+        ? errorAcdetail[`acdetail_ids.${i}`][0]
+        : '';
 
-      const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
-          ? errorKeluhan[`keluhan.${i}`][0]
-          : '';
+    const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
+        ? errorKeluhan[`keluhan.${i}`][0]
+        : '';
 
-      const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
-          ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
-          : '';
+    const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
+        ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
+        : '';
+
+    const errHistory = (laravelErrors && laravelErrors[`history_image.${i}`]
+        ? laravelErrors[`history_image.${i}`][0]
+        : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
+
+    const errBeforeIndoor = laravelErrors && laravelErrors[`before_indoor.${i}`]
+        ? laravelErrors[`before_indoor.${i}`][0]
+        : '';
+
+    const errBeforeOutdoor = laravelErrors && laravelErrors[`before_outdoor.${i}`]
+        ? laravelErrors[`before_outdoor.${i}`][0]
+        : '';
+
+    const errAfterIndoor = laravelErrors && laravelErrors[`after_indoor.${i}`]
+        ? laravelErrors[`after_indoor.${i}`][0]
+        : '';
+        
+    const errAfterOutdoor = laravelErrors && laravelErrors[`after_outdoor.${i}`]
+        ? laravelErrors[`after_outdoor.${i}`][0]
+        : '';
+
 
 
       acCard.innerHTML = `
@@ -332,6 +328,57 @@
               rows="3" placeholder="Masukkan jenis pekerjaan">${oldJenisPekerjaan}</textarea>
             ${errJenis ? `<div class="invalid-feedback d-block">${errJenis}</div>` : ''}
           </div>
+
+          <hr>
+
+            <!-- KARTU HISTORY -->
+            <div class="mb-3">
+                <label class="form-label">Kartu History AC <span class="text-danger">*</span></label>
+                <input type="file"
+                        name="history_image[${i}]"
+                        class="form-control ${errHistory ? 'is-invalid' : ''}"
+                        accept=".jpg,.jpeg,.png">
+                        ${errHistory ? `<div class="invalid-feedback d-block">${errHistory}</div>` : ''}
+            </div>
+
+            <div class="row g-3">
+
+        <!-- BEFORE -->
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <h6 class="fw-bold text-center mb-3">BEFORE</h6>
+
+                <div class="mb-3">
+                    <label class="form-label">Indoor & Outdoor</label>
+                    <input type="file"
+                    name="images[${i}][before]"
+                    class="form-control ${laravelErrors[`images.${i}.before`] ? 'is-invalid' : ''}"
+                    accept=".jpg,.jpeg,.png">
+
+                    ${laravelErrors[`images.${i}.before`]
+                    ? `<div class="invalid-feedback d-block">${laravelErrors[`images.${i}.before`][0]}</div>`
+                    : ''}
+                </div>
+            </div>
+        </div>
+
+        <!-- AFTER -->
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <h6 class="fw-bold text-center mb-3">AFTER</h6>
+
+                <div class="mb-3">
+                    <label class="form-label">Indoor & Outdoor</label>
+                    <input type="file"
+                    name="images[${i}][after]"
+                    class="form-control ${laravelErrors[`images.${i}.after`] ? 'is-invalid' : ''}"
+                    accept=".jpg,.jpeg,.png">
+
+                    ${laravelErrors[`images.${i}.after`]
+                    ? `<div class="invalid-feedback d-block">${laravelErrors[`images.${i}.after`][0]}</div>`
+                    : ''}
+                </div>
+            </div>
         </div>
       `;
 

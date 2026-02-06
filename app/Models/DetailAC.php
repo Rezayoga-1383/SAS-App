@@ -24,8 +24,6 @@ class DetailAC extends Model
         'tanggal_habis_garansi',
     ];
 
-    public $timestamps = false;
-
     public function logServices()
     {
         return $this->belongsToMany(LogService::class, 'log_service_acdetail', 'acdetail_id', 'log_service_id')
@@ -37,12 +35,20 @@ class DetailAC extends Model
     {
         return $this->belongsTo(MerkAC::class, 'id_merkac', 'id');
     }
+    
     public function jenisac()
     {
         return $this->belongsTo(JenisAC::class, 'id_jenisac', 'id');
     }
+    
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class, 'id_ruangan', 'id');
     }
+
+    public function historyImage()
+    {
+        return $this->hasMany(AcHistoryImage::class, 'acdetail_id');
+    }
+
 }

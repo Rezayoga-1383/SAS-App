@@ -65,7 +65,7 @@ $(document).ready(function() {
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'no_spk', name: 'no_spk' },
-            { data: 'no_ac', name: 'acdetail.no_ac' },
+            { data: 'no_ac', name: 'no_ac' },
             { data: 'tanggal', name: 'tanggal' },
             { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' }
         ],

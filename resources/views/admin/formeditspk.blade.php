@@ -216,56 +216,6 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="before_image">Upload Gambar AC - Sebelum Aksi (Optional)</label>
-
-                                {{-- Tampilkan file lama jika ada --}}
-                                @if ($spk->before_image)
-                                    <p class="mb-2">
-                                        File saat ini:
-                                        <a href="{{ asset('storage/' . $spk->before_image) }}" target="_blank" class="text-primary">
-                                            Lihat File
-                                        </a>
-                                    </p>
-                                @endif
-
-                                <input 
-                                    type="file"
-                                    id="before_image"
-                                    name="before_image"
-                                    class="form-control form-control-md @error('before_image') is-invalid @enderror"
-                                    accept=".pdf,.jpg,.jpeg,.png">
-
-                                @error('before_image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="after_image">Upload Gambar AC - Setelah Aksi (Optional)</label>
-
-                                {{-- Tampilkan file lama jika ada --}}
-                                @if ($spk->after_image)
-                                    <p class="mb-2">
-                                        File saat ini:
-                                        <a href="{{ asset('storage/' . $spk->after_image) }}" target="_blank" class="text-primary">
-                                            Lihat File
-                                        </a>
-                                    </p>
-                                @endif
-
-                                <input 
-                                    type="file"
-                                    id="after_image"
-                                    name="after_image"
-                                    class="form-control form-control-md @error('after_image') is-invalid @enderror"
-                                    accept=".pdf,.jpg,.jpeg,.png">
-
-                                @error('after_image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <div class="d-flex justify-content-between align-items-center mt-4">
                                 <a href="{{ route('admin.spk') }}" class="btn btn-outline-secondary">Batal</a>
                                 <button type="submit" class="btn btn-primary">
@@ -292,51 +242,68 @@ const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 // Data AC master
 const acdetailData = {!! json_encode($acdetail ? $acdetail->pluck('no_ac', 'id')->toArray() : []) !!};
 
-// Data existing AC dari SPK (pivot)
-const existingAcData = {!! json_encode(
-    $spk->acdetail && $spk->acdetail->count() > 0
-        ? $spk->acdetail->map(fn($ac) => [
-            'id' => $ac->id,
-            'no_ac' => $ac->no_ac,
-            'keluhan' => $ac->pivot->keluhan ?? '',
-            'jenis_pekerjaan' => $ac->pivot->jenis_pekerjaan ?? ''
-        ])->values()
-        : []
-) !!};
+// Data existing AC dari SPK (via units)
+const existingAcData = {!! json_encode($existingAcData ?? []) !!};
 
 // Errors dari validasi
-const errorsData = {!! json_encode($errors->messages()) !!};
+const laravelErrors = {!! json_encode($errors->messages()) !!};
 
+// Ambil old input
+const oldIds = {!! json_encode(old('acdetail_ids', [])) !!};
+const oldKeluhan = {!! json_encode(old('keluhan', [])) !!};
+const oldJenis = {!! json_encode(old('jenis_pekerjaan', [])) !!};
+const oldHistory = {!! json_encode(old('history_image', [])) !!};
+const oldImages = {!! json_encode(old('images', [])) !!};
+
+// Helper untuk error
 function getErrorMessage(fieldName, index) {
     const key = `${fieldName}.${index}`;
-    return errorsData[key] ? errorsData[key][0] : '';
+    return laravelErrors[key] ? laravelErrors[key][0] : '';
 }
 
 function hasError(fieldName, index) {
     const key = `${fieldName}.${index}`;
-    return key in errorsData;
+    return key in laravelErrors;
 }
 
+// Helper untuk images (BEFORE/AFTER)
+function getImageValue(i, pos, type) {
+    if(oldImages[i] && oldImages[i][pos] && oldImages[i][pos][type]){
+        return oldImages[i][pos][type];
+    }
+    if(existingAcData[i]){
+        if(pos === 'before' && type === 'indoor') return existingAcData[i].before_indoor ?? '';
+        if(pos === 'before' && type === 'outdoor') return existingAcData[i].before_outdoor ?? '';
+        if(pos === 'after' && type === 'indoor') return existingAcData[i].after_indoor ?? '';
+        if(pos === 'after' && type === 'outdoor') return existingAcData[i].after_outdoor ?? '';
+    }
+    return '';
+}
+
+// Generate form AC dinamis
 function generateAcForms() {
     const jumlah = parseInt(jumlahAcInput.value) || 1;
     acContainer.innerHTML = '';
-
-    const oldIds = {!! json_encode(old('acdetail_ids', [])) !!};
-    const oldKeluhan = {!! json_encode(old('keluhan', [])) !!};
-    const oldJenis = {!! json_encode(old('jenis_pekerjaan', [])) !!};
 
     for (let i = 0; i < jumlah; i++) {
         const acCard = document.createElement('div');
         acCard.className = 'card mb-3 border';
 
-        // Ambil old input dulu, jika tidak ada pakai existing SPK
-        const acId = oldIds[i] || (existingAcData[i] ? existingAcData[i].id : '');
-        const keluhan = oldKeluhan[i] || (existingAcData[i] ? existingAcData[i].keluhan : '');
-        const jenisPekerjaan = oldJenis[i] || (existingAcData[i] ? existingAcData[i].jenis_pekerjaan : '');
+        const acId = oldIds[i] ?? (existingAcData[i]?.acdetail_id ?? '');
+        const keluhan = oldKeluhan[i] ?? (existingAcData[i]?.keluhan ?? '');
+        const jenisPekerjaan = oldJenis[i] ?? (existingAcData[i]?.jenis_pekerjaan ?? '');
+        const historyFile = oldHistory[i] ?? (existingAcData[i]?.history_image ?? '');
+
+        const beforeImage = oldImages[i]?.before ?? existingAcData[i]?.before_image ?? '';
+        const afterImage  = oldImages[i]?.after ?? existingAcData[i]?.after_image ?? '';
+
 
         const acError = hasError('acdetail_ids', i);
         const keluhanError = hasError('keluhan', i);
         const jenisError = hasError('jenis_pekerjaan', i);
+        const historyError = hasError('history_image', i);
+
+        const getImageError = (fieldPath) => laravelErrors[fieldPath] ? laravelErrors[fieldPath][0] : '';
 
         acCard.innerHTML = `
             <div class="card-body">
@@ -346,25 +313,51 @@ function generateAcForms() {
                         <i class="bi bi-trash"></i> Hapus
                     </button>
                 </div>
+
+                <!-- Nomor AC -->
                 <div class="mb-3">
                     <label for="acdetail_${i}" class="form-label">Nomor AC <span class="text-danger">*</span></label>
                     <select name="acdetail_ids[]" id="acdetail_${i}" class="form-select ${acError ? 'is-invalid' : ''}" required>
                         <option value="">-- Pilih No AC --</option>
-                        ${Object.entries(acdetailData).map(([id, noAc]) => `
-                            <option value="${id}" ${acId == id ? 'selected' : ''}>${noAc}</option>
-                        `).join('')}
+                        ${Object.entries(acdetailData).map(([id, noAc]) => `<option value="${id}" ${acId == id ? 'selected' : ''}>${noAc}</option>`).join('')}
                     </select>
                     ${acError ? `<div class="invalid-feedback d-block">${getErrorMessage('acdetail_ids', i)}</div>` : ''}
                 </div>
+
+                <!-- Keluhan -->
                 <div class="mb-3">
                     <label for="keluhan_${i}" class="form-label">Keluhan <span class="text-danger">*</span></label>
                     <textarea name="keluhan[]" id="keluhan_${i}" class="form-control ${keluhanError ? 'is-invalid' : ''}" rows="3" required>${keluhan}</textarea>
                     ${keluhanError ? `<div class="invalid-feedback d-block">${getErrorMessage('keluhan', i)}</div>` : ''}
                 </div>
+
+                <!-- Jenis Pekerjaan -->
                 <div class="mb-3">
                     <label for="jenis_pekerjaan_${i}" class="form-label">Jenis Pekerjaan <span class="text-danger">*</span></label>
                     <textarea name="jenis_pekerjaan[]" id="jenis_pekerjaan_${i}" class="form-control ${jenisError ? 'is-invalid' : ''}" rows="3" required>${jenisPekerjaan}</textarea>
                     ${jenisError ? `<div class="invalid-feedback d-block">${getErrorMessage('jenis_pekerjaan', i)}</div>` : ''}
+                </div>
+
+                <!-- History AC -->
+                <div class="mb-3">
+                    <label class="form-label">Kartu History AC</label>
+                    ${historyFile ? `<p>File lama: <a href="/storage/${historyFile}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" name="history_image[${i}]" class="form-control ${historyError ? 'is-invalid' : ''}" accept=".jpg,.jpeg,.png">
+                    ${historyError ? `<div class="invalid-feedback d-block">${getErrorMessage('history_image', i)}</div>` : ''}
+                </div>
+
+                <!-- BEFORE -->
+                <div class="mb-3">
+                    <label class="form-label">Foto Before</label>
+                    ${beforeImage ? `<p>File lama: <a href="/storage/${beforeImage}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" name="images[${i}][before]" class="form-control" accept=".jpg,.jpeg,.png">
+                </div>
+
+                <!-- AFTER -->
+                <div class="mb-3">
+                    <label class="form-label">Foto After</label>
+                    ${afterImage ? `<p>File lama: <a href="/storage/${afterImage}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" name="images[${i}][after]" class="form-control" accept=".jpg,.jpeg,.png">
                 </div>
             </div>
         `;
@@ -402,18 +395,43 @@ function updatePelaksanaOptions() {
 
 // Event listeners
 jumlahAcInput.addEventListener('input', generateAcForms);
+
 jumlahInput.addEventListener('input', () => {
     const maxTeknisi = parseInt(jumlahInput.value) || 0;
     const checked = document.querySelectorAll('.teknisi-checkbox:checked');
-    if(checked.length > maxTeknisi) checked.forEach((cb, i) => { if(i >= maxTeknisi) cb.checked = false; });
+
+    if (checked.length > maxTeknisi) {
+        checked.forEach((cb, i) => {
+            if (i >= maxTeknisi) cb.checked = false;
+        });
+    }
+
     updateCheckboxLimit();
 });
+
 checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
 
-// Init
+
+// 🔥 INIT FIXED
 document.addEventListener('DOMContentLoaded', () => {
+
+    // PRIORITAS:
+    // 1. Kalau ada old input → pakai jumlah old
+    if (oldIds.length > 0) {
+        jumlahAcInput.value = oldIds.length;
+    }
+    // 2. Kalau tidak ada old, tapi ada existing data dari DB
+    else if (existingAcData.length > 0) {
+        jumlahAcInput.value = existingAcData.length;
+    }
+    // 3. Kalau kosong semua → default 1
+    else {
+        jumlahAcInput.value = 1;
+    }
+
     generateAcForms();
     updateCheckboxLimit();
 });
 </script>
+
 @endpush

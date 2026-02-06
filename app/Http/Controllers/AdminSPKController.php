@@ -7,6 +7,12 @@ use App\Models\Pengguna;
 use App\Models\LogService;
 use App\Models\Departement;
 use Illuminate\Http\Request;
+use App\Models\AcHistoryImage;
+use App\Models\LogServiceUnit;
+use Illuminate\Support\Carbon;
+use App\Models\LogServiceImage;
+use Illuminate\Validation\Rule;
+use App\Models\LogServiceDetail;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -35,33 +41,48 @@ class AdminSPKController extends Controller
     }
     public function getData()
     {
-        // if (! $request->ajax()) {
-        //     abort(404);
-        // }
-
-        $data = LogService::with(['acdetail'])->select('log_service.*');
+        // Ambil SPK beserta unit dan detail AC
+        $data = LogService::with(['units.acdetail'])->select('log_service.*');
 
         return DataTables::of($data)
             ->addIndexColumn()
-            ->addColumn('no_ac', function($row) {
-                return $row->acdetail->pluck('no_ac')->join (', ');
+
+            // Kolom No AC, gabungkan semua AC terkait SPK
+            ->addColumn('no_ac', function ($row) {
+                // Pastikan units ada
+                if ($row->units->count()) {
+                    // Ambil nomor AC tiap unit
+                    return $row->units->map(function ($unit) {
+                        return $unit->acdetail->no_ac ?? '-';
+                    })->filter()->join(', ');
+                }
+                return '-';
             })
-            ->addColumn('aksi', function($row){
+
+            // Kolom aksi (edit, delete, detail)
+            ->addColumn('aksi', function ($row) {
                 return '
                 <div class="aksi-btn">
-                    <a href="/admin/spk/'.$row->id.'/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong> Edit</strong></a>
+                    <a href="/admin/spk/'.$row->id.'/edit" class="btn btn-md btn-success">
+                        <i data-feather="edit"></i> <strong>Edit</strong>
+                    </a>
+
                     <form action="/admin/spk/'.$row->id.'" method="POST" class="d-inline form-delete">
                         '.csrf_field().'
                         '.method_field('DELETE').'
                         <button type="submit" class="btn btn-md btn-danger">
-                            <i class="align-middle" data-feather="trash-2"></i><strong> Hapus</strong>
+                            <i data-feather="trash-2"></i> <strong>Hapus</strong>
                         </button>
                     </form>
-                    <a href="/admin/spk/detail/'.$row->id.'" class="btn btn-md btn-secondary"><i class="align-middle" data-feather="eye"></i><strong> Detail</strong></a>
+
+                    <a href="/admin/spk/detail/'.$row->id.'" class="btn btn-md btn-secondary">
+                        <i data-feather="eye"></i> <strong>Detail</strong>
+                    </a>
                 </div>';
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
+            })
+
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     /**
@@ -83,11 +104,24 @@ class AdminSPKController extends Controller
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
 
+            'jumlah_ac_input'    => 'required|integer|min:1',
+
             'keluhan'            => 'required|array|min:1',
             'keluhan.*'          => 'required|string',
 
             'jenis_pekerjaan'    => 'required|array|min:1',
             'jenis_pekerjaan.*'  => 'required|string',
+
+            // ===== Image History =====
+            'history_image'      => 'required|array',
+            'history_image.*'    => 'required|image|mimes:jpg,jpeg,png|max:10240',
+
+            // ===== Image Before & After =====
+            'images' => 'nullable|array',
+
+            'images.*.before'    => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+
+            'images.*.after'     => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
 
             'kepada'             => 'required|string|max:100',
             'mengetahui'         => 'required|string|max:100',
@@ -95,10 +129,6 @@ class AdminSPKController extends Controller
             'pelaksana_ttd'      => 'required|exists:pengguna,id',
 
             'file_spk'           => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
-            
-            'before_image'       => 'required|image|mimes:jpg,jpeg,png|max:10240',
-            'after_image'        => 'required|image|mimes:jpg,jpeg,png|max:10240',
-
         ], [
 
             // ===== AC =====
@@ -123,6 +153,9 @@ class AdminSPKController extends Controller
             'teknisi.*.required'        => 'Teknisi wajib dipilih.',
             'teknisi.*.exists'          => 'Teknisi tidak valid.',
 
+            // ==== JUMLAH AC =====
+            'jumlah_ac_input.required'  => 'Jumlah AC wajib diisi.',
+
             // ===== KELUHAN =====
             'keluhan.required'          => 'Keluhan wajib diisi.',
             'keluhan.*.required'        => 'Keluhan wajib diisi.',
@@ -130,6 +163,21 @@ class AdminSPKController extends Controller
             // ===== JENIS PEKERJAAN =====
             'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi.',
             'jenis_pekerjaan.*.required'=> 'Jenis pekerjaan wajib diisi.',
+
+            // =====Image History =====
+            'history_image.required'     => 'Kartu history AC wajib diunggah.',
+            'history_image.array'        => 'Format kartu history tidak valid.',
+            'history_image.*.required'   => 'Kartu history AC wajib diunggah.',
+            'history_image.*.image'      => 'File kartu history harus berupa gambar.',
+            'history_image.*.mimes'      => 'Kartu history harus JPG, JPEG, atau PNG.',
+            'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
+
+            // ===== IMAGE BEFORE & AFTER =====
+            'images.*.before.image'   => 'Foto BEFORE Indoor harus berupa gambar.',
+            'images.*.before.max'     => 'Ukuran Foto BEFORE Indoor maksimal 10 MB.',
+
+            'images.*.after.image'    => 'Foto AFTER Indoor harus berupa gambar.',
+            'images.*.after.max'      => 'Ukuran Foto AFTER Indoor maksimal 10 MB.',
 
             // ===== BAGIAN ADMIN =====
             'kepada.required'           => 'Bagian “Kepada” wajib diisi.',
@@ -141,63 +189,72 @@ class AdminSPKController extends Controller
             'file_spk.required'         => 'File SPK wajib diunggah.',
             'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG, atau PNG.',
             'file_spk.max'              => 'Ukuran file SPK maksimal adalah 20MB.',
-
-            // ===== Image Before & After =====
-            'before_image.required'     => 'Gambar wajib diunggah.',
-            'before_image.mimes'        => 'Tipe gambar sebelum aksi harus berupa JPG, JPEG, atau PNG.',
-            'before_image.max'          => 'Ukuran gambar sebelum aksi maksimal adalah 10MB.',
-
-            'after_image.required'      => 'Gambar wajib diunggah.',
-            'after_image.mimes'         => 'Tipe gambar sesudah aksi harus berupa JPG, JPEG, atau PNG.',
-            'after_image.max'           => 'Ukuran gambar sesudah aksi maksimal adalah 10MB.',
         ]);
-
-        $filePath       = null;
-        $beforeImagePath = null;
-        $afterImagePath  = null;
 
         DB::beginTransaction();
 
         try {
-            if ($request->hasFile('file_spk')) {
-                $filePath = $request->file('file_spk')->store('spk_files', 'public');
-            }
-
-            if ($request->hasFile('before_image')) {
-                $beforeImagePath = $request->file('before_image')
-                    ->store('spk_images/before', 'public');
-            }
-
-            if ($request->hasFile('after_image')) {
-                $afterImagePath = $request->file('after_image')
-                    ->store('spk_images/after', 'public');
-            }
-
-           $spk = LogService::create([
-                'no_spk'            => $validated['no_spk'],
-                'tanggal'           => $validated['tanggal'],
-                'waktu_mulai'       => $validated['waktu_mulai'],
-                'waktu_selesai'     => $validated['waktu_selesai'],
-                'jumlah_orang'      => $validated['jumlah_orang'],
-                'kepada'            => $validated['kepada'],
-                'mengetahui'        => $validated['mengetahui'],
-                'hormat_kami'       => $validated['hormat_kami'],
-                'pelaksana_ttd'     => $validated['pelaksana_ttd'],
-                'file_spk'          => $filePath,
-                'before_image'      => $beforeImagePath,
-                'after_image'       => $afterImagePath,
+            // ================= SPK UTAMA =================
+            $spk = LogService::create([
+                'no_spk'        => $validated['no_spk'],
+                'tanggal'       => $validated['tanggal'],
+                'waktu_mulai'   => $validated['waktu_mulai'],
+                'waktu_selesai' => $validated['waktu_selesai'],
+                'jumlah_orang'  => $validated['jumlah_orang'],
+                'kepada'        => $validated['kepada'],
+                'mengetahui'    => $validated['mengetahui'],
+                'hormat_kami'   => $validated['hormat_kami'],
+                'pelaksana_ttd' => $validated['pelaksana_ttd'],
+                'file_spk'      => $request->file('file_spk')->store('spk_files', 'public'),
             ]);
 
-            // ================= SYNC AC DETAIL =================
-            $acData = [];
-            foreach ($validated['acdetail_ids'] as $index => $acdetailId) {
-                $acData[$acdetailId] = [
-                    'keluhan'         => $validated['keluhan'][$index],
-                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
-                ];
+            // ================= LOOP SETIAP AC =================
+            foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
+
+                // ---- 1. LOG SERVICE DETAIL (keluhan & jenis pekerjaan) ----
+                LogServiceDetail::create([
+                    'log_service_id' => $spk->id,
+                    'acdetail_id'    => $acdetailId,
+                    'keluhan'        => $validated['keluhan'][$i] ?? null,
+                    'jenis_pekerjaan'=> $validated['jenis_pekerjaan'][$i] ?? null,
+                ]);
+
+                // ---- 2. LOG SERVICE UNIT (untuk relasi gambar) ----
+                $unit = LogServiceUnit::create([
+                    'log_service_id' => $spk->id,
+                    'acdetail_id'    => $acdetailId,
+                ]);
+
+                // ---- 3. AC HISTORY IMAGE ----
+                if ($request->hasFile("history_image.$i")) {
+                    $path = $request->file("history_image.$i")
+                        ->store('spk_images/kartu_history', 'public');
+
+                    AcHistoryImage::create([
+                        'log_service_id' => $spk->id,
+                        'acdetail_id'    => $acdetailId,
+                        'image_path'     => $path,
+                    ]);
+                }
+
+                // ---- 4. BEFORE & AFTER IMAGES ----
+                foreach (['before', 'after'] as $kondisi) {
+                    if ($request->hasFile("images.$i.$kondisi")) {
+                        $path = $request
+                            ->file("images.$i.$kondisi")
+                            ->store("spk_images/$kondisi", 'public');
+
+                        LogServiceImage::create([
+                            'log_service_unit_id' => $unit->id,
+                            'kondisi'             => $kondisi,
+                            'posisi'              => 'all', // bisa pakai 'all' karena tidak lagi indoor/outdoor
+                            'image_path'          => $path,
+                        ]);
+                    }
+                }
             }
 
-            $spk->acdetail()->sync($acData);
+            // ================= TEKNISI =================
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();
@@ -207,25 +264,11 @@ class AdminSPKController extends Controller
                 ->with('success', 'Data SPK berhasil disimpan');
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
-            // ================= CLEANUP FILE =================
-            if ($filePath) {
-                Storage::disk('public')->delete($filePath);
-            }
-
-            if ($beforeImagePath) {
-                Storage::disk('public')->delete($beforeImagePath);
-            }
-
-            if ($afterImagePath) {
-                Storage::disk('public')->delete($afterImagePath);
-            }
-
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            return back()->withErrors([
+                'error' => $e->getMessage()
+            ])->withInput();
         }
     }
 
@@ -242,16 +285,54 @@ class AdminSPKController extends Controller
      */
     public function edit(string $id)
     {
-        $spk = LogService::with(['acdetail', 'teknisi'])->findOrFail($id);
+        $spk = LogService::with([
+            'units.acdetail',       // nomor AC
+            'units.detail',         // keluhan & jenis_pekerjaan
+            'units.images',         // foto before/after
+            'units.historyImages',  // kartu history
+            'units.detail' => function($query) use ($id) {
+                $query->where('log_service_id', $id);
+            },
+            'teknisi',              // teknisi
+        ])->findOrFail($id);
+
         $acdetail = DetailAC::all();
         $departement = Departement::all();
         $pengguna = Pengguna::all();
         $admin = Pengguna::where('role', 'Admin')->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
-        return view('admin.formeditspk', compact('spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi'));
+        // ==== Persiapkan existing data untuk JS ====
+        $existingAcData = $spk->units->map(function($unit){
+            // Ambil semua images unit
+            $images = $unit->images;
 
+            // Ambil gambar before (prioritas: any posisi, fallback all)
+            $before = $images->firstWhere('kondisi', 'before')?->image_path
+                    ?? '';
+
+            // Ambil gambar after (prioritas: any posisi, fallback all)
+            $after = $images->firstWhere('kondisi', 'after')?->image_path
+                    ?? '';
+
+            return [
+                'unit_id'         => $unit->id, // kalau mau simpan
+                'acdetail_id'     => $unit->acdetail_id, // 🔥 INI YANG PENTING
+                'no_ac'           => $unit->acdetail->no_ac ?? '',
+                'keluhan'         => $unit->detail->keluhan ?? '',
+                'jenis_pekerjaan' => $unit->detail->jenis_pekerjaan ?? '',
+                'history_image'   => $unit->historyImages->first()?->image_path ?? '',
+                'before_image'    => $before,
+                'after_image'     => $after,
+            ];
+        });
+        // dd($existingAcData->toArray());
+
+        return view('admin.formeditspk', compact(
+            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData'
+        ));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -259,113 +340,186 @@ class AdminSPKController extends Controller
     // ...existing code...
     public function update(Request $request, string $id)
     {
-        $spk = LogService::findOrFail($id);
+        $spk = LogService::with(['units.images'])->findOrFail($id);
 
         $validated = $request->validate([
-            'acdetail_ids'        => 'required|array|min:1',
-            'acdetail_ids.*'      => 'exists:acdetail,id',
-            'no_spk'              => 'required|string|max:10',
-            'tanggal'             => 'required|date',
-            'waktu_mulai'         => 'required',
-            'waktu_selesai'       => 'required|after:waktu_mulai',
-            'jumlah_orang'        => 'required|integer|min:1',
-            'teknisi'             => 'required|array|min:1',
-            'teknisi.*'           => 'exists:pengguna,id',
-            'keluhan'             => 'required|array|min:1',
-            'keluhan.*'           => 'required|string',
-            'jenis_pekerjaan'     => 'required|array|min:1',
-            'jenis_pekerjaan.*'   => 'required|string',
-            'kepada'              => 'required|string|max:100',
-            'mengetahui'          => 'required|string|max:100',
-            'hormat_kami'         => 'required|string|max:100',
-            'pelaksana_ttd'       => 'required|exists:pengguna,id',
-            'file_spk'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'before_image'       => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-            'after_image'        => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-        ], [
-            'acdetail_ids.required'    => 'Nomor AC wajib dipilih',
-            'no_spk.required'          => 'Nomor SPK wajib diisi',
-            'tanggal.required'         => 'Tanggal SPK wajib diisi',
-            'waktu_mulai.required'     => 'Waktu mulai wajib diisi',
-            'waktu_selesai.required'   => 'Waktu selesai wajib diisi',
-            'waktu_selesai.after'      => 'Waktu selesai harus setelah waktu mulai',
-            'jumlah_orang.required'    => 'Jumlah teknisi wajib diisi',
-            'teknisi.required'         => 'Teknisi wajib dipilih',
-            'keluhan.required'         => 'Keluhan wajib diisi untuk setiap AC',
-            'jenis_pekerjaan.required' => 'Jenis pekerjaan wajib diisi untuk setiap AC',
-            'kepada.required'          => 'Kepada wajib diisi',
-            'mengetahui.required'      => 'Mengetahui wajib diisi',
-            'hormat_kami.required'     => 'Hormat kami wajib diisi',
-            'pelaksana_ttd.required'   => 'Pelaksana SPK wajib dipilih',
+            'acdetail_ids'       => 'required|array|min:1',
+            'acdetail_ids.*'     => 'required|exists:acdetail,id',
+
+            'no_spk' => [
+                'required',
+                'digits:5',
+                Rule::unique('log_service', 'no_spk')->ignore($id),
+            ],
+
+            'tanggal'            => 'required|date',
+            'waktu_mulai'        => 'required',
+            'waktu_selesai'      => 'required|after:waktu_mulai',
+
+            'jumlah_orang'       => 'required|integer|min:1',
+
+            'teknisi'            => 'required|array|min:1',
+            'teknisi.*'          => 'required|exists:pengguna,id',
+
+            'keluhan'            => 'required|array|min:1',
+            'keluhan.*'          => 'required|string',
+
+            'jenis_pekerjaan'    => 'required|array|min:1',
+            'jenis_pekerjaan.*'  => 'required|string',
+
+            'history_image'      => 'nullable|array',
+            'history_image.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+
+            'images'             => 'nullable|array',
+            'images.*.before'    => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'images.*.after'     => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+
+            'kepada'             => 'required|string|max:100',
+            'mengetahui'         => 'required|string|max:100',
+            'hormat_kami'        => 'required|exists:pengguna,id',
+            'pelaksana_ttd'      => 'required|exists:pengguna,id',
+
+            'file_spk'           => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ]);
 
         DB::beginTransaction();
 
         try {
-            /** ================= FILE SPK ================= */
-            $fileSpkPath = $spk->file_spk;
+
+            /* ================= UPDATE FILE SPK ================= */
             if ($request->hasFile('file_spk')) {
-                if ($fileSpkPath && Storage::disk('public')->exists($fileSpkPath)) {
-                    Storage::disk('public')->delete($fileSpkPath);
+
+                if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
+                    Storage::disk('public')->delete($spk->file_spk);
                 }
-                $fileSpkPath = $request->file('file_spk')->store('spk_files', 'public');
+
+                $spk->file_spk = $request->file('file_spk')
+                    ->store('spk_files', 'public');
             }
 
-            /** ================= BEFORE IMAGE ================= */
-            $beforeImagePath = $spk->before_image;
-            if ($request->hasFile('before_image')) {
-                if ($beforeImagePath && Storage::disk('public')->exists($beforeImagePath)) {
-                    Storage::disk('public')->delete($beforeImagePath);
-                }
-                $beforeImagePath = $request->file('before_image')->store('spk_images/before', 'public');
-            }
+            /* ================= FORMAT WAKTU ================= */
+            $waktuMulai = Carbon::parse($validated['waktu_mulai'])->format('H:i:s');
+            $waktuSelesai = Carbon::parse($validated['waktu_selesai'])->format('H:i:s');
 
-            /** ================= AFTER IMAGE ================= */
-            $afterImagePath = $spk->after_image;
-            if ($request->hasFile('after_image')) {
-                if ($afterImagePath && Storage::disk('public')->exists($afterImagePath)) {
-                    Storage::disk('public')->delete($afterImagePath);
-                }
-                $afterImagePath = $request->file('after_image')->store('spk_images/after', 'public');
-            }
-
-            /** ================= UPDATE SPK ================= */
+            /* ================= UPDATE DATA SPK ================= */
             $spk->update([
                 'no_spk'        => $validated['no_spk'],
                 'tanggal'       => $validated['tanggal'],
-                'waktu_mulai'   => $validated['waktu_mulai'],
-                'waktu_selesai' => $validated['waktu_selesai'],
+                'waktu_mulai'   => $waktuMulai,
+                'waktu_selesai' => $waktuSelesai,
                 'jumlah_orang'  => $validated['jumlah_orang'],
                 'kepada'        => $validated['kepada'],
                 'mengetahui'    => $validated['mengetahui'],
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
-                'file_spk'      => $fileSpkPath,
-                'before_image'  => $beforeImagePath,
-                'after_image'   => $afterImagePath,
             ]);
 
-            /** ================= SYNC AC + PIVOT ================= */
-            $acPivot = [];
-            foreach ($validated['acdetail_ids'] as $index => $acId) {
-                $acPivot[$acId] = [
-                    'keluhan'         => $validated['keluhan'][$index],
-                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
-                ];
-            }
-            $spk->acdetail()->sync($acPivot);
+           /* ================= AMBIL DATA LAMA ================= */
+            $oldUnits = $spk->units->keyBy('acdetail_id');
 
-            /** ================= SYNC TEKNISI ================= */
+            $usedUnitIds = [];
+
+            foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
+
+                /* ===== DETAIL ===== */
+                LogServiceDetail::updateOrCreate(
+                    [
+                        'log_service_id' => $spk->id,
+                        'acdetail_id'    => $acdetailId,
+                    ],
+                    [
+                        'keluhan'         => $validated['keluhan'][$i] ?? null,
+                        'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$i] ?? null,
+                    ]
+                );
+
+                /* ===== UNIT ===== */
+                if (isset($oldUnits[$acdetailId])) {
+                    $unit = $oldUnits[$acdetailId]; // pakai lama
+                } else {
+                    $unit = LogServiceUnit::create([
+                        'log_service_id' => $spk->id,
+                        'acdetail_id'    => $acdetailId,
+                    ]);
+                }
+
+                $usedUnitIds[] = $unit->id;
+
+                /* ================= HISTORY IMAGE ================= */
+                if ($request->hasFile("history_image.$i")) {
+
+                    $existingHistory = AcHistoryImage::where('log_service_id', $spk->id)
+                        ->where('acdetail_id', $acdetailId)
+                        ->first();
+
+                    if ($existingHistory) {
+                        if (Storage::disk('public')->exists($existingHistory->image_path)) {
+                            Storage::disk('public')->delete($existingHistory->image_path);
+                        }
+                        $existingHistory->delete();
+                    }
+
+                    $path = $request->file("history_image.$i")
+                        ->store('spk_images/kartu_history', 'public');
+
+                    AcHistoryImage::create([
+                        'log_service_id' => $spk->id,
+                        'acdetail_id'    => $acdetailId,
+                        'image_path'     => $path,
+                    ]);
+                }
+
+                /* ================= BEFORE & AFTER ================= */
+                foreach (['before', 'after'] as $kondisi) {
+
+                    if ($request->hasFile("images.$i.$kondisi")) {
+
+                        $existingImage = LogServiceImage::where('log_service_unit_id', $unit->id)
+                            ->where('kondisi', $kondisi)
+                            ->first();
+
+                        if ($existingImage) {
+                            if (Storage::disk('public')->exists($existingImage->image_path)) {
+                                Storage::disk('public')->delete($existingImage->image_path);
+                            }
+                            $existingImage->delete();
+                        }
+
+                        $path = $request->file("images.$i.$kondisi")
+                            ->store("spk_images/$kondisi", 'public');
+
+                        LogServiceImage::create([
+                            'log_service_unit_id' => $unit->id,
+                            'kondisi'             => $kondisi,
+                            'posisi'              => 'all',
+                            'image_path'          => $path,
+                        ]);
+                    }
+                }
+            }
+
+            /* ================= HAPUS UNIT YANG TIDAK DIPAKAI ================= */
+            LogServiceUnit::where('log_service_id', $spk->id)
+                ->whereNotIn('id', $usedUnitIds)
+                ->delete();
+ 
+
+            /* ================= SYNC TEKNISI ================= */
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();
-            return redirect()->route('admin.spk')->with('success', 'Data SPK berhasil diupdate');
+
+            return redirect()
+                ->route('admin.spk')
+                ->with('success', 'Data SPK berhasil diupdate');
 
         } catch (\Exception $e) {
+
             DB::rollBack();
+
             return back()
-                ->withInput()
-                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -379,23 +533,18 @@ class AdminSPKController extends Controller
         try {
             $spk = LogService::findOrFail($id);
 
-            /** ================= DELETE FILE SPK ================= */
-            if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
-                Storage::disk('public')->delete($spk->file_spk);
+            /** ================= DELETE FILES ================= */
+            foreach (['file_spk', 'before_image', 'after_image'] as $file) {
+                if ($spk->$file && Storage::disk('public')->exists($spk->$file)) {
+                    Storage::disk('public')->delete($spk->$file);
+                }
             }
 
-            /** ================= DELETE BEFORE IMAGE ================= */
-            if ($spk->before_image && Storage::disk('public')->exists($spk->before_image)) {
-                Storage::disk('public')->delete($spk->before_image);
-            }
+            /** ================= DELETE RELATED UNITS (AC) ================= */
+            // Menghapus semua unit yang terkait dengan SPK
+            $spk->units()->delete();
 
-            /** ================= DELETE AFTER IMAGE ================= */
-            if ($spk->after_image && Storage::disk('public')->exists($spk->after_image)) {
-                Storage::disk('public')->delete($spk->after_image);
-            }
-
-            /** ================= DETACH RELATION ================= */
-            $spk->acdetail()->detach();
+            /** ================= DETACH RELASI TEKNISI ================= */
             $spk->teknisi()->detach();
 
             /** ================= DELETE SPK ================= */
@@ -412,10 +561,15 @@ class AdminSPKController extends Controller
         }
     }
 
-
     public function detail($id)
     {
-        $spk = LogService::with(['acdetail','acdetail.ruangan.departement','teknisi', 'pelaksana', 'hormatKamiUser'])->findOrFail($id);
+        $spk = LogService::with([
+            'units.acdetail.ruangan.departement', // untuk menampilkan info AC dan ruangan
+            'details.acdetail',
+            'units.images',
+            'units.historyImages'
+        ])->findOrFail($id);
+
         return view('admin.detailspk', compact('spk'));
     }
 

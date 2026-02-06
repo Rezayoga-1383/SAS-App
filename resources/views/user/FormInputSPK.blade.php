@@ -310,34 +310,6 @@
                   @enderror
               </div>
 
-              <div class="col-sm-6">
-                  <label for="before_image" class="form-label">Upload Gambar AC - Sebelum Aksi <span class="text-danger">*</span></label>
-                  <input
-                      type="file"
-                      id="before_image"
-                      name="before_image"
-                      class="form-control form-control-md @error('before_image') is-invalid @enderror"
-                      accept=".jpg,.jpeg,.png"  {{-- sesuaikan jenis file yang diizinkan --}}
-                      required>
-                  @error('before_image')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-              </div>
-
-              <div class="col-sm-6">
-                  <label for="after_image" class="form-label">Upload Gambar AC - Setelah Aksi <span class="text-danger">*</span></label>
-                  <input
-                      type="file"
-                      id="after_image"
-                      name="after_image"
-                      class="form-control form-control-md @error('after_image') is-invalid @enderror"
-                      accept=".jpg,.jpeg,.png"  {{-- sesuaikan jenis file yang diizinkan --}}
-                      required>
-                  @error('after_image')
-                      <div class="invalid-feedback">{{ $message }}</div>
-                  @enderror
-              </div>
-
               <div class="col-md-12 text-center" id="submit_btn">
                 <button type="submit" id="submit_btn" class="btn btn-primary">Kirim Data</button>
               </div>
@@ -462,6 +434,8 @@
   const errorKeluhan = @json($errors->get('keluhan.*'));
   const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
 
+  const laravelErrors = @json($errors->getMessages());
+
   function generateAcForms() {
     const jumlah = parseInt(jumlahAcInput.value) || 0;
     acContainer.innerHTML = '';
@@ -487,6 +461,12 @@
       const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
           ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
           : '';
+      
+      const errHistory = (laravelErrors && laravelErrors[`history_image.${i}`]
+          ? laravelErrors[`history_image.${i}`][0]
+          : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
+
+      const errBeforeIndoor = laravelErrors && laravelErrors[]
 
 
       acCard.innerHTML = `
