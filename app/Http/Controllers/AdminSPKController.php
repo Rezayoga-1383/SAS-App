@@ -94,7 +94,7 @@ class AdminSPKController extends Controller
             'acdetail_ids'              => 'required|array|min:1',
             'acdetail_ids.*'            => 'required|exists:acdetail,id',
 
-            'no_spk'                    => 'required|digits:5|unique:log_service,no_spk',
+            'no_spk'                    => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'                   => 'required|date',
             'waktu_mulai'               => 'required|date_format:H:i',
             'waktu_selesai'             => 'required|after:waktu_mulai|date_format:H:i',
@@ -137,7 +137,7 @@ class AdminSPKController extends Controller
             // ===== NOMOR SPK =====
             'no_spk.required'           => 'Nomor SPK wajib diisi.',
             'no_spk.unique'             => 'Nomor SPK sudah digunakan.',
-            'no_spk.digits'             => 'Nomor SPK harus terdiri dari 5 digit angka.',
+            'no_spk.digits'             => 'Nomor SPK harus terdiri dari 4 digit angka.',
 
             // ===== TANGGAL & WAKTU =====
             'tanggal.required'          => 'Tanggal SPK wajib diisi.',
@@ -326,7 +326,7 @@ class AdminSPKController extends Controller
 
             'no_spk' => [
                 'required',
-                'digits:5',
+                'digits:4',
                 Rule::unique('log_service', 'no_spk')->ignore($id),
             ],
 
