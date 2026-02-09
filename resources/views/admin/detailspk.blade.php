@@ -217,22 +217,23 @@
         <div class="alert alert-secondary mt-2">Belum ada kartu history AC.</div>
     @endif
 
-                <!-- BEFORE Images -->
+                 {{-- ================= FOTO KOLASE ================= --}}
                 @php
-                    $beforeImages = $unit->images->where('kondisi', 'before');
+                    $fotoKolase = $unit->images; // sekarang cuma 1 image
                 @endphp
 
-                @if($beforeImages->count())
+                @if($fotoKolase->count())
                     <div class="row mb-4">
-                      <hr>
-                        <h6 class="fw-bolder">Sebelum Aksi</h6>
-                        @foreach($beforeImages as $img)
+                        <hr>
+                        <h6 class="fw-bolder">Foto Kolase</h6>
+
+                        @foreach($fotoKolase as $img)
                             <div class="col-12 col-md-6 col-lg-6 mb-4">
                                 <div class="card shadow-sm image-card">
-                                    <div class="card-body">
+                                    <div class="card-body text-center">
                                         <img 
                                             src="{{ asset('storage/'.$img->image_path) }}" 
-                                            alt="Gambar Sebelum Aksi"
+                                            alt="Foto Kolase"
                                             class="img-fluid rounded"
                                             style="max-height: 300px; object-fit: contain;">
                                     </div>
@@ -241,34 +242,9 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="alert alert-secondary mt-2">Belum ada gambar sebelum aksi.</div>
-                @endif
-
-                <!-- AFTER Images -->
-                @php
-                    $afterImages = $unit->images->where('kondisi', 'after');
-                @endphp
-
-                @if($afterImages->count())
-                    <div class="row mb-4">
-                      <hr>
-                        <h6 class="fw-bolder">Setelah Aksi</h6>
-                        @foreach($afterImages as $img)
-                            <div class="col-12 col-md-6 col-lg-6 mb-4">
-                                <div class="card shadow-sm image-card">
-                                    <div class="card-body">
-                                        <img 
-                                            src="{{ asset('storage/'.$img->image_path) }}" 
-                                            alt="Gambar Sesudah Aksi"
-                                            class="img-fluid rounded"
-                                            style="max-height: 300px; object-fit: contain;">
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                    <div class="alert alert-secondary mt-2">
+                        Belum ada foto kolase.
                     </div>
-                @else
-                    <div class="alert alert-secondary mt-2">Belum ada gambar sesudah aksi.</div>
                 @endif
             @endforeach
           </div>

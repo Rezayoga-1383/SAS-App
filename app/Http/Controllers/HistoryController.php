@@ -29,29 +29,34 @@ class HistoryController extends Controller
             return response()->json(['data' => []]);
         }
 
-        // Ambil history berdasarkan relasi many-to-many
-        $histories = LogService::whereHas('acdetail', function ($query) use ($detailAc) {
-            $query->where('acdetail.id', $detailAc->id);
+        // Ambil semua SPK yang punya unit dengan acdetail ini
+        $histories = LogService::whereHas('units', function ($query) use ($detailAc) {
+            $query->where('acdetail_id', $detailAc->id);
         })
-            ->with(['pelaksana', 'acdetail'])
-            ->orderByDesc('tanggal')
-            ->get();
+        ->with([
+            'pelaksana',
+            'units' => function ($query) use ($detailAc) {
+                $query->where('acdetail_id', $detailAc->id)
+                    ->with('detail');
+            }
+        ])
+        ->orderByDesc('tanggal')
+        ->get();
 
         $data = $histories->map(function ($history) {
-            $acDetails = $history->acdetail->first();
-            $noAc = $acDetails?->no_ac ?? '-';
-            $keluhan = $acDetails?->pivot?->keluhan ?? '-';
-            $jenisPekerjaan = $acDetails?->pivot?->jenis_pekerjaan ?? '-';
-            
+
+            $unit = $history->units->first();
+            $detail = $unit?->detail;
+
             return [
                 'id'              => $history->id,
-                'no_ac'           => $noAc,
+                'no_ac'           => $unit?->acdetail?->no_ac ?? '-',
                 'no_spk'          => $history->no_spk,
                 'tanggal'         => Carbon::parse($history->tanggal)->format('d-m-Y'),
                 'waktu_mulai'     => $history->waktu_mulai,
                 'waktu_selesai'   => $history->waktu_selesai,
-                'keluhan'         => $keluhan,
-                'jenis_pekerjaan' => $jenisPekerjaan,
+                'keluhan'         => $detail?->keluhan ?? '-',
+                'jenis_pekerjaan' => $detail?->jenis_pekerjaan ?? '-',
                 'pelaksana_nama'  => $history->pelaksana?->nama ?? '-',
             ];
         });

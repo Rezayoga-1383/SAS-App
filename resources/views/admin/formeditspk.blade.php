@@ -253,7 +253,7 @@ const oldIds = {!! json_encode(old('acdetail_ids', [])) !!};
 const oldKeluhan = {!! json_encode(old('keluhan', [])) !!};
 const oldJenis = {!! json_encode(old('jenis_pekerjaan', [])) !!};
 const oldHistory = {!! json_encode(old('history_image', [])) !!};
-const oldImages = {!! json_encode(old('images', [])) !!};
+const oldFotoKolase = {!! json_encode(old('foto_kolase', [])) !!};
 
 // Helper untuk error
 function getErrorMessage(fieldName, index) {
@@ -264,20 +264,6 @@ function getErrorMessage(fieldName, index) {
 function hasError(fieldName, index) {
     const key = `${fieldName}.${index}`;
     return key in laravelErrors;
-}
-
-// Helper untuk images (BEFORE/AFTER)
-function getImageValue(i, pos, type) {
-    if(oldImages[i] && oldImages[i][pos] && oldImages[i][pos][type]){
-        return oldImages[i][pos][type];
-    }
-    if(existingAcData[i]){
-        if(pos === 'before' && type === 'indoor') return existingAcData[i].before_indoor ?? '';
-        if(pos === 'before' && type === 'outdoor') return existingAcData[i].before_outdoor ?? '';
-        if(pos === 'after' && type === 'indoor') return existingAcData[i].after_indoor ?? '';
-        if(pos === 'after' && type === 'outdoor') return existingAcData[i].after_outdoor ?? '';
-    }
-    return '';
 }
 
 // Generate form AC dinamis
@@ -294,9 +280,7 @@ function generateAcForms() {
         const jenisPekerjaan = oldJenis[i] ?? (existingAcData[i]?.jenis_pekerjaan ?? '');
         const historyFile = oldHistory[i] ?? (existingAcData[i]?.history_image ?? '');
 
-        const beforeImage = oldImages[i]?.before ?? existingAcData[i]?.before_image ?? '';
-        const afterImage  = oldImages[i]?.after ?? existingAcData[i]?.after_image ?? '';
-
+        const FotoKolase     = oldFotoKolase[i] ?? (existingAcData[i]?.foto_kolase ?? '');
 
         const acError = hasError('acdetail_ids', i);
         const keluhanError = hasError('keluhan', i);
@@ -346,18 +330,12 @@ function generateAcForms() {
                     ${historyError ? `<div class="invalid-feedback d-block">${getErrorMessage('history_image', i)}</div>` : ''}
                 </div>
 
-                <!-- BEFORE -->
+                <!-- Foto Kolase -->
                 <div class="mb-3">
-                    <label class="form-label">Foto Before</label>
-                    ${beforeImage ? `<p>File lama: <a href="/storage/${beforeImage}" target="_blank">Lihat</a></p>` : ''}
-                    <input type="file" name="images[${i}][before]" class="form-control" accept=".jpg,.jpeg,.png">
-                </div>
-
-                <!-- AFTER -->
-                <div class="mb-3">
-                    <label class="form-label">Foto After</label>
-                    ${afterImage ? `<p>File lama: <a href="/storage/${afterImage}" target="_blank">Lihat</a></p>` : ''}
-                    <input type="file" name="images[${i}][after]" class="form-control" accept=".jpg,.jpeg,.png">
+                    <label class="form-label">Foto Kolase</label>
+                    ${FotoKolase ? `<p>File lama: <a href="/storage/${FotoKolase}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" name="foto_kolase[${i}]" class="form-control ${hasError('foto_kolase', i) ? 'is-invalid' : ''}" accept=".jpg,.jpeg,.png">
+                    ${hasError('foto_kolase', i) ? `<div class="invalid-feedback d-block">${getErrorMessage('foto_kolase', i)}</div>` : ''}
                 </div>
             </div>
         `;

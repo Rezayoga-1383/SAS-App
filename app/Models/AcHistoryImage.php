@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcHistoryImage extends Model
 {
-    protected $table = 'ac_history_image_table_';
+    protected $table = 'ac_history_images';
     protected $fillable = [
         'acdetail_id',
         'log_service_id',

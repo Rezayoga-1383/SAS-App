@@ -279,23 +279,9 @@
         ? laravelErrors[`history_image.${i}`][0]
         : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
 
-    const errBeforeIndoor = laravelErrors && laravelErrors[`before_indoor.${i}`]
-        ? laravelErrors[`before_indoor.${i}`][0]
-        : '';
-
-    const errBeforeOutdoor = laravelErrors && laravelErrors[`before_outdoor.${i}`]
-        ? laravelErrors[`before_outdoor.${i}`][0]
-        : '';
-
-    const errAfterIndoor = laravelErrors && laravelErrors[`after_indoor.${i}`]
-        ? laravelErrors[`after_indoor.${i}`][0]
-        : '';
-        
-    const errAfterOutdoor = laravelErrors && laravelErrors[`after_outdoor.${i}`]
-        ? laravelErrors[`after_outdoor.${i}`][0]
-        : '';
-
-
+    const errFotoKolase = (laravelErrors && laravelErrors[`foto_kolase.${i}`])
+    ? laravelErrors[`foto_kolase.${i}`][0]
+    : '';
 
       acCard.innerHTML = `
         <div class="card-body">
@@ -343,43 +329,25 @@
 
             <div class="row g-3">
 
-        <!-- BEFORE -->
-        <div class="col-md-6">
+        <!-- Foto Kolase -->
+        <div class="col-md-12">
             <div class="border rounded p-3 h-100">
-                <h6 class="fw-bold text-center mb-3">BEFORE</h6>
+                <h6 class="fw-bold text-center mb-3">Foto Kolase</h6>
 
                 <div class="mb-3">
-                    <label class="form-label">Indoor & Outdoor</label>
+                    <label class="form-label">Upload Foto Kolase</label>
                     <input type="file"
-                    name="images[${i}][before]"
-                    class="form-control ${laravelErrors[`images.${i}.before`] ? 'is-invalid' : ''}"
+                    name="foto_kolase[${i}]"
+                    class="form-control ${errFotoKolase ? 'is-invalid' : ''}"
                     accept=".jpg,.jpeg,.png">
 
-                    ${laravelErrors[`images.${i}.before`]
-                    ? `<div class="invalid-feedback d-block">${laravelErrors[`images.${i}.before`][0]}</div>`
+                    ${errFotoKolase ? `<div class="invalid-feedback d-block">${errFotoKolase}</div>`
                     : ''}
                 </div>
             </div>
         </div>
 
-        <!-- AFTER -->
-        <div class="col-md-6">
-            <div class="border rounded p-3 h-100">
-                <h6 class="fw-bold text-center mb-3">AFTER</h6>
-
-                <div class="mb-3">
-                    <label class="form-label">Indoor & Outdoor</label>
-                    <input type="file"
-                    name="images[${i}][after]"
-                    class="form-control ${laravelErrors[`images.${i}.after`] ? 'is-invalid' : ''}"
-                    accept=".jpg,.jpeg,.png">
-
-                    ${laravelErrors[`images.${i}.after`]
-                    ? `<div class="invalid-feedback d-block">${laravelErrors[`images.${i}.after`][0]}</div>`
-                    : ''}
-                </div>
-            </div>
-        </div>
+        
       `;
 
       acContainer.appendChild(acCard);
