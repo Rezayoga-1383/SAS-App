@@ -189,7 +189,7 @@
                         name="no_ac"
                         required
                         class="form-control form-control-md @error('no_ac') is-invalid @enderror"
-                        placeholder="Masukkan Nomor AC (contoh: 001)"
+                        placeholder="Masukkan Nomor AC (contoh: 0001)"
                         value="{{ old('no_ac') }}">
                     @error('no_ac')
                         <div class="invalid-feedback">{{ $message }}</div>

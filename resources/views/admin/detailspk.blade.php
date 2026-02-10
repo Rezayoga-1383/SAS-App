@@ -19,28 +19,39 @@
 
         <div class="card">
           <div class="card-body">
-            <table class="table table-borderless mb-4">
-              <tbody>
-                <tr><th style="width:30%;">No. SPK</th><td>: {{ $spk->no_spk }}</td></tr>
-                <tr><th>Tanggal</th><td>: {{ optional($spk->tanggal) ? \Carbon\Carbon::parse($spk->tanggal)->format('d M Y') : '-' }}</td></tr>
-                <tr>
-                  <th>No AC</th>
-                  <td>: 
-                    @if($spk->units->count())
-                      {{ $spk->units->pluck('acdetail.no_ac')->join(', ') }}
-                    @else
-                      -
-                    @endif
-                  </td>
-                </tr>
-                <tr>
-                    <th style="vertical-align: top;">Departement (Ruangan)</th>
-                    <td>
-                        <span>:</span>
-                        @if($spk->units->count())
-                            <div class="dept-list">
+            <table class="table table-borderless mb-4 detail-table">
+                <tbody>
+                    <tr>
+                        <th>No. SPK</th>
+                        <td class="colon">:</td>
+                        <td>{{ $spk->no_spk }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Tanggal</th>
+                        <td class="colon">:</td>
+                        <td>
+                            {{ optional($spk->tanggal) ? \Carbon\Carbon::parse($spk->tanggal)->format('d M Y') : '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>No AC</th>
+                        <td class="colon">:</td>
+                        <td>
+                            {{ $spk->units->count() 
+                                ? $spk->units->pluck('acdetail.no_ac')->join(', ') 
+                                : '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th style="vertical-align: top;">Departement (Ruangan)</th>
+                        <td class="colon" style="vertical-align: top;">:</td>
+                        <td>
+                            @if($spk->units->count())
                                 @foreach($spk->units as $unit)
-                                    <div class="dept-item">
+                                    <div>
                                         <strong>{{ $unit->acdetail->no_ac }}</strong> —
                                         {{ optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-' }}
                                         <small class="text-muted">
@@ -48,17 +59,40 @@
                                         </small>
                                     </div>
                                 @endforeach
-                            </div>
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-                <tr><th>Jumlah Teknisi</th><td>: {{ $spk->jumlah_orang }}</td></tr>
-                <tr><th>Nama Teknisi</th><td>: {{ $spk->teknisi && $spk->teknisi->count() > 0 ? $spk->teknisi->pluck('nama')->join(', ') : '-' }}</td></tr>
-                <tr><th>Waktu Mulai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i') }}</td></tr>
-                <tr><th>Waktu Selesai Pengerjaan</th><td>: {{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i') }}</td></tr>
-              </tbody>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Jumlah Teknisi</th>
+                        <td class="colon">:</td>
+                        <td>{{ $spk->jumlah_orang }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Nama Teknisi</th>
+                        <td class="colon">:</td>
+                        <td>
+                            {{ $spk->teknisi && $spk->teknisi->count() > 0 
+                                ? $spk->teknisi->pluck('nama')->join(', ') 
+                                : '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Waktu Mulai Pengerjaan</th>
+                        <td class="colon">:</td>
+                        <td>{{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_mulai)->format('H.i') }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Waktu Selesai Pengerjaan</th>
+                        <td class="colon">:</td>
+                        <td>{{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i') }}</td>
+                    </tr>
+                </tbody>
             </table>
 
             {{-- View SPK --}}
@@ -187,65 +221,66 @@
               </div>
             @endif
 
-@foreach($spk->units as $unit)
-    <hr>
-    <h5 class="mt-3"><strong> Nomor AC: {{ $unit->acdetail->no_ac }} - {{ $unit->acdetail->ruangan->nama_ruangan ?? '' }}</strong></h5>
+            @foreach($spk->units as $unit)
+                <hr>
+                <h5 class="mt-3">
+                    <strong>
+                        Nomor AC: {{ $unit->acdetail->no_ac }} 
+                        - {{ $unit->acdetail->ruangan->nama_ruangan ?? '' }}
+                    </strong>
+                </h5>
 
-    <!-- KARTU HISTORY -->
-    @php
-        $historyImages = $unit->historyImages;
-    @endphp
-
-    @if($historyImages->count())
-        <div class="row mb-4">
-            <h6 class="fw-bolder">Kartu History AC</h6>
-            @foreach($historyImages as $img)
-                <div class="col-12 col-md-6 col-lg-6 mb-4">
-                    <div class="card shadow-sm image-card">
-                        <div class="card-body">
-                            <img 
-                                src="{{ asset('storage/'.$img->image_path) }}" 
-                                alt="Kartu History AC"
-                                class="img-fluid rounded"
-                                style="max-height: 300px; object-fit: contain;">
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @else
-        <div class="alert alert-secondary mt-2">Belum ada kartu history AC.</div>
-    @endif
-
-                 {{-- ================= FOTO KOLASE ================= --}}
                 @php
-                    $fotoKolase = $unit->images; // sekarang cuma 1 image
+                    $historyImages = $unit->historyImages;
+                    $fotoKolase = $unit->images;
                 @endphp
 
-                @if($fotoKolase->count())
-                    <div class="row mb-4">
-                        <hr>
+                <div class="row mt-3">
+
+                    {{-- ================= KARTU HISTORY (KIRI) ================= --}}
+                    <div class="col-12 col-md-6">
+                        <h6 class="fw-bolder">Kartu History AC</h6>
+
+                        @if($historyImages->count())
+                            @foreach($historyImages as $img)
+                                <div class="card shadow-sm image-card mb-3">
+                                    <div class="card-body">
+                                        <img 
+                                            src="{{ asset('storage/'.$img->image_path) }}" 
+                                            alt="Kartu History AC"
+                                            class="img-fluid rounded">
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="alert alert-secondary">
+                                Belum ada kartu history AC.
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- ================= FOTO KOLASE (KANAN) ================= --}}
+                    <div class="col-12 col-md-6">
                         <h6 class="fw-bolder">Foto Kolase</h6>
 
-                        @foreach($fotoKolase as $img)
-                            <div class="col-12 col-md-6 col-lg-6 mb-4">
-                                <div class="card shadow-sm image-card">
+                        @if($fotoKolase->count())
+                            @foreach($fotoKolase as $img)
+                                <div class="card shadow-sm image-card mb-3">
                                     <div class="card-body text-center">
                                         <img 
                                             src="{{ asset('storage/'.$img->image_path) }}" 
                                             alt="Foto Kolase"
-                                            class="img-fluid rounded"
-                                            style="max-height: 300px; object-fit: contain;">
+                                            class="img-fluid rounded">
                                     </div>
                                 </div>
+                            @endforeach
+                        @else
+                            <div class="alert alert-secondary">
+                                Belum ada foto kolase.
                             </div>
-                        @endforeach
+                        @endif
                     </div>
-                @else
-                    <div class="alert alert-secondary mt-2">
-                        Belum ada foto kolase.
-                    </div>
-                @endif
+                </div>
             @endforeach
           </div>
         </div>
@@ -257,6 +292,22 @@
 
 @push('styles')
 <style>
+
+.detail-table th {
+    width: 230px;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.detail-table .colon {
+    width: 15px;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    vertical-align: top;
+}
+
+
 /* Reset box-sizing */
 * {
     box-sizing: border-box;

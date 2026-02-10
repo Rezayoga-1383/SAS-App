@@ -7,6 +7,10 @@ use App\Models\Pengguna;
 use App\Models\LogService;
 use App\Models\Departement;
 use Illuminate\Http\Request;
+use App\Models\AcHistoryImage;
+use App\Models\LogServiceUnit;
+use App\Models\LogServiceImage;
+use App\Models\LogServiceDetail;
 use Illuminate\Support\Facades\DB;
 
 class SPKController extends Controller
@@ -37,34 +41,42 @@ class SPKController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'acdetail_ids'       => 'required|array|min:1',
-            'acdetail_ids.*'     => 'required|exists:acdetail,id',
+            'acdetail_ids'              => 'required|array|min:1',
+            'acdetail_ids.*'            => 'required|exists:acdetail,id',
 
-            'no_spk'             => 'required|digits:5|unique:log_service,no_spk',
-            'tanggal'            => 'required|date',
-            'waktu_mulai'        => 'required|date_format:H:i',
-            'waktu_selesai'      => 'required|after:waktu_mulai|date_format:H:i',
+            'no_spk'                    => 'required|digits:4|unique:log_service,no_spk',
+            'tanggal'                   => 'required|date',
+            'waktu_mulai'               => 'required|date_format:H:i',
+            'waktu_selesai'             => 'required|after:waktu_mulai|date_format:H:i',
 
-            'jumlah_orang'       => 'required|integer|min:1',
+            'jumlah_orang'              => 'required|integer|min:1',
 
-            'teknisi'            => 'required|array|min:1',
-            'teknisi.*'          => 'required|exists:pengguna,id',
+            'teknisi'                   => 'required|array|min:1',
+            'teknisi.*'                 => 'required|exists:pengguna,id',
 
-            'keluhan'            => 'required|array|min:1',
-            'keluhan.*'          => 'required|string',
+            'jumlah_ac_input'           => 'required|integer|min:1',
 
-            'jenis_pekerjaan'    => 'required|array|min:1',
-            'jenis_pekerjaan.*'  => 'required|string',
+            'keluhan'                   => 'required|array|min:1',
+            'keluhan.*'                 => 'required|string',
 
-            'kepada'             => 'required|string|max:100',
-            'mengetahui'         => 'required|string|max:100',
-            'hormat_kami'        => 'required|exists:pengguna,id',
-            'pelaksana_ttd'      => 'required|exists:pengguna,id',
+            'jenis_pekerjaan'           => 'required|array|min:1',
+            'jenis_pekerjaan.*'         => 'required|string',
 
-            'file_spk'           => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            // ===== Image History =====
+            'history_image'             => 'required|array',
+            'history_image.*'           => 'required|image|mimes:jpg,jpeg,png|max:10240',
 
-            'before_image'       => 'required|file|mimes:jpg,jpeg,png|max:10240',
-            'after_image'        => 'required|file|mimes:jpg,jpeg,png|max:10240',   
+            // ===== Image Before & After =====
+            'images' => 'nullable|array',
+
+            'images.*.foto_kolase'      => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+
+            'kepada'                    => 'required|string|max:100',
+            'mengetahui'                => 'required|string|max:100',
+            'hormat_kami'               => 'required|exists:pengguna,id',
+            'pelaksana_ttd'             => 'required|exists:pengguna,id',
+
+            'file_spk'                  => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
         ], [
 
             // ===== AC =====
@@ -75,7 +87,7 @@ class SPKController extends Controller
             // ===== NOMOR SPK =====
             'no_spk.required'           => 'Nomor SPK wajib diisi.',
             'no_spk.unique'             => 'Nomor SPK sudah digunakan.',
-            'no_spk.digits'             => 'Nomor SPK harus terdiri dari 5 digit angka.',
+            'no_spk.digits'             => 'Nomor SPK harus terdiri dari 4 digit angka.',
 
             // ===== TANGGAL & WAKTU =====
             'tanggal.required'          => 'Tanggal SPK wajib diisi.',
@@ -89,6 +101,9 @@ class SPKController extends Controller
             'teknisi.*.required'        => 'Teknisi wajib dipilih.',
             'teknisi.*.exists'          => 'Teknisi tidak valid.',
 
+            // ==== JUMLAH AC =====
+            'jumlah_ac_input.required'  => 'Jumlah AC wajib diisi.',
+
             // ===== KELUHAN =====
             'keluhan.required'          => 'Keluhan wajib diisi.',
             'keluhan.*.required'        => 'Keluhan wajib diisi.',
@@ -96,6 +111,18 @@ class SPKController extends Controller
             // ===== JENIS PEKERJAAN =====
             'jenis_pekerjaan.required'  => 'Jenis pekerjaan wajib diisi.',
             'jenis_pekerjaan.*.required'=> 'Jenis pekerjaan wajib diisi.',
+
+            // =====Image History =====
+            'history_image.required'     => 'Kartu history AC wajib diunggah.',
+            'history_image.array'        => 'Format kartu history tidak valid.',
+            'history_image.*.required'   => 'Kartu history AC wajib diunggah.',
+            'history_image.*.image'      => 'File kartu history harus berupa gambar.',
+            'history_image.*.mimes'      => 'Kartu history harus JPG, JPEG, atau PNG.',
+            'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
+
+            // ===== IMAGE BEFORE & AFTER =====
+            'foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
+            'foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
 
             // ===== BAGIAN ADMIN =====
             'kepada.required'           => 'Bagian “Kepada” wajib diisi.',
@@ -107,90 +134,79 @@ class SPKController extends Controller
             'file_spk.required'         => 'File SPK wajib diunggah.',
             'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG, atau PNG.',
             'file_spk.max'              => 'Ukuran file SPK maksimal adalah 20MB.',
-
-            // ===== Image Before & After =====
-            'before_image.required'     => 'Gambar wajib diunggah.',
-            'before_image.mimes'        => 'Tipe gambar sebelum aksi harus berupa JPG, JPEG, atau PNG.',
-            'before_image.max'          => 'Ukuran gambar sebelum aksi maksimal adalah 10MB.',
-
-            'after_image.required'      => 'Gambar wajib diunggah.',
-            'after_image.mimes'         => 'Tipe gambar sesudah aksi harus berupa JPG, JPEG, atau PNG.',
-            'after_image.max'           => 'Ukuran gambar sesudah aksi maksimal adalah 10MB.',  
         ]);
-
-        $filePath = null;
-        $beforeImagePath = null;
-        $afterImagePath = null;
 
         DB::beginTransaction();
 
         try {
-            if ($request->hasFile('file_spk')) {
-                $filePath = $request->file('file_spk')->store('spk_files', 'public');
-            }
-
-            if ($request->hasFile('before_image')) {
-                $beforeImagePath = $request->file('before_image')
-                    ->store('spk_images/before', 'public');
-            }
-
-            if ($request->hasFile('after_image')) {
-                $afterImagePath = $request->file('after_image')
-                    ->store('spk_images/after', 'public');
-            }
-
-           $spk = LogService::create([
-                'no_spk'            => $validated['no_spk'],
-                'tanggal'           => $validated['tanggal'],
-                'waktu_mulai'       => $validated['waktu_mulai'],
-                'waktu_selesai'     => $validated['waktu_selesai'],
-                'jumlah_orang'      => $validated['jumlah_orang'],
-                'kepada'            => $validated['kepada'],
-                'mengetahui'        => $validated['mengetahui'],
-                'hormat_kami'       => $validated['hormat_kami'],
-                'pelaksana_ttd'     => $validated['pelaksana_ttd'],
-                'file_spk'          => $filePath,
-                'before_image'      => $beforeImagePath,
-                'after_image'       => $afterImagePath,
+            // ================= SPK UTAMA =================
+            $spk = LogService::create([
+                'no_spk'        => $validated['no_spk'],
+                'tanggal'       => $validated['tanggal'],
+                'waktu_mulai'   => $validated['waktu_mulai'],
+                'waktu_selesai' => $validated['waktu_selesai'],
+                'jumlah_orang'  => $validated['jumlah_orang'],
+                'kepada'        => $validated['kepada'],
+                'mengetahui'    => $validated['mengetahui'],
+                'hormat_kami'   => $validated['hormat_kami'],
+                'pelaksana_ttd' => $validated['pelaksana_ttd'],
+                'file_spk'      => $request->file('file_spk')->store('spk_files', 'public'),
             ]);
 
-            // ================= SYNC AC DETAIL =================
-            $acData = [];
-            foreach ($validated['acdetail_ids'] as $index => $acdetailId) {
-                $acData[$acdetailId] = [
-                    'keluhan'         => $validated['keluhan'][$index],
-                    'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$index],
-                ];
+            // ================= LOOP SETIAP AC =================
+            foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
+
+                // ---- 1. LOG SERVICE DETAIL (keluhan & jenis pekerjaan) ----
+                LogServiceDetail::create([
+                    'log_service_id' => $spk->id,
+                    'acdetail_id'    => $acdetailId,
+                    'keluhan'        => $validated['keluhan'][$i] ?? null,
+                    'jenis_pekerjaan'=> $validated['jenis_pekerjaan'][$i] ?? null,
+                ]);
+
+                // ---- 2. LOG SERVICE UNIT (untuk relasi gambar) ----
+                $unit = LogServiceUnit::create([
+                    'log_service_id' => $spk->id,
+                    'acdetail_id'    => $acdetailId,
+                ]);
+
+                // ---- 3. AC HISTORY IMAGE ----
+                if ($request->hasFile("history_image.$i")) {
+                    $path = $request->file("history_image.$i")
+                        ->store('spk_images/kartu_history', 'public');
+
+                    AcHistoryImage::create([
+                        'log_service_id' => $spk->id,
+                        'acdetail_id'    => $acdetailId,
+                        'image_path'     => $path,
+                    ]);
+                }
+
+                // ---- 4. BEFORE & AFTER IMAGES ----
+                if ($request->hasFile("foto_kolase.$i")) {
+                    $path = $request->file("foto_kolase.$i")
+                        ->store('spk_images/kolase', 'public');
+
+                        LogServiceImage::create([
+                            'log_service_unit_id' => $unit->id,
+                            'image_path'          => $path,
+                        ]);
+                    }
             }
 
-            $spk->acdetail()->sync($acData);
+            // ================= TEKNISI =================
             $spk->teknisi()->sync($validated['teknisi']);
 
             DB::commit();
 
-            return back()
-                ->with('success', 'Data SPK berhasil disimpan');
+            return back()->with('success', 'Data SPK berhasil disimpan');
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
-            // ================= CLEANUP FILE =================
-            if ($filePath) {
-                Storage::disk('public')->delete($filePath);
-            }
-
-            if ($beforeImagePath) {
-                Storage::disk('public')->delete($beforeImagePath);
-            }
-
-            if ($afterImagePath) {
-                Storage::disk('public')->delete($afterImagePath);
-            }
-
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            return back()->withErrors([
+                'error' => $e->getMessage()
+            ])->withInput();
         }
     }
 

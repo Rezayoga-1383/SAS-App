@@ -417,24 +417,25 @@
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
 <script>
-  const jumlahAcInput = document.getElementById('jumlah_ac_input');
-  const acContainer = document.getElementById('ac_container');
-  const jumlahOrangInput = document.getElementById('jumlah_orang');
-  const checkboxes = document.querySelectorAll('.teknisi-checkbox');
-  const pelaksanaSelect = document.getElementById('pelaksana_ttd');
+    const jumlahAcInput = document.getElementById('jumlah_ac_input');
+    const acContainer = document.getElementById('ac_container');
+    const jumlahOrangInput = document.getElementById('jumlah_orang');
+    const checkboxes = document.querySelectorAll('.teknisi-checkbox');
+    const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 
-  // Ambil data dari server (Blade)
-  const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
-  const oldKeluhanData = @json(old('keluhan', []));
-  const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
-  const oldAcdetailIds = @json(old('acdetail_ids', []));
+    // Ambil data dari server (Blade)
+    const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
+    const oldKeluhanData = @json(old('keluhan', []));
+    const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
+    const oldAcdetailIds = @json(old('acdetail_ids', []));
 
-  // Error messages
-  const errorAcdetail = @json($errors->get('acdetail_ids.*'));
-  const errorKeluhan = @json($errors->get('keluhan.*'));
-  const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
+    // Error messages
+    const errorAcdetail = @json($errors->get('acdetail_ids.*'));
+    const errorKeluhan = @json($errors->get('keluhan.*'));
+    const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
 
-  const laravelErrors = @json($errors->getMessages());
+    // all Laravel errors as an object keyed by field name (e.g. 'history_image.0')
+    const laravelErrors = @json($errors->getMessages());
 
   function generateAcForms() {
     const jumlah = parseInt(jumlahAcInput.value) || 0;
@@ -442,32 +443,33 @@
 
     for (let i = 0; i < jumlah; i++) {
 
-      const acCard = document.createElement('div');
-      acCard.className = 'card mb-3 border';
+        const acCard = document.createElement('div');
+        acCard.className = 'card mb-4 border';
 
-      const oldAcId = oldAcdetailIds[i] || '';
-      const oldKeluhan = oldKeluhanData[i] || '';
-      const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
+        const oldAcId = oldAcdetailIds[i] || '';
+        const oldKeluhan = oldKeluhanData[i] || '';
+        const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
 
-      // ambil error dengan key yang benar (Laravel format)
-      const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
-          ? errorAcdetail[`acdetail_ids.${i}`][0]
-          : '';
+    // ambil error dengan key yang benar (Laravel format)
+    const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
+        ? errorAcdetail[`acdetail_ids.${i}`][0]
+        : '';
 
-      const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
-          ? errorKeluhan[`keluhan.${i}`][0]
-          : '';
+    const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
+        ? errorKeluhan[`keluhan.${i}`][0]
+        : '';
 
-      const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
-          ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
-          : '';
-      
-      const errHistory = (laravelErrors && laravelErrors[`history_image.${i}`]
-          ? laravelErrors[`history_image.${i}`][0]
-          : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
+    const errJenis = errorJenisPekerjaan && errorJenisPekerjaan[`jenis_pekerjaan.${i}`]
+        ? errorJenisPekerjaan[`jenis_pekerjaan.${i}`][0]
+        : '';
 
-      const errBeforeIndoor = laravelErrors && laravelErrors[]
+    const errHistory = (laravelErrors && laravelErrors[`history_image.${i}`]
+        ? laravelErrors[`history_image.${i}`][0]
+        : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
 
+    const errFotoKolase = (laravelErrors && laravelErrors[`foto_kolase.${i}`])
+    ? laravelErrors[`foto_kolase.${i}`][0]
+    : '';
 
       acCard.innerHTML = `
         <div class="card-body">
@@ -500,13 +502,46 @@
               rows="3" placeholder="Masukkan jenis pekerjaan">${oldJenisPekerjaan}</textarea>
             ${errJenis ? `<div class="invalid-feedback d-block">${errJenis}</div>` : ''}
           </div>
+
+          <hr>
+
+            <!-- KARTU HISTORY -->
+            <div class="mb-3">
+                <label class="form-label">Kartu History AC <span class="text-danger">*</span></label>
+                <input type="file"
+                        name="history_image[${i}]"
+                        class="form-control ${errHistory ? 'is-invalid' : ''}"
+                        accept=".jpg,.jpeg,.png">
+                        ${errHistory ? `<div class="invalid-feedback d-block">${errHistory}</div>` : ''}
+            </div>
+
+            <div class="row g-3">
+
+        <!-- Foto Kolase -->
+        <div class="col-md-12">
+            <div class="border rounded p-3 h-100">
+                <h6 class="fw-bold text-center mb-3">Foto Kolase</h6>
+
+                <div class="mb-3">
+                    <label class="form-label">Upload Foto Kolase</label>
+                    <input type="file"
+                    name="foto_kolase[${i}]"
+                    class="form-control ${errFotoKolase ? 'is-invalid' : ''}"
+                    accept=".jpg,.jpeg,.png">
+
+                    ${errFotoKolase ? `<div class="invalid-feedback d-block">${errFotoKolase}</div>`
+                    : ''}
+                </div>
+            </div>
         </div>
+
+        
       `;
 
       acContainer.appendChild(acCard);
     }
     // initialize select2 for new selects
-    initSelect2();
+    initSelect2();    
   }
 
   // Limit teknisi sesuai "jumlah orang"
