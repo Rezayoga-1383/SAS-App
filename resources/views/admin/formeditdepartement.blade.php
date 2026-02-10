@@ -18,7 +18,7 @@
                             @method('PUT')
             
                             <div class="mb-3">
-                                <label for="nama_departement" class="form-label">Departement</label>
+                                <label for="nama_departement" class="form-label">Departement <span class="text-danger">*</span> </label>
                                 <input
                                     type="text"
                                     id="nama_departement"

@@ -349,7 +349,7 @@ class AdminSPKController extends Controller
             'history_image.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
 
             'foto_kolase'        => 'nullable|array',
-            'foto_kolase.*'        => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'foto_kolase.*'      => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
 
             'kepada'             => 'required|string|max:100',
             'mengetahui'         => 'required|string|max:100',
@@ -452,6 +452,23 @@ class AdminSPKController extends Controller
                             'acdetail_id'    => $acdetailId,
                             'image_path'     => $path,
                         ]);
+                    }
+                }
+
+                $usedUnitIds[] = $unit->id;
+                /* ================= HAPUS FOTO KOLOSA (TOMBOL HAPUS) ================= */
+                if (isset($request->hapus_foto_kolase[$i]) && $request->hapus_foto_kolase[$i] == 1) {
+
+                    $existingImage = LogServiceImage::where('log_service_unit_id', $unit->id)
+                        ->first();
+
+                    if ($existingImage) {
+
+                        if (Storage::disk('public')->exists($existingImage->image_path)) {
+                            Storage::disk('public')->delete($existingImage->image_path);
+                        }
+
+                        $existingImage->delete();
                     }
                 }
 

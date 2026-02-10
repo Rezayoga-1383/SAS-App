@@ -129,7 +129,7 @@
             @csrf
             <div class="row gy-4">
               <div class="col-sm-6">
-                <label for="id_merkac" class="form-label">Merk AC</label>
+                <label for="id_merkac" class="form-label">Merk AC <span class="text-danger">*</span> </label>
                 <select name="id_merkac" id="id_merkac" class="form-select form-select-md @error('id_merkac') is-invalid @enderror" required>
                   <option value="">-- Pilih Merk AC --</option>
                   @foreach ($merkac as $item)
@@ -142,7 +142,7 @@
               </div>
 
               <div class="col-sm-6" id="field_jenisac">
-                <label for="id_jenisac" class="form-label">Jenis AC</label>
+                <label for="id_jenisac" class="form-label">Jenis AC <span class="text-danger">*</span> </label>
                 <select name="id_jenisac" id="id_jenisac" class="form-select form-select-md @error('id_jenisac') is-invalid @enderror" required>
                   <option value="">-- Pilih Jenis AC --</option>
                   @foreach ($jenisac as $item)
@@ -155,8 +155,8 @@
               </div>
 
               <div class="col-sm-6" id="field_departement">
-                <label for="id_departement" class="form-label">Departement</label>
-                <select name="id_departement" id="id_departement" class="form-select form-select-md @error('id_departement') is-invalid @enderror" required>
+                <label for="id_departement" class="form-label">Departement <span class="text-danger">*</span> </label>
+                <select name="id_departement" id="id_departement" class="form-select form-select-md select2 @error('id_departement') is-invalid @enderror" required>
                   <option value="">-- Pilih Departement --</option>
                   @foreach ($departement as $item)
                       <option value="{{ $item->id }}" {{ old('id_departement') == $item->id ? 'selected' : '' }}>
@@ -170,8 +170,8 @@
               </div>
 
               <div class="col-sm-6" id="field_ruangan">
-                <label for="id_ruangan" class="form-label">Ruangan</label>
-                <select name="id_ruangan" id="id_ruangan" class="form-select form-select-md @error('id_ruangan') is-invalid @enderror" required data-selected="{{ old('id_ruangan') }}">
+                <label for="id_ruangan" class="form-label">Ruangan <span class="text-danger">*</span> </label>
+                <select name="id_ruangan" id="id_ruangan" class="form-select form-select-md select2 @error('id_ruangan') is-invalid @enderror" required data-selected="{{ old('id_ruangan') }}">
                   <option value="">-- Pilih Ruangan --</option> 
                 </select>
                 @error('id_ruangan')
@@ -180,7 +180,7 @@
               </div>
 
               <div class="col-sm-6" id="field_nomorac">
-                <label for="no_ac" class="form-label">Nomor AC</label>
+                <label for="no_ac" class="form-label">Nomor AC <span class="text-danger">*</span> </label>
                 <div class="input-group">
                     <span class="input-group-text">I-</span>
                     <input
@@ -198,7 +198,7 @@
               </div>
 
               <div class="col-sm-6" id="field_no_seri_indoor">
-                <label for="no_seri_indoor" class="form-label">Nomor Seri Indoor</label>
+                <label for="no_seri_indoor" class="form-label">Nomor Seri Indoor <span class="text-danger">*</span> </label>
                 <input
                     type="text"
                     id="no_seri_indoor"
@@ -213,7 +213,7 @@
               </div>
 
               <div class="col-sm-6" id="field_no_seri_outdoor">
-                <label for="no_seri_outdoor" class="form-label">Nomor Seri Outdoor</label>
+                <label for="no_seri_outdoor" class="form-label">Nomor Seri Outdoor <span class="text-danger">*</span> </label>
                 <input
                     type="text"
                     id="no_seri_outdoor"
@@ -228,7 +228,7 @@
               </div>
 
               <div class="col-sm-6" id="field_pk_ac">
-                <label for="pk_ac" class="form-label">PK AC</label>
+                <label for="pk_ac" class="form-label">PK AC <span class="text-danger">*</span> </label>
                 <input
                     type="number"
                     id="pk_ac"
@@ -243,7 +243,7 @@
               </div>
 
               <div class="col-sm-6" id="field_tahun_ac">
-                <label for="tahun_ac" class="form-label">Tahun AC</label>
+                <label for="tahun_ac" class="form-label">Tahun AC <span class="text-danger">*</span> </label>
                 <input
                     type="number"
                     id="tahun_ac"
@@ -258,7 +258,7 @@
               </div>
 
               <div class="col-sm-6" id="field_tgl_pemasangan">
-                <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan</label>
+                <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan <span class="text-danger">*</span> </label>
                 <input
                     type="date"
                     id="tanggal_pemasangan"
@@ -272,7 +272,7 @@
               </div>
 
               <div class="col-sm-6" id="field_tanggal_habis_garansi">
-                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi</label>
+                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi <span class="text-danger">*</span> </label>
                 <input
                     type="date"
                     id="tanggal_habis_garansi"
@@ -375,6 +375,11 @@
   <!-- Tambahkan jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <!-- Select2 CSS -->
+  <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
+  <!-- Select2 JS -->
+  <script src="{{ asset('js/select2.min.js') }}"></script>
+
   <!-- Vendor JS Files -->
   <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('assets/vendor/php-email-form/validate.js') }}"></script>
@@ -430,6 +435,19 @@ $(document).ready(function () {
         loadRuangan(oldDepartement, oldRuangan);
     }
 
+    $('.select2').select2({
+        placeholder: "-- Pilih Departement --",
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    $('.select2').select2({
+        placeholder: "-- Pilih Ruangan --",
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
 });
 </script>
 

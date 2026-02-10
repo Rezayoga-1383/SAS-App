@@ -18,7 +18,7 @@
                             @method('PUT')
             
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span> </label>
                                 <input
                                     type="email"
                                     id="email"
@@ -33,7 +33,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="nama" class="form-label">Nama</label>
+                                <label for="nama" class="form-label">Nama <span class="text-danger">*</span> </label>
                                 <input
                                     type="text"
                                     id="nama"
@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span> </label>
                                 <div class="input-group">
                                     <input
                                         type="password"
@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
+                                <label for="role" class="form-label">Role <span class="text-danger">*</span> </label>
                                 <div class="input-group">
                                     <select
                                         id="role"

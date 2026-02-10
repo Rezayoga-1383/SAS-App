@@ -19,8 +19,8 @@
             
                             <!-- Pilih Departemen -->
                             <div class="mb-3">
-                                <label for="id_departement" class="form-label">Departement</label>
-                                <select name="id_departement" class="form-control @error('id_departement') is-invalid @enderror">
+                                <label for="id_departement" class="form-label">Departement <span class="text-danger">*</span> </label>
+                                <select name="id_departement" class="form-select form-select-lg select2 @error('id_departement') is-invalid @enderror">
                                     @foreach($departements as $d)
                                         <option value="{{ $d->id }}" 
                                             {{ old('id_departement', $ruangan->id_departement) == $d->id ? 'selected' : '' }}>
@@ -35,7 +35,7 @@
 
                             <!-- Nama Ruangan -->
                             <div class="mb-3">
-                                <label for="nama_ruangan" class="form-label">Nama Ruangan</label>
+                                <label for="nama_ruangan" class="form-label">Nama Ruangan <span class="text-danger">*</span> </label>
                                 <input type="text" name="nama_ruangan" value="{{ old('nama_ruangan', $ruangan->nama_ruangan) }}" 
                                     class="form-control @error('nama_ruangan') is-invalid @enderror">
                                 @error('nama_ruangan')
@@ -59,4 +59,14 @@
 @endsection
 
 @push('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $('.select2').select2({
+        placeholder: '-- Pilih Departement --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+});
+</script>
 @endpush

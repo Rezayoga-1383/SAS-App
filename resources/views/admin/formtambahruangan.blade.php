@@ -35,7 +35,7 @@
                                 <select
                                     id="id_departement"
                                     name="id_departement"
-                                    class="form-select form-select-lg @error('id_departemen') is-invalid @enderror"
+                                    class="form-select form-select-lg select2 @error('id_departemen') is-invalid @enderror"
                                     required>
                                     <option value="">-- Pilih Departement --</option>
                                     @foreach ($departement as $item)
@@ -77,4 +77,14 @@
 @endsection
 
 @push('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $('.select2').select2({
+        placeholder: '-- Pilih Departement --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+});
+</script>
 @endpush

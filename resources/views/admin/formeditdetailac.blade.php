@@ -18,7 +18,7 @@
                             @method('PUT')
             
                             <div class="mb-3">
-                                <label for="id_merkac" class="form-label">Merk AC</label>
+                                <label for="id_merkac" class="form-label">Merk AC <span class="text-danger">*</span> </label>
                                 <select name="id_merkac" id="id_merkac" class="form-control @error('id_merkac') is-invalid @enderror" required>
                                     <option value="">-- Pilih Merk --</option>
                                     @foreach($merkac as $m)
@@ -35,7 +35,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="id_jenisac" class="form-label">Jenis AC</label>
+                                <label for="id_jenisac" class="form-label">Jenis AC <span class="text-danger">*</span> </label>
                                 <select name="id_jenisac" id="id_jenisac" class="form-control @error('id_jenisac') is-invalid @enderror" required>
                                     <option value="">-- Pilih Jenis --</option>
                                     @foreach($jenisac as $j)
@@ -52,7 +52,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="id_ruangan" class="form-label">Ruangan</label>
+                                <label for="id_ruangan" class="form-label">Ruangan <span class="text-danger">*</span> </label>
                                 <select name="id_ruangan" id="id_ruangan" class="form-select select2 @error('id_ruangan') is-invalid @enderror" required>
                                     <option value="">-- Pilih Ruangan --</option>
                                     @foreach($ruangan as $r)
@@ -69,7 +69,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="no_ac" class="form-label">Nomor AC</label>
+                                <label for="no_ac" class="form-label">Nomor AC <span class="text-danger">*</span> </label>
                                 <div class="input-group">
                                     <span class="input-group-text">I-</span>
                                     <input
@@ -88,7 +88,7 @@
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="no_seri_indoor" class="form-label">No Seri Indoor</label>
+                                    <label for="no_seri_indoor" class="form-label">No Seri Indoor <span class="text-danger">*</span> </label>
                                     <input type="text" id="no_seri_indoor" name="no_seri_indoor" value="{{ $acdetail->no_seri_indoor }}" class="form-control @error('no_seri_indoor') is-invalid @enderror" required>
                                     @error('no_seri_indoor')
                                         <div class="invalid-feedback">
@@ -97,7 +97,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="no_seri_outdoor" class="form-label">No Seri Outdoor</label>
+                                    <label for="no_seri_outdoor" class="form-label">No Seri Outdoor <span class="text-danger">*</span> </label>
                                     <input type="text" id="no_seri_outdoor" name="no_seri_outdoor" value="{{ $acdetail->no_seri_outdoor }}" class="form-control @error('no_seri_outdoor') is-invalid @enderror" required>
                                     @error('no_seri_outdoor')
                                         <div class="invalid-feedback">
@@ -109,7 +109,7 @@
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="pk_ac" class="form-label">PK AC</label>
+                                    <label for="pk_ac" class="form-label">PK AC <span class="text-danger">*</span> </label>
                                     <input type="text" id="pk_ac" name="pk_ac" value="{{ $acdetail->pk_ac }}" class="form-control @error('pk_ac') is-invalid @enderror" required>
                                     @error('pk_ac')
                                         <div class="invalid-feedback">
@@ -118,7 +118,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="jumlah_ac" class="form-label">Jumlah AC</label>
+                                    <label for="jumlah_ac" class="form-label">Jumlah AC <span class="text-danger">*</span> </label>
                                     <input type="number" id="jumlah_ac" name="jumlah_ac" value="{{ $acdetail->jumlah_ac }}" class="form-control @error('jumlah_ac') is-invalid @enderror" required>
                                     @error('jumlah_ac')
                                         <div class="invalid-feedback">
@@ -130,7 +130,7 @@
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="tahun_ac" class="form-label">Tahun AC</label>
+                                    <label for="tahun_ac" class="form-label">Tahun AC <span class="text-danger">*</span> </label>
                                     <input type="text" id="tahun_ac" name="tahun_ac" value="{{ $acdetail->tahun_ac }}" class="form-control @error('tahun_ac') is-invalid @enderror" required>
                                     @error('tahun_ac')
                                         <div class="invalid-feedback">
@@ -139,7 +139,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan</label>
+                                    <label for="tanggal_pemasangan" class="form-label">Tanggal Pemasangan <span class="text-danger">*</span> </label>
                                     <input type="date" id="tanggal_pemasangan" name="tanggal_pemasangan" value="{{ $acdetail->tanggal_pemasangan }}" class="form-control @error('tanggal_pemasangan') is-invalid @enderror" required>
                                     @error('tanggal_pemasangan')
                                         <div class="invalid-feedback">
@@ -150,7 +150,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi</label>
+                                <label for="tanggal_habis_garansi" class="form-label">Tanggal Habis Garansi <span class="text-danger">*</span> </label>
                                 <input type="date" id="tanggal_habis_garansi" name="tanggal_habis_garansi" value="{{ $acdetail->tanggal_habis_garansi }}" class="form-control @error('tanggal_habis_garansi') is-invalid @enderror" required>
                                 @error('tanggal_habis_garansi')
                                     <div class="invalid-feedback">

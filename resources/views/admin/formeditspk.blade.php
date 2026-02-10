@@ -17,7 +17,7 @@
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
-                                <label for="no_spk" class="form-label">Nomor SPK</label>
+                                <label for="no_spk" class="form-label">Nomor SPK <span class="text-danger">*</span> </label>
                                 <input 
                                 type="text"
                                 id="no_spk"
@@ -31,7 +31,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="tanggal" class="form-label">Tanggal</label>
+                                <label for="tanggal" class="form-label">Tanggal <span class="text-danger">*</span> </label>
                                 <input 
                                     type="date"
                                     id="tanggal"
@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="waktu_mulai" class="form-label">Waktu Mulai</label>
+                                <label for="waktu_mulai" class="form-label">Waktu Mulai <span class="text-danger">*</span> </label>
                                 <input 
                                     type="time"
                                     id="waktu_mulai"
@@ -60,7 +60,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="waktu_selesai">Waktu Selesai</label>
+                                <label for="waktu_selesai">Waktu Selesai <span class="text-danger">*</span> </label>
                                 <input 
                                     type="time"
                                     id="waktu_selesai"
@@ -75,7 +75,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="jumlah_orang">Jumlah Orang</label>
+                                <label for="jumlah_orang">Jumlah Orang <span class="text-danger">*</span> </label>
                                 <input 
                                     type="number"
                                     id="jumlah_orang"
@@ -90,7 +90,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Teknisi</label>
+                                <label class="form-label">Teknisi <span class="text-danger">*</span> </label>
                                 <div class="border rounded p-2 @error('teknisi') is-invalid @enderror" style="max-height: 150px; overflow-y:auto">
 
                                     @php
@@ -113,7 +113,7 @@
 
                              <!-- Dynamic AC Input Section -->
                             <div class="mb-3">
-                                <label for="jumlah_ac_input" class="form-label">Jumlah AC</label>
+                                <label for="jumlah_ac_input" class="form-label">Jumlah AC <span class="text-danger">*</span> </label>
                                 <input type="number" id="jumlah_ac_input" name="jumlah_ac_input" 
                                   class="form-control form-control-md" 
                                   placeholder="Masukkan jumlah AC"
@@ -132,8 +132,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="kepada" class="form-label">Kepada</label>
-                                <select name="kepada" id="kepada" required class="form-select form-control-md @error('kepada') is-invalid @enderror">
+                                <label for="kepada" class="form-label">Kepada <span class="text-danger">*</span> </label>
+                                <select name="kepada" id="kepada" required class="form-select form-control-md select2 @error('kepada') is-invalid @enderror">
                                     <option value="">-- Pilih Kepada --</option>
                                     @foreach ($departement as $dept)
                                         <option value="{{ $dept->nama_departement }}" {{ old('kepada', $spk->kepada) == $dept->nama_departement ? 'selected' : '' }}>
@@ -147,7 +147,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="mengetahui" class="form-label">Mengetahui</label>
+                                <label for="mengetahui" class="form-label">Mengetahui <span class="text-danger">*</span> </label>
                                 <input 
                                     type="text"
                                     id="mengetahui"
@@ -162,7 +162,7 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="hormat_kami" class="form-label">Hormat Kami</label>
+                                <label for="hormat_kami" class="form-label">Hormat Kami <span class="text-danger">*</span></label>
                                 <select name="hormat_kami" id="hormat_kami" class="form-select @error('hormat_kami') is-invalid @enderror" required>
                                     <option value="">-- Pilih Admin --</option>
                                     @foreach ($admin as $user )
@@ -177,7 +177,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="pelaksana_ttd" class="form-label">Pelaksana</label>
+                                <label for="pelaksana_ttd" class="form-label">Pelaksana <span class="text-danger">*</span> </label>
                                 <select name="pelaksana_ttd" id="pelaksana_ttd" class="form-select @error('pelaksana_ttd') is-invalid @enderror" required>
                                     <option value="">-- Pilih Pelaksana --</option>
                                     @foreach ($pengguna as $user )
@@ -192,7 +192,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="file_spk">Upload File SPK (Optional)</label>
+                                <label for="file_spk">Upload File SPK (Opsional)</label>
 
                                 {{-- Tampilkan file lama jika ada --}}
                                 @if ($spk->file_spk)
@@ -279,7 +279,6 @@ function generateAcForms() {
         const keluhan = oldKeluhan[i] ?? (existingAcData[i]?.keluhan ?? '');
         const jenisPekerjaan = oldJenis[i] ?? (existingAcData[i]?.jenis_pekerjaan ?? '');
         const historyFile = oldHistory[i] ?? (existingAcData[i]?.history_image ?? '');
-
         const FotoKolase     = oldFotoKolase[i] ?? (existingAcData[i]?.foto_kolase ?? '');
 
         const acError = hasError('acdetail_ids', i);
@@ -301,7 +300,7 @@ function generateAcForms() {
                 <!-- Nomor AC -->
                 <div class="mb-3">
                     <label for="acdetail_${i}" class="form-label">Nomor AC <span class="text-danger">*</span></label>
-                    <select name="acdetail_ids[]" id="acdetail_${i}" class="form-select ${acError ? 'is-invalid' : ''}" required>
+                    <select name="acdetail_ids[]" id="acdetail_${i}" class="form-select select2 ${acError ? 'is-invalid' : ''}" required>
                         <option value="">-- Pilih No AC --</option>
                         ${Object.entries(acdetailData).map(([id, noAc]) => `<option value="${id}" ${acId == id ? 'selected' : ''}>${noAc}</option>`).join('')}
                     </select>
@@ -324,7 +323,7 @@ function generateAcForms() {
 
                 <!-- History AC -->
                 <div class="mb-3">
-                    <label class="form-label">Kartu History AC</label>
+                    <label class="form-label">Kartu History AC <span class="text-danger">*</span> </label>
                     ${historyFile ? `<p>File lama: <a href="/storage/${historyFile}" target="_blank">Lihat</a></p>` : ''}
                     <input type="file" name="history_image[${i}]" class="form-control ${historyError ? 'is-invalid' : ''}" accept=".jpg,.jpeg,.png">
                     ${historyError ? `<div class="invalid-feedback d-block">${getErrorMessage('history_image', i)}</div>` : ''}
@@ -333,14 +332,46 @@ function generateAcForms() {
                 <!-- Foto Kolase -->
                 <div class="mb-3">
                     <label class="form-label">Foto Kolase</label>
-                    ${FotoKolase ? `<p>File lama: <a href="/storage/${FotoKolase}" target="_blank">Lihat</a></p>` : ''}
-                    <input type="file" name="foto_kolase[${i}]" class="form-control ${hasError('foto_kolase', i) ? 'is-invalid' : ''}" accept=".jpg,.jpeg,.png">
+
+                    ${FotoKolase ? `
+                        <div class="mb-2" id="preview_foto_${i}">
+                            <p>
+                                File lama: 
+                                <a href="/storage/${FotoKolase}" target="_blank">Lihat</a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-danger ms-2 btn-hapus-foto" 
+                                        data-index="${i}">
+                                    Hapus
+                                </button>
+                            </p>
+                        </div>
+                        <input type="hidden" name="hapus_foto_kolase[${i}]" id="hapus_foto_${i}" value="0">
+                    ` : ''}
+
+                    <input type="file" name="foto_kolase[${i}]" 
+                        class="form-control ${hasError('foto_kolase', i) ? 'is-invalid' : ''}" 
+                        accept=".jpg,.jpeg,.png">
+
                     ${hasError('foto_kolase', i) ? `<div class="invalid-feedback d-block">${getErrorMessage('foto_kolase', i)}</div>` : ''}
                 </div>
             </div>
         `;
 
         acContainer.appendChild(acCard);
+
+        const hapusBtn = acCard.querySelector('.btn-hapus-foto');
+
+        if (hapusBtn) {
+            hapusBtn.addEventListener('click', function() {
+                const index = this.dataset.index;
+
+                // set hidden input jadi 1
+                document.getElementById(`hapus_foto_${index}`).value = 1;
+
+                // hilangkan preview
+                document.getElementById(`preview_foto_${index}`).remove();
+            });
+        }
 
         // tombol hapus
         acCard.querySelector('.remove-ac-btn').addEventListener('click', e => {
@@ -409,6 +440,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateAcForms();
     updateCheckboxLimit();
+
+    $('.select2').select2({
+        placeholder: '-- Pilih No AC --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    $('.select2').select2({
+        placeholder: '-- Pilih Kepada --',
+        allowClear: true,
+        width: '100%',
+        minimumResultForSearch:0
+    });
 });
 </script>
 
