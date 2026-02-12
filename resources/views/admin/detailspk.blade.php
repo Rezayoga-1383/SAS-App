@@ -411,18 +411,17 @@
 
 
 .image-card {
-    height: 100%;
+    height: auto;
 }
 
 .image-card .card-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 280px;
+    padding: 10px;
+    display: block; /* hapus flex */
+    min-height: unset;
 }
 
 .image-card img {
-    max-height: 260px;
+    max-height: 400px;
     width: 100%;
     object-fit: contain;
 }

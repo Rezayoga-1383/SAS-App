@@ -11,6 +11,7 @@ use App\Models\AcHistoryImage;
 use App\Models\LogServiceUnit;
 use Illuminate\Support\Carbon;
 use App\Models\LogServiceImage;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\Rule;
 use App\Models\LogServiceDetail;
 use Yajra\DataTables\DataTables;
@@ -22,9 +23,37 @@ class AdminSPKController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    // public function pdftest()
+    // {
+    //     return view ('admin.spkpdf');
+    // }
+    public function index(Request $request)
     {
         return view('admin.spk');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $start  = $request->start_date;
+        $end    = $request->end_date;
+
+        $query = LogService::with([
+            'details.acdetail',
+            'teknisi'
+        ]);
+
+        if ($start && $end) {
+        $query->whereBetween('tanggal', [$start, $end]);
+        }
+
+        $data = $query->latest()->get();
+
+        return Pdf::loadView('admin.spkpdf', [
+            'data' => $data,
+            'start_date' => $start,
+            'end_date' => $end
+        ])->download('Data-SPK.pdf');
     }
 
     /**
@@ -39,19 +68,36 @@ class AdminSPKController extends Controller
         $admin = Pengguna::where('role', 'Admin')->get();
         return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin'));
     }
-    public function getData()
-    {
-        // Ambil SPK beserta unit dan detail AC
-        $data = LogService::with(['units.acdetail'])->select('log_service.*');
 
-        return DataTables::of($data)
+    public function getData(Request $request)
+    {
+        $query = LogService::with(['units.acdetail', 'details'])
+                    ->select('log_service.*');
+
+        // FILTER TANGGAL (sesuai blade: start_date & end_date)
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('tanggal', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        } elseif ($request->start_date) {
+            $query->whereDate('tanggal', '>=', $request->start_date);
+        } elseif ($request->end_date) {
+            $query->whereDate('tanggal', '<=', $request->end_date);
+        }
+
+        // FILTER JENIS SERVICE (baru: jenis_service)
+        if ($request->jenis_service) {
+            $query->whereHas('details', function($q) use ($request) {
+                $q->where('keluhan', 'like', '%' . $request->jenis_service . '%');
+            });
+        }
+
+        return DataTables::of($query)
             ->addIndexColumn()
 
-            // Kolom No AC, gabungkan semua AC terkait SPK
             ->addColumn('no_ac', function ($row) {
-                // Pastikan units ada
                 if ($row->units->count()) {
-                    // Ambil nomor AC tiap unit
                     return $row->units->map(function ($unit) {
                         return $unit->acdetail->no_ac ?? '-';
                     })->filter()->join(', ');
@@ -59,7 +105,6 @@ class AdminSPKController extends Controller
                 return '-';
             })
 
-            // Kolom aksi (edit, delete, detail)
             ->addColumn('aksi', function ($row) {
                 return '
                 <div class="aksi-btn">
@@ -226,9 +271,8 @@ class AdminSPKController extends Controller
                         ->store('spk_images/kartu_history', 'public');
 
                     AcHistoryImage::create([
-                        'log_service_id' => $spk->id,
-                        'acdetail_id'    => $acdetailId,
-                        'image_path'     => $path,
+                        'log_service_unit_id' => $unit->id,
+                        'image_path'          => $path,
                     ]);
                 }
 
@@ -428,8 +472,7 @@ class AdminSPKController extends Controller
                     $path = $request->file("history_image.$i")
                         ->store('spk_images/kartu_history', 'public');
 
-                    $history = AcHistoryImage::where('log_service_id', $spk->id)
-                        ->where('acdetail_id', $acdetailId)
+                    $history = AcHistoryImage::where('log_service_unit_id', $unit->id)
                         ->first();
 
                     if ($history) {
@@ -448,9 +491,8 @@ class AdminSPKController extends Controller
 
                         // Kalau belum ada baru create
                         AcHistoryImage::create([
-                            'log_service_id' => $spk->id,
-                            'acdetail_id'    => $acdetailId,
-                            'image_path'     => $path,
+                            'log_service_unit_id' => $unit->id,
+                            'image_path'          => $path,
                         ]);
                     }
                 }
@@ -563,7 +605,7 @@ class AdminSPKController extends Controller
             }
 
             /* ================= DELETE HISTORY IMAGE ================= */
-            $histories = AcHistoryImage::where('log_service_id', $spk->id)->get();
+            $histories = AcHistoryImage::where('log_service_unit_id', $spk->id)->get();
 
             foreach ($histories as $history) {
                 if (Storage::disk('public')->exists($history->image_path)) {
@@ -616,26 +658,11 @@ class AdminSPKController extends Controller
     {
         $spk = LogService::with([
             'units.acdetail.ruangan.departement', // untuk menampilkan info AC dan ruangan
-            'details.acdetail',
             'units.images',
-            'units.historyImages'
+            'units.historyImages',
+            'details'
         ])->findOrFail($id);
 
         return view('admin.detailspk', compact('spk'));
     }
-
-    // public function generatePdf($id)
-    // {
-    //     $spk = LogService::with(['pelaksana','hormatKamiUser'])->findOrFail($id);
-
-    //     $pdf = \PDF::loadView('admin.spkprint', compact('spk'))
-    //             ->setPaper('A4', 'portrait');
-        
-    //     // jika link pakai ?download=1 maka download
-    //     if (request()->has('download')) {
-    //         return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
-    //     }
-
-    //     return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
-    // }
 }

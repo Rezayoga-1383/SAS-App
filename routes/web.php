@@ -16,7 +16,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartementController;
 
 
-
+// Route::get('/pdftest', [AdminSPKController::class, 'pdftest'])->name('spk.pdftest');
 
 // User Routes
 Route::get('/', [UserController::class, 'index'])->name('homepage');
@@ -49,6 +49,7 @@ Route::get('/admin/history/search', [HistoryController::class, 'search'])->name(
 // ============================== SPK Routes =================================
 Route::get('/admin/spk', [AdminSPKController::class, 'index'])->name('admin.spk')->middleware('Role:Admin');
 Route::get('/admin/spk/data', [AdminSPKController::class, 'getData'])->name('spk.data')->middleware('Role:Admin');
+Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 
 // Create SPK Route
 Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');

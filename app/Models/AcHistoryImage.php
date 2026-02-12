@@ -8,18 +8,12 @@ class AcHistoryImage extends Model
 {
     protected $table = 'ac_history_images';
     protected $fillable = [
-        'acdetail_id',
-        'log_service_id',
+        'log_service_unit_id',
         'image_path',
     ];
 
-    public function acdetail()
+    public function logServiceUnit()
     {
-        return $this->belongsTo(DetailAC::class, 'acdetail_id');
-    }
-
-    public function logService()
-    {
-        return $this->belongsTo(LogService::class);
+        return $this->belongsTo(LogServiceUnit::class, 'log_service_unit_id');
     }
 }

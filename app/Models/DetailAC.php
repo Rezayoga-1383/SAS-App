@@ -45,10 +45,4 @@ class DetailAC extends Model
     {
         return $this->belongsTo(Ruangan::class, 'id_ruangan', 'id');
     }
-
-    public function historyImage()
-    {
-        return $this->hasMany(AcHistoryImage::class, 'acdetail_id');
-    }
-
 }

@@ -45,7 +45,7 @@ class LogServiceUnit extends Model
     // LogServiceUnit.php
     public function historyImages()
     {
-        return $this->hasMany(AcHistoryImage::class, 'acdetail_id', 'acdetail_id');
+        return $this->hasMany(AcHistoryImage::class, 'log_service_unit_id');
     }
 
 }

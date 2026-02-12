@@ -22,35 +22,32 @@ class HistoryController extends Controller
             return response()->json(['data' => []]);
         }
 
-        // Cari AC berdasarkan no_ac
         $detailAc = DetailAC::where('no_ac', $noAc)->first();
 
         if (!$detailAc) {
             return response()->json(['data' => []]);
         }
 
-        // Ambil semua SPK yang punya unit dengan acdetail ini
-        $histories = LogService::whereHas('units', function ($query) use ($detailAc) {
-            $query->where('acdetail_id', $detailAc->id);
-        })
-        ->with([
-            'pelaksana',
-            'units' => function ($query) use ($detailAc) {
-                $query->where('acdetail_id', $detailAc->id)
-                    ->with('detail');
-            }
-        ])
-        ->orderByDesc('tanggal')
-        ->get();
+        $histories = LogService::whereHas('details', function ($query) use ($detailAc) {
+                $query->where('acdetail_id', $detailAc->id);
+            })
+            ->with([
+                'details' => function ($query) use ($detailAc) {
+                    $query->where('acdetail_id', $detailAc->id)
+                        ->with('acdetail');
+                },
+                'pelaksana'
+            ])
+            ->orderByDesc('tanggal')
+            ->get();
 
         $data = $histories->map(function ($history) {
 
-            $unit = $history->units->first();
-            $detail = $unit?->detail;
+            $detail = $history->details->first();
 
             return [
                 'id'              => $history->id,
-                'no_ac'           => $unit?->acdetail?->no_ac ?? '-',
+                'no_ac'           => $detail?->acdetail?->no_ac ?? '-',
                 'no_spk'          => $history->no_spk,
                 'tanggal'         => Carbon::parse($history->tanggal)->format('d-m-Y'),
                 'waktu_mulai'     => $history->waktu_mulai,

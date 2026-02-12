@@ -9,13 +9,59 @@
 			<div class="col-md-12 grid-margin stretch-card">
 				<div class="card">
 					<div class="card-body">
-						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
+						<div class="d-flex justify-content-between align-items-end mb-4 flex-wrap" id="top-content">
+
+							<!-- Judul -->
+							<h5 class="card-title m-0">Data SPK</h5>
+
+							<!-- Filter + Tombol -->
+							<div class="d-flex align-items-end gap-2 flex-wrap">
+
+								<div>
+									<label class="form-label small mb-1">Tanggal Awal</label>
+									<input type="date" id="start_date" class="form-control form-control-sm">
+								</div>
+
+								<div>
+									<label class="form-label small mb-1">Tanggal Akhir</label>
+									<input type="date" id="end_date" class="form-control form-control-sm">
+								</div>
+
+								<div>
+									<label class="form-label small mb-1">Jenis Service</label>
+									<select id="jenis_service" class="form-select form-select-sm">
+										<option value="">Semua</option>
+										<option value="cuci">Cuci AC</option>
+										<option value="perbaikan">Perbaikan</option>
+										<option value="ganti unit">Ganti Unit</option>
+									</select>
+								</div>
+
+								<button id="filter" class="btn btn-success btn-sm">
+									<i data-feather="filter"></i> Filter
+								</button>
+
+								<button id="reset" class="btn btn-secondary btn-sm">
+									Reset
+								</button>
+
+								<a href="#" id="exportPdf" class="btn btn-danger btn-sm">
+									<i data-feather="file-text"></i> PDF
+								</a>
+
+								<a href="{{ route('spk.create') }}" class="btn btn-primary btn-sm">
+									<i data-feather="plus-square"></i> Tambah
+								</a>
+
+							</div>
+						</div>
+						{{-- <div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h5 class="card-title m-0">Data SPK</h6>
 							<a href="{{ route('spk.create') }}">
                                 <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>
                             </a>
-						</div>
-						@if(session('success'))
+						</div> --}}
+						{{-- @if(session('success'))
 						<script>
 							document.addEventListener("DOMContentLoaded", function() {
 								Swal.fire({
@@ -33,7 +79,7 @@
 								});
 							});
 						</script>
-						@endif
+						@endif --}}
 						
 						<table id="TabelSPK" class="table hover stripe nowrap" style="width:100%">
 							<thead>
@@ -61,7 +107,14 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
 		responsive: true,
-        ajax: "{{ route('spk.data') }}",
+        ajax: {
+			url: "{{ route('spk.data') }}",
+			data: function(d) {
+				d.start_date = $('#start_date').val();
+				d.end_date = $('#end_date').val();
+				d.jenis_service = $('#jenis_service').val();
+			}
+		},
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'no_spk', name: 'no_spk' },
@@ -72,7 +125,54 @@ $(document).ready(function() {
         drawCallback: function() {
             feather.replace();
         }
-    })
+    });
+
+	// function global
+	function applyFilter() {
+		table.draw();
+		updateExportLink();
+	}
+
+	// Filter button
+	$('#filter').click(function() {
+		applyFilter();
+	});
+
+	$('jenis_service').change(function() {
+		applyFilter();
+	});
+
+	// Reset button
+	$('#reset').click(function() {
+		$('#start_date').val('');
+		$('#end_date').val('');
+		$('#jenis_service').val('');
+		applyFilter();
+	});
+
+	// Update link PDF
+    function updateExportLink() {
+        let start = $('#start_date').val();
+        let end   = $('#end_date').val();
+		let jenis = $('#jenis_service').val();
+
+        let url = "{{ route('spk.exportPdf') }}";
+        let params = [];
+
+        if (start) params.push("start_date=" + start);
+        if (end)   params.push("end_date=" + end);
+		if (jenis) params.push("jenis_service" + jenis);
+
+        if (params.length > 0) {
+            url += "?" + params.join("&");
+        }
+
+        $('#exportPdf').attr('href', url);
+    }
+
+    // Jalankan saat pertama load
+    updateExportLink();
+
 	// Konfirmasi SweetAlert sebelum hapus
 	$(document).on('submit', '.form-delete', function(e) {
 		e.preventDefault();
@@ -136,6 +236,23 @@ $(document).ready(function() {
 	.aksi-btn .btn {
 		width: 100%;
 	}
+}
+
+.form-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#top-content input[type="date"] {
+    width: 150px;
+}
+
+@media (max-width: 768px) {
+    #top-content {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
 }
 </style>
 @endpush
