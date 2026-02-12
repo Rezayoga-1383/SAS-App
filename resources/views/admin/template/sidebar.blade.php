@@ -19,11 +19,16 @@
                         </a>
 					</li>
 					<li class="sidebar-header">
-						SPK
+						SPK & Report
 					</li>
 					<li class="sidebar-item {{ request()->routeIs('admin.spk') ? 'active' : '' }}">
 						<a class="sidebar-link" href="{{ route('admin.spk') }}">
                             <i class="align-middle" data-feather="file"></i> <span class="align-middle">SPK</span>
+                        </a>
+					</li>
+					<li class="sidebar-item {{ request()->routeIs('admin.report') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('admin.report') }}">
+                            <i class="align-middle" data-feather="file-text"></i> <span class="align-middle">Report</span>
                         </a>
 					</li>
                     <!-- Management Data AC -->

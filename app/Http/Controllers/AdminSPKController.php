@@ -47,7 +47,7 @@ class AdminSPKController extends Controller
         $query->whereBetween('tanggal', [$start, $end]);
         }
 
-        $data = $query->latest()->get();
+        $data = $query->orderBy('tanggal', 'asc')->get();
 
         return Pdf::loadView('admin.spkpdf', [
             'data' => $data,
@@ -89,7 +89,7 @@ class AdminSPKController extends Controller
         // FILTER JENIS SERVICE (baru: jenis_service)
         if ($request->jenis_service) {
             $query->whereHas('details', function($q) use ($request) {
-                $q->where('keluhan', 'like', '%' . $request->jenis_service . '%');
+                $q->where('jenis_pekerjaan', 'like', '%' . $request->jenis_service . '%');
             });
         }
 
@@ -320,11 +320,11 @@ class AdminSPKController extends Controller
     public function edit(string $id)
     {
         $spk = LogService::with([
-            'units.acdetail',       // nomor AC
-            'units.detail',         // keluhan & jenis_pekerjaan
-            'units.images',         // foto before/after
-            'units.historyImages',  // kartu history
-            'teknisi',              // teknisi
+            'units.acdetail',
+            'units.images',
+            'units.historyImages',
+            'details', // 🔥 ini yang benar
+            'teknisi',
         ])->findOrFail($id);
 
         $acdetail = DetailAC::all();
@@ -334,7 +334,10 @@ class AdminSPKController extends Controller
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
         // ==== Persiapkan existing data untuk JS ====
-        $existingAcData = $spk->units->map(function($unit){
+        $existingAcData = $spk->units->map(function($unit) use ($spk){
+            $detail = $spk->details
+                ->where('acdetail_id', $unit->acdetail_id)
+                ->first();
             
         $fotokolase = $unit->images->first()?->image_path ?? '';
 
@@ -342,8 +345,8 @@ class AdminSPKController extends Controller
                 'unit_id'         => $unit->id, // kalau mau simpan
                 'acdetail_id'     => $unit->acdetail_id, // 🔥 INI YANG PENTING
                 'no_ac'           => $unit->acdetail->no_ac ?? '',
-                'keluhan'         => $unit->detail->keluhan ?? '',
-                'jenis_pekerjaan' => $unit->detail->jenis_pekerjaan ?? '',
+                'keluhan'         => $detail->keluhan ?? '',
+                'jenis_pekerjaan' => $detail->jenis_pekerjaan ?? '',
                 'history_image'   => $unit->historyImages->first()?->image_path ?? '',
                 'foto_kolase'     => $fotokolase,
             ];

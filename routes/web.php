@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MerkacController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\JenisacController;
 use App\Http\Controllers\RuanganController;
@@ -68,7 +69,15 @@ Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->nam
 // Generate SPK PDF Route
 Route::get('/admin/spk/{id}/generate-pdf', [AdminSPKController::class, 'generatePdf'])->name('spk.generatePdf')->middleware('Role:Admin');
 
-// ================================ Merk AC ==================================
+// ================================ Report Routes =================================
+Route::get('/admin/report', [ReportController::class, 'index'])->name('admin.report')->Middleware('Role:Admin');
+Route::get('/admin/report/dokumentasi/data', [ReportController::class, 'getDokumentasi'])
+    ->name('admin.report.data')->middleware('Role:Admin');
+
+Route::get('/admin/report/dokumentasi/export', [ReportController::class, 'exportPdf'])
+    ->name('admin.report.export')->middleware('Role:Admin');
+
+    // ================================ Merk AC ==================================
 // Merk AC Routes
 Route::get('/admin/merk-ac', [MerkacController::class, 'index'])->name('merk-ac')->Middleware('Role:Admin');
 Route::get('/admin/merk-ac/data', [MerkacController::class, 'getData'])->name('merk-ac.data')->Middleware('Role:Admin');
