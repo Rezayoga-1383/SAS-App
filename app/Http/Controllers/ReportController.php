@@ -71,7 +71,7 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         // 🚫 WAJIB ISI FILTER
-        if (!$request->start_date || !$request->end_date || !$request->jenis_service) {
+        if (!$request->start_date || !$request->end_date) {
             return redirect()->back()->with('error', 'Filter harus diisi lengkap.');
         }
 

@@ -31,7 +31,7 @@
 									<label class="form-label small mb-1">Jenis Service</label>
 									<select id="jenis_service" class="form-select form-select-sm">
 										<option value="">Semua</option>
-										<option value="cuci">Cuci AC</option>
+										<option value="cuci ac">Cuci AC</option>
 										<option value="perbaikan">Perbaikan</option>
 										<option value="ganti unit">Ganti Unit</option>
 									</select>
@@ -127,6 +127,24 @@ $(document).ready(function() {
         }
     });
 
+	function validateTanggal() {
+		let start = $('#start_date').val();
+		let end   = $('#end_date').val();
+
+		if (!start || !end) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Tanggal belum lengkap!',
+				text: 'Silakan isi Tanggal Awal dan Tanggal Akhir terlebih dahulu.',
+				confirmButtonColor: '#3085d6'
+			});
+			return false;
+		}
+
+		return true;
+	}
+
+
 	// function global
 	function applyFilter() {
 		table.draw();
@@ -135,10 +153,12 @@ $(document).ready(function() {
 
 	// Filter button
 	$('#filter').click(function() {
-		applyFilter();
+		if (validateTanggal()) {
+			applyFilter();
+		}
 	});
 
-	$('jenis_service').change(function() {
+	$('#jenis_service').change(function() {
 		applyFilter();
 	});
 
@@ -152,26 +172,37 @@ $(document).ready(function() {
 
 	// Update link PDF
     function updateExportLink() {
-        let start = $('#start_date').val();
-        let end   = $('#end_date').val();
+		let start = $('#start_date').val();
+		let end   = $('#end_date').val();
 		let jenis = $('#jenis_service').val();
 
-        let url = "{{ route('spk.exportPdf') }}";
-        let params = [];
+		let baseUrl = "{{ route('spk.exportPdf') }}";
+		let params = [];
 
-        if (start) params.push("start_date=" + start);
-        if (end)   params.push("end_date=" + end);
-		if (jenis) params.push("jenis_service" + jenis);
+		// Kalau tanggal belum lengkap → disable tombol PDF
+		if (!start || !end) {
+			$('#exportPdf')
+				.attr('href', '#')
+				.addClass('disabled');
+			return;
+		}
 
-        if (params.length > 0) {
-            url += "?" + params.join("&");
-        }
+		if (start) params.push("start_date=" + encodeURIComponent(start));
+		if (end)   params.push("end_date=" + encodeURIComponent(end));
+		if (jenis) params.push("jenis_service=" + encodeURIComponent(jenis));
 
-        $('#exportPdf').attr('href', url);
-    }
+		let finalUrl = baseUrl + "?" + params.join("&");
+
+		$('#exportPdf')
+			.attr('href', finalUrl)
+			.removeClass('disabled');
+	}
 
     // Jalankan saat pertama load
-    updateExportLink();
+    $('#start_date, #end_date, #jenis_service').change(function() {
+		updateExportLink();
+	});
+
 
 	// Konfirmasi SweetAlert sebelum hapus
 	$(document).on('submit', '.form-delete', function(e) {

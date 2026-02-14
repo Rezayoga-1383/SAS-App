@@ -37,6 +37,7 @@ class AdminSPKController extends Controller
     {
         $start  = $request->start_date;
         $end    = $request->end_date;
+        $jenis  = $request->jenis_service;
 
         $query = LogService::with([
             'details.acdetail',
@@ -47,12 +48,22 @@ class AdminSPKController extends Controller
         $query->whereBetween('tanggal', [$start, $end]);
         }
 
+        // FILTER JENIS SERVICE (opsional)
+        if (!empty($request->jenis_service)) {
+            $query->whereHas('details', function($q) use ($request) {
+                $q->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
+                    '%' . strtolower($request->jenis_service) . '%'
+                ]);
+            });
+        }
+
         $data = $query->orderBy('tanggal', 'asc')->get();
 
         return Pdf::loadView('admin.spkpdf', [
             'data' => $data,
             'start_date' => $start,
-            'end_date' => $end
+            'end_date' => $end,
+            'jenis_service' => $jenis,
         ])->download('Data-SPK.pdf');
     }
 

@@ -5,7 +5,7 @@
     <title>PDF | Data SPK</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #000; padding: 5px; }
         th { background: #f2f2f2; }
 
@@ -17,7 +17,7 @@
             padding: 26px;
             border: 1 px solid #cfcfcf;
             box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .hdr {
             display: flex;
@@ -52,34 +52,39 @@
 <body>
     <div class="sheet">
         <table width="100%" style="border: none; border-collapse: collapse;">
-    <tr>
-        <td width="15%" style="border: none;">
-            <img src="{{ public_path('assets/image/logo_sas_ori.png') }}" 
-                 style="width:90px;">
-        </td>
-        <td width="85%" style="border: none; text-align: left;">
-            <div style="font-size:16px; font-weight:bold;">
-                PT SARANA AGUNG SEJAHTERA
-            </div>
-            <div style="font-size:12px;">
-                General Contractor, Technical, Mechanical, Electrical, Computer & Stationery
-            </div>
-            <div style="font-size:12px;">
-                Ruko Palm Square Blok TF 31 Pondok Candra - Sidoarjo
-            </div>
-            <div style="font-size:12px;">
-                Telp : (031) 867 2677, 0811 349 2009 | Fax : (031) 867 2677
-            </div>
-        </td>
-    </tr>
-</table>
+            <tr>
+                <td width="15%" style="border: none;">
+                    <img src="{{ public_path('assets/image/logo_sas_ori.png') }}" 
+                        style="width:90px;">
+                </td>
+                <td width="85%" style="border: none; text-align: left;">
+                    <div style="font-size:16px; font-weight:bold;">
+                        PT SARANA AGUNG SEJAHTERA
+                    </div>
+                    <div style="font-size:12px;">
+                        General Contractor, Technical, Mechanical, Electrical, Computer & Stationery
+                    </div>
+                    <div style="font-size:12px;">
+                        Ruko Palm Square Blok TF 31 Pondok Candra - Sidoarjo
+                    </div>
+                    <div style="font-size:12px;">
+                        Telp : (031) 867 2677, 0811 349 2009 | Fax : (031) 867 2677
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-<hr style="border: 2px solid black; margin-top:10px; margin-bottom:20px;">
-
-
+        <hr style="border: 2px solid black; margin-top:5px; margin-bottom:5px;">
     </div>
 
+<div>
 <h2 class="fw-bolder">Data Pengerjaan RSPAL Dr. Ramelan</h2>
+    @if(!empty($jenis_service))
+        <span style="font-size:14px; font-weight:bold;">
+            JENIS SERVICE: {{ strtoupper($jenis_service) }}
+        </span>
+    @endif
+</div>
 @php
 use Carbon\Carbon;
 @endphp
