@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MerkAC;
-use App\Models\JenisAC;
-use App\Models\Ruangan;
-use App\Models\DetailAC;
 use App\Models\Departement;
+use App\Models\DetailAC;
+use App\Models\JenisAC;
+use App\Models\LogServiceDetail;
+use App\Models\MerkAC;
+use App\Models\Ruangan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -77,5 +78,42 @@ class LoginController extends Controller
         $jumlahruangan              = Ruangan::count();
 
         return view('admin.dashboard', compact('datajenis','datamerk', 'jumlahjenis', 'jumlahmerk', 'jumlahdepartement', 'jumlahruangan'));
+    }
+
+    public function chartData(Request $request)
+    {
+        $filter = $request->jenis_service ?? 'cuci';
+
+        $query = LogServiceDetail::query();
+
+        // Filter berdasarkan jenis_pekerjaan
+        if ($filter == 'cuci') {
+            $query->where('jenis_pekerjaan', 'like', '%cuci ac%');
+        } elseif ($filter == 'perbaikan') {
+            $query->where('jenis_pekerjaan', 'like', '%perbaikan%');
+        } elseif ($filter == 'ganti') {
+            $query->where('jenis_pekerjaan', 'like', '%ganti unit%');
+        }
+
+        // Ambil data per bulan tahun ini
+        $services = $query
+            ->selectRaw('MONTH(created_at) as bulan, COUNT(id) as total')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan');
+
+        // Siapkan 12 bulan
+        $labels = [];
+        $totals = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $labels[] = Carbon::create()->month($i)->format('M');
+            $totals[] = $services[$i] ?? 0;
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'totals' => $totals
+        ]);
     }
 }

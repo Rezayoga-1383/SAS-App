@@ -40,6 +40,9 @@ Route::post('/autentikasi', [LoginController::class, 'autentikasi'])->name('aute
 // View Admin Dashboard
 Route::get('/admin/dashboard', [LoginController::class, 'admin'])->name('dashboard')->Middleware('Role:Admin');
 
+// line-chart Dashboard
+Route::get('/admin/dashboard/chart', [LoginController::class, 'chartData'])->name('dashboard.chart')->Middleware('Role:Admin');
+
 // View History
 Route::get('/admin/history', [HistoryController::class, 'index'])->name('history')->Middleware('Role:Admin');
 Route::get('/admin/history/search', [HistoryController::class, 'search'])->name('history.search')->Middleware('Role:Admin');
@@ -88,11 +91,11 @@ Route::get('/admin/merk-ac/create', [MerkacController::class, 'create'])->name('
 Route::post('/admin/merk-ac/store', [MerkacController::class, 'store'])->name('merk-ac.store')->Middleware('Role:Admin');
 
 // Edit Merk AC Form Route
-Route::get('/merk-ac/{id}/edit', [MerkACController::class, 'edit'])->name('merk-ac.edit')->Middleware('Role:Admin');
-Route::put('/merk-ac/{id}', [MerkACController::class, 'update'])->name('merk-ac.update')->Middleware('Role:Admin');
+Route::get('/merk-ac/{id}/edit', [MerkacController::class, 'edit'])->name('merk-ac.edit')->Middleware('Role:Admin');
+Route::put('/merk-ac/{id}', [MerkacController::class, 'update'])->name('merk-ac.update')->Middleware('Role:Admin');
 
 // Delete Merk AC Route
-Route::delete('/merk-ac/{id}', [MerkACController::class, 'destroy'])->name('merk-ac.destroy')->Middleware('Role:Admin');
+Route::delete('/merk-ac/{id}', [MerkacController::class, 'destroy'])->name('merk-ac.destroy')->Middleware('Role:Admin');
 
 
 // ================================ Jenis AC ==================================

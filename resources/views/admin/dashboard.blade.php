@@ -73,6 +73,27 @@
 					</div>
 				</div>
 			</div>
+
+			{{-- Line Chart --}}
+			<div class="row g-3 mt-2">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+							<h5 class="card-title mb-0">GRAFIK DATA AC</h5> <br>
+							<select id="jenis_service" class="form-select form-select-sm" style="width:180px;">
+								<option value="cuci">Cuci AC</option>
+								<option value="perbaikan">Perbaikan</option>
+								<option value="ganti">Ganti Unit</option>
+							</select>
+						</div>
+						<div class="card-body">
+							<div class="chart">
+								<canvas id="chartjs-dashboard-line"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		<div class="row g-3">
 				<!-- Kolom Kiri -->
 			<div class="col-12 col-lg-6">
@@ -144,9 +165,14 @@
 @endsection
 
 @push('script')
-
 <script>
+let serviceChart;
+
 document.addEventListener("DOMContentLoaded", function() {
+
+    // ===============================
+    // PIE CHART (TETAP SEPERTI BIASA)
+    // ===============================
     const chartDataJenis = {
         labels: {!! json_encode($datajenis->pluck('nama_jenis')) !!},
         datasets: [{
@@ -154,6 +180,7 @@ document.addEventListener("DOMContentLoaded", function() {
             backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
         }]
     };
+
     const chartDataMerk = {
         labels: {!! json_encode($datamerk->pluck('nama_merk')) !!},
         datasets: [{
@@ -173,7 +200,66 @@ document.addEventListener("DOMContentLoaded", function() {
         data: chartDataMerk,
         options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
     });
-});
-</script>
 
+
+    // ===============================
+    // LINE CHART (INITIAL LOAD)
+    // ===============================
+
+    const ctx = document.getElementById("chartjs-dashboard-line");
+
+    serviceChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [{
+                label: "Total Service {{ now()->year }}",
+                data: [],
+                borderColor: "#3b82f6",
+                backgroundColor: "rgba(59,130,246,0.2)",
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : null;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Load pertama kali
+    loadChartData('cuci');
+
+    // Event dropdown
+    document.getElementById('jenis_service')
+        .addEventListener('change', function () {
+            loadChartData(this.value);
+        });
+});
+
+function loadChartData(jenis) {
+
+    fetch("{{ route('dashboard.chart') }}?jenis_service=" + jenis)
+        .then(response => response.json())
+        .then(data => {
+
+            serviceChart.data.labels = data.labels;
+            serviceChart.data.datasets[0].data = data.totals;
+
+            serviceChart.update();
+        })
+        .catch(error => console.error(error));
+}
+
+</script>
 @endpush
