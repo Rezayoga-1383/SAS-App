@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>Laporan Dokumentasi</title>
     <style>
-        /* ===== UKURAN KERTAS F4 PORTRAIT ===== */
         @page {
             size: 21.5cm 33cm;
             margin: 1.5cm;
@@ -17,7 +16,6 @@
             padding: 0;
         }
 
-        /* ===== HEADER ===== */
         .header-table {
             width: 100%;
             border-collapse: collapse;
@@ -32,7 +30,6 @@
             width: 90px;
         }
 
-        /* ===== JUDUL ===== */
         .title {
             text-align: center;
             font-size: 16px;
@@ -46,10 +43,10 @@
             margin-bottom: 20px;
         }
 
-        /* ===== SECTION DATA ===== */
+        /* ===== 1 DATA = 1 HALAMAN ===== */
         .section {
             margin-top: 15px;
-            page-break-inside: avoid; /* penting supaya 2 foto tidak terpisah */
+            page-break-inside: avoid;
         }
 
         .judul-lokasi {
@@ -65,14 +62,27 @@
             margin-bottom: 10px;
         }
 
-        /* ===== FOTO ===== */
-        img.foto {
-            width: 100%;
-            max-height: 10.5cm; /* 2 foto muat dalam F4 */
-            display: block;
-            margin: 0 auto 10px auto;
+        /* SLOT FOTO TETAP */
+        .foto-wrapper {
+            height: 10.5cm;
+            border: 1px solid #ccc;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
+        img.foto {
+            max-height: 10.5cm;
+            max-width: 100%;
+        }
+
+        .foto-kosong {
+            font-size: 14px;
+            color: #777;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -112,7 +122,11 @@
 {{-- ================= DATA LIST ================= --}}
 @forelse($data as $index => $item)
 
-    <div class="section">
+    <div class="section"
+        @if($index > 0)
+            style="page-break-before: always;"
+        @endif
+    >
 
         <div class="judul-lokasi">
             {{ $item['ruangan'] }} <br>
@@ -125,21 +139,30 @@
         </div>
 
         {{-- FOTO HISTORY --}}
-        @if($item['foto_history'])
-            <img src="{{ public_path('storage/'.$item['foto_history']) }}" class="foto">
-        @endif
+        <div class="foto-wrapper">
+            @if($item['foto_history'])
+                <img src="{{ public_path('storage/'.$item['foto_history']) }}" class="foto">
+            @else
+                <div class="foto-kosong">Tidak Ada Gambar</div>
+            @endif
+        </div>
 
         {{-- FOTO KOLOASE --}}
-        @if($item['foto_kolase'])
-            <img src="{{ public_path('storage/'.$item['foto_kolase']) }}" class="foto">
-        @endif
+        <div class="foto-wrapper">
+            @if($item['foto_kolase'])
+                <img src="{{ public_path('storage/'.$item['foto_kolase']) }}" class="foto">
+            @else
+                <div class="foto-kosong">Tidak Ada Gambar</div>
+            @endif
+        </div>
 
     </div>
 
-    @empty
+@empty
     <div style="text-align:center; margin-top:20px;">
         Tidak ada data.
     </div>
 @endforelse
+
 </body>
 </html>
