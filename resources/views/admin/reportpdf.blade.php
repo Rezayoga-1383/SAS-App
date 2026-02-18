@@ -4,32 +4,35 @@
     <meta charset="utf-8">
     <title>Laporan Dokumentasi</title>
     <style>
+        /* ===== UKURAN KERTAS F4 PORTRAIT ===== */
+        @page {
+            size: 21.5cm 33cm;
+            margin: 1.5cm;
+        }
+
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 11px;
+            margin: 0;
+            padding: 0;
         }
 
-        table {
+        /* ===== HEADER ===== */
+        .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th, td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        th {
-            background: #f2f2f2;
         }
 
         .header-table td {
             border: none;
+            vertical-align: top;
         }
 
+        img.logo {
+            width: 90px;
+        }
+
+        /* ===== JUDUL ===== */
         .title {
             text-align: center;
             font-size: 16px;
@@ -40,17 +43,36 @@
         .periode {
             text-align: center;
             margin-top: 5px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        img.logo {
-            width: 90px;
+        /* ===== SECTION DATA ===== */
+        .section {
+            margin-top: 15px;
+            page-break-inside: avoid; /* penting supaya 2 foto tidak terpisah */
         }
 
+        .judul-lokasi {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .info {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* ===== FOTO ===== */
         img.foto {
-            width: 100px;
-            height: auto;
+            width: 100%;
+            max-height: 10.5cm; /* 2 foto muat dalam F4 */
+            display: block;
+            margin: 0 auto 10px auto;
         }
+
     </style>
 </head>
 <body>
@@ -87,57 +109,37 @@
     {{ $end_date ? \Carbon\Carbon::parse($end_date)->format('d-m-Y') : 'Semua' }}
 </div>
 
-{{-- ================= TABLE ================= --}}
-<table>
-    <thead>
-        <tr>
-            <th width="5%">No</th>
-            <th width="10%">Tanggal</th>
-            <th width="10%">No AC</th>
-            <th width="15%">Ruangan</th>
-            <th width="15%">Departemen</th>
-            <th width="20%">Foto History</th>
-            <th width="20%">Foto Kolase</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($data as $index => $item)
-        <tr>
-            <td>{{ $index + 1 }}</td>
+{{-- ================= DATA LIST ================= --}}
+@forelse($data as $index => $item)
 
-            <td>
-                {{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }}
-            </td>
+    <div class="section">
 
-            <td>{{ $item['no_ac'] }}</td>
+        <div class="judul-lokasi">
+            {{ $item['ruangan'] }} <br>
+            ( No AC {{ $item['no_ac'] }})
+        </div>
 
-            <td>{{ $item['ruangan'] }}</td>
+        <div class="info">
+            Tanggal: {{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }} <br>
+            Departemen: {{ $item['departemen'] }}
+        </div>
 
-            <td>{{ $item['departemen'] }}</td>
+        {{-- FOTO HISTORY --}}
+        @if($item['foto_history'])
+            <img src="{{ public_path('storage/'.$item['foto_history']) }}" class="foto">
+        @endif
 
-            <td>
-                @if($item['foto_history'])
-                    <img src="{{ public_path('storage/'.$item['foto_history']) }}" class="foto">
-                @else
-                    -
-                @endif
-            </td>
+        {{-- FOTO KOLOASE --}}
+        @if($item['foto_kolase'])
+            <img src="{{ public_path('storage/'.$item['foto_kolase']) }}" class="foto">
+        @endif
 
-            <td>
-                @if($item['foto_kolase'])
-                    <img src="{{ public_path('storage/'.$item['foto_kolase']) }}" class="foto">
-                @else
-                    -
-                @endif
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="7">Tidak ada data.</td>
-        </tr>
-        @endforelse
-    </tbody>
-</table>
+    </div>
 
+    @empty
+    <div style="text-align:center; margin-top:20px;">
+        Tidak ada data.
+    </div>
+@endforelse
 </body>
 </html>
