@@ -19,4 +19,9 @@ class LogServiceDetail extends Model
         return $this->belongsTo(DetailAC::class, 'acdetail_id');
     }
 
+    public function logService()
+    {
+        return $this->belongsTo(LogService::class, 'log_service_id');
+    }
+
 }

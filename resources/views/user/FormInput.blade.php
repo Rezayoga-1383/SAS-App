@@ -61,22 +61,10 @@
 
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
-            {{-- <li>
-              <a href="/">Beranda</a>
-            </li> --}}
-            <!-- <li><a href="#about">About</a></li> -->
-            <!-- <li><a href="#services">Services</a></li> -->
-            <!-- <li><a href="#departments">Departments</a></li> -->
+            <li><a href="/data-ac-rsal">Data AC</a></li>
             <li><a href="/input-data-ac" class="active">Form Input Data</a></li>
             <li><a href="/input-data-spk">Form Input SPK</a></li>
             <li></li>
-            {{-- <li class="dropdown"><a href="#"><span>Input Data</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-              <ul>
-                <li><a href="#">Form Input Data AC</a></li>
-                <li><a href="#">Form Input Data AC</a></li>
-              </ul>
-            </li>
-            <li></li> --}}
           </ul>
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf

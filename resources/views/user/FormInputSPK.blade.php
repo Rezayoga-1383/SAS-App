@@ -61,6 +61,7 @@
 
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
+            <li><a href="/data-ac-rsal">Data AC</a></li>
             <li><a href="/input-data-ac">Form Input Data</a></li>
             <li><a href="/input-data-spk" class="active">Form Input SPK</a></li>
             <li></li>
@@ -310,13 +311,12 @@
                   @enderror
               </div>
 
-              <div class="col-md-12 text-center" id="submit_btn">
-                <button type="submit" id="submit_btn" class="btn btn-primary">Kirim Data</button>
+              <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">Kirim Data</button>
               </div>
             </div>
           </form>
         </div>
-
       </div>
     </div>
 
@@ -362,10 +362,7 @@
           <ul>
             <li><a href="#">Service AC</a></li>
             <li><a href="#">Instalasi AC</a></li>
-            <!-- <li><a href="#">Layanan Bergaransi</a></li> -->
             <li><a href="#">Perawatan Berkala</a></li>
-            <!-- <li><a href="#">Konsultasi Teknis</a></li> -->
-            <!-- <li><a href="#">Produk Berkualitas</a></li> -->
           </ul>
         </div>
 
@@ -376,10 +373,6 @@
             <li><a href="#">Konsultasi Teknis</a></li>
             <li><a href="#">Produk Berkualitas</a></li>
             <li><a href="#">Layanan Bergaransi</a></li>
-            <!-- <li><a href="#">Excepturi dignissimos</a></li>
-            <li><a href="#">Suscipit distinctio</a></li>
-            <li><a href="#">Dilecta</a></li>
-            <li><a href="#">Sit quas consectetur</a></li> -->
           </ul>
         </div>
       </div>
@@ -395,7 +388,7 @@
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Preloader -->
-  <div id="preloader"></div>
+  {{-- <div id="preloader"></div> --}}
 
   <!-- Tambahkan jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

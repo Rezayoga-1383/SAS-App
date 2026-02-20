@@ -82,38 +82,59 @@ class LoginController extends Controller
 
     public function chartData(Request $request)
     {
-        $filter = $request->jenis_service ?? 'cuci';
+        $bulan = $request->filled('bulan') ? (int)$request->bulan : null;
 
-        $query = LogServiceDetail::query();
+        // 🔥 base semua (join ke log_service untuk tanggal)
+        $base = LogServiceDetail::query()
+            ->join('log_service', 'log_service.id', '=', 'log_service_detail.log_service_id')
+            ->whereYear('log_service.tanggal', now()->year);
 
-        // Filter berdasarkan jenis_pekerjaan
-        if ($filter == 'cuci') {
-            $query->where('jenis_pekerjaan', 'like', '%cuci ac%');
-        } elseif ($filter == 'perbaikan') {
-            $query->where('jenis_pekerjaan', 'like', '%perbaikan%');
-        } elseif ($filter == 'ganti') {
-            $query->where('jenis_pekerjaan', 'like', '%ganti unit%');
-        }
+        // ===== TOTAL SEMUA =====
+        $totalCuciSemua = (clone $base)
+            ->where('jenis_pekerjaan','like','%cuci ac%')
+            ->count();
 
-        // Ambil data per bulan tahun ini
-        $services = $query
-            ->selectRaw('MONTH(created_at) as bulan, COUNT(id) as total')
-            ->whereYear('created_at', now()->year)
-            ->groupBy('bulan')
-            ->pluck('total', 'bulan');
+        $totalPerbaikanSemua = (clone $base)
+            ->where('jenis_pekerjaan','like','%perbaikan%')
+            ->count();
 
-        // Siapkan 12 bulan
-        $labels = [];
-        $totals = [];
+        $totalGantiSemua = (clone $base)
+            ->where('jenis_pekerjaan','like','%ganti unit%')
+            ->count();
 
-        for ($i = 1; $i <= 12; $i++) {
-            $labels[] = Carbon::create()->month($i)->format('M');
-            $totals[] = $services[$i] ?? 0;
+        // ===== TOTAL BULAN =====
+        $bulanCuci = 0;
+        $bulanPerbaikan = 0;
+        $bulanGanti = 0;
+
+        if ($bulan) {
+            $bulanBase = (clone $base)->whereMonth('log_service.tanggal', $bulan);
+
+            $bulanCuci = (clone $bulanBase)
+                ->where('jenis_pekerjaan','like','%cuci ac%')
+                ->count();
+
+            $bulanPerbaikan = (clone $bulanBase)
+                ->where('jenis_pekerjaan','like','%perbaikan%')
+                ->count();
+
+            $bulanGanti = (clone $bulanBase)
+                ->where('jenis_pekerjaan','like','%ganti unit%')
+                ->count();
         }
 
         return response()->json([
-            'labels' => $labels,
-            'totals' => $totals
+            'semua' => [
+                'cuci'=>$totalCuciSemua,
+                'perbaikan'=>$totalPerbaikanSemua,
+                'ganti'=>$totalGantiSemua,
+            ],
+            'bulan' => [
+                'cuci'=>$bulanCuci,
+                'perbaikan'=>$bulanPerbaikan,
+                'ganti'=>$bulanGanti,
+            ],
+            'bulan_label' => $bulan ? Carbon::create()->month($bulan)->translatedFormat('F') : null
         ]);
     }
 }

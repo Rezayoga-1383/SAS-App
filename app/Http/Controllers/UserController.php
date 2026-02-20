@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MerkAC;
-use App\Models\JenisAC;
-use App\Models\Ruangan;
-use App\Models\DetailAC;
 use App\Models\Departement;
+use App\Models\DetailAC;
+use App\Models\JenisAC;
+use App\Models\MerkAC;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class UserController extends Controller
@@ -124,22 +124,72 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Data AC Berhasil Dikirim, Terimakasih.');
     }
 
-
+    public function pagedata()
+    {
+        return view('user.data');
+    }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request)
     {
-        //
+        if (! $request->ajax()) {
+        abort(404); // tampilkan halaman not found
+        }
+
+        $data = DetailAC::query()
+            ->leftJoin('ruangan', 'ruangan.id', '=', 'acdetail.id_ruangan')
+            ->leftJoin('departement', 'departement.id', '=', 'ruangan.id_departement')
+            ->select('acdetail.*', 'departement.nama_departement as nama_departement')
+            ->with(['merkac', 'jenisac', 'ruangan.departement'])
+            ->orderBy('departement.nama_departement', 'asc')
+            ->orderBy('ruangan.nama_ruangan', 'asc');
+
+        return DataTables::of($data)
+            ->addIndexColumn() // kolom No otomatis
+            ->addColumn('nama_merkac', function($row) {
+                return $row->merkac ? $row->merkac->nama_merk : '-';
+            })
+            ->addColumn('nama_jenisac', function($row) {
+                return $row->jenisac ? $row->jenisac->nama_jenis : '-';
+            })
+
+            ->addColumn('nama_departement', fn($row) => $row->ruangan?->departement?->nama_departement ?? '-')
+            
+            ->addColumn('nama_ruangan', function($row) {
+                return $row->ruangan?->nama_ruangan ?? '-';
+            })
+            ->addColumn('aksi', function($row){
+                return '
+                    <button class="btn btn-sm btn-secondary btn-detail" data-id="'.$row->id.'"><i class="align-middle" data-feather="eye"></i><strong></strong></button>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function detail($id)
     {
-        //
+        $data = DetailAC::with(['merkac', 'jenisac', 'ruangan.departement'])->findOrFail($id);
+
+        return response()->json([
+            'nama_merk' => $data->merkac->nama_merk ?? '-',
+            'nama_jenis' => $data->jenisac->nama_jenis ?? '-',
+            'nama_ruangan' => $data->ruangan->nama_ruangan ?? '-',
+            'nama_departement' => $data->ruangan->departement->nama_departement ?? '-',
+            'no_ac' => $data->no_ac,
+            'no_seri_indoor' => $data->no_seri_indoor,
+            'no_seri_outdoor' => $data->no_seri_outdoor,
+            'pk_ac' => $data->pk_ac,
+            'jumlah_ac' => $data->jumlah_ac,
+            'tahun_ac' => $data->tahun_ac,
+            'tanggal_pemasangan' => $data->tanggal_pemasangan,
+            'tanggal_habis_garansi' => $data->tanggal_habis_garansi,
+        ]);
     }
 
     /**

@@ -6,10 +6,8 @@ use App\Models\MerkAC;
 use App\Models\JenisAC;
 use App\Models\Ruangan;
 use App\Models\DetailAC;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 

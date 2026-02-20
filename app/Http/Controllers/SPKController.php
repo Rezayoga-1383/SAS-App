@@ -176,9 +176,8 @@ class SPKController extends Controller
                         ->store('spk_images/kartu_history', 'public');
 
                     AcHistoryImage::create([
-                        'log_service_id' => $spk->id,
-                        'acdetail_id'    => $acdetailId,
-                        'image_path'     => $path,
+                        'log_service_unit_id' => $unit->id,
+                        'image_path'          => $path,
                     ]);
                 }
 
@@ -199,7 +198,9 @@ class SPKController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Data SPK berhasil disimpan');
+            return redirect()
+                ->route('formcreatespk')
+                ->with('success', 'Data SPK berhasil disimpan');
 
         } catch (\Exception $e) {
             DB::rollBack();

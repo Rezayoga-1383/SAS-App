@@ -27,6 +27,10 @@ Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('da
 Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
 Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
 
+Route::get('/data-ac-rsal', [UserController::class, 'pagedata'])->name('ac.data.page')->Middleware('Role:Teknisi');
+Route::get('/data-ac', [UserController::class, 'show'])->name('ac.data')->Middleware('Role:Teknisi');
+Route::get('/data-ac/detail/{id}', [UserController::class, 'detail'])->name('detail.ac')->Middleware('Role:Teknisi');
+
 // Route Form Input Data SPK
 Route::get('/input-data-spk', [SPKController::class, 'create'])->name('formcreatespk')->middleware('Role:Teknisi');
 Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk.store')->middleware('Role:Teknisi');
