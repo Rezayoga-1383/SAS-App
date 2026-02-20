@@ -97,18 +97,10 @@
 							<div class="chart chart-xs mb-3">
 								<canvas id="chart-cuci"></canvas>
 							</div>
-
-							<table class="table mb-0">
-								<tbody>
-									{{-- @foreach ($datajenis as $jenis)
-									<tr>
-										<td>{{ $jenis->nama_jenis }}</td>
-										<td class="text-end">{{ $jenis->total }}</td>
-									</tr>
-									@endforeach --}}
-								</tbody>
-							</table>
 						</div>
+						<table class="table mb-0">
+							<tbody id="table-cuci-body"></tbody>
+						</table>
 					</div>
 				</div>
 
@@ -122,18 +114,10 @@
 							<div class="chart chart-xs mb-3">
 								<canvas id="chart-perbaikan"></canvas>
 							</div>
-
-							<table class="table mb-0">
-								<tbody>
-									{{-- @foreach ($datamerk as $merk)
-									<tr>
-										<td>{{ $merk->nama_merk }}</td>
-										<td class="text-end">{{ $merk->total }}</td>
-									</tr>
-									@endforeach --}}
-								</tbody>
-							</table>
 						</div>
+						<table class="table mb-0">
+							<tbody id="table-perbaikan-body"></tbody>
+						</table>
 					</div>
 				</div>
 
@@ -147,18 +131,10 @@
 							<div class="chart chart-xs mb-3">
 								<canvas id="chart-ganti"></canvas>
 							</div>
-
-							<table class="table mb-0">
-								<tbody>
-									{{-- @foreach ($dataganti as $item)
-									<tr>
-										<td>{{ $item->nama }}</td>
-										<td class="text-end">{{ $item->total }}</td>
-									</tr>
-									@endforeach --}}
-								</tbody>
-							</table>
 						</div>
+						<table class="table mb-0">
+							<tbody id="table-ganti-body"></tbody>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -254,24 +230,26 @@
 
 @push('script')
 <script>
-// let serviceChart;
-
 document.addEventListener("DOMContentLoaded", function() {
 
-
-	let chartCuci, chartPerbaikan, chartGanti;
+    let chartCuci, chartPerbaikan, chartGanti;
 
     function createChart(canvasId) {
         return new Chart(document.getElementById(canvasId), {
             type:'doughnut',
             data:{
                 labels:['Semua'],
-                datasets:[{ 
-					data:[0],
-					backgroundColor: ['#4e73df']
-				}]
+                datasets:[{
+                    data:[0],
+                    backgroundColor:['#4e73df']
+                }]
             },
-            options:{ responsive:true }
+            options:{
+                responsive:true,
+                plugins:{
+                    legend:{ position:'bottom' }
+                }
+            }
         });
     }
 
@@ -280,57 +258,72 @@ document.addEventListener("DOMContentLoaded", function() {
     chartGanti = createChart('chart-ganti');
 
 
+    // ⭐ update chart
     function updateChart(chart, semua, bulan, labelBulan){
 
         if(labelBulan){
-            // 🔥 mode compare
             chart.data.labels = ['Semua', labelBulan];
             chart.data.datasets[0].data = [semua, bulan];
-
-			chart.data.datasets[0].backgroundColor = [
-            '#4e73df', // semua (biru)
-            '#1cc88a'  // bulan (hijau)
-        ];
+            chart.data.datasets[0].backgroundColor = ['#4e73df','#1cc88a'];
 
         }else{
-            // 🔥 mode default
             chart.data.labels = ['Semua'];
             chart.data.datasets[0].data = [semua];
-
-			chart.data.datasets[0].backgroundColor = [
-            	'#4e73df'
-        	];
+            chart.data.datasets[0].backgroundColor = ['#4e73df'];
         }
 
         chart.update();
     }
 
 
+    // ⭐ render tabel (dipakai semua chart)
+    function renderTable(tbodyId, semua, bulan, labelBulan){
+
+        let tbody = document.getElementById(tbodyId);
+        tbody.innerHTML = '';
+
+        if(labelBulan){
+            tbody.innerHTML = `
+                <tr>
+                    <td><span class="badge bg-primary">Semua</span></td>
+                    <td class="text-end">${semua}</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-success">${labelBulan}</span></td>
+                    <td class="text-end">${bulan}</td>
+                </tr>
+            `;
+        }else{
+            tbody.innerHTML = `
+                <tr>
+                    <td><span class="badge bg-primary">Semua</span></td>
+                    <td class="text-end">${semua}</td>
+                </tr>
+            `;
+        }
+    }
+
+
+    // ⭐ load data
     function loadChartData(bulan=''){
+
         fetch("{{ route('dashboard.chart') }}?bulan="+bulan)
         .then(r=>r.json())
         .then(data=>{
 
-            updateChart(chartCuci,
-                data.semua.cuci,
-                data.bulan.cuci,
-                data.bulan_label
-            );
+            // ===== CHART =====
+            updateChart(chartCuci, data.semua.cuci, data.bulan.cuci, data.bulan_label);
+            updateChart(chartPerbaikan, data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
+            updateChart(chartGanti, data.semua.ganti, data.bulan.ganti, data.bulan_label);
 
-            updateChart(chartPerbaikan,
-                data.semua.perbaikan,
-                data.bulan.perbaikan,
-                data.bulan_label
-            );
-
-            updateChart(chartGanti,
-                data.semua.ganti,
-                data.bulan.ganti,
-                data.bulan_label
-            );
+            // ===== TABEL =====
+            renderTable('table-cuci-body', data.semua.cuci, data.bulan.cuci, data.bulan_label);
+            renderTable('table-perbaikan-body', data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
+            renderTable('table-ganti-body', data.semua.ganti, data.bulan.ganti, data.bulan_label);
         });
     }
 
+    // default
     loadChartData('');
 
     document.getElementById('filter-bulan')

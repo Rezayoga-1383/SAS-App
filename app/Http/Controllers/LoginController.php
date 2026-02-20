@@ -44,7 +44,7 @@ class LoginController extends Controller
         if($user->role === 'Admin') {
             return redirect()->intended('/admin/dashboard');
         }elseif ($user->role === "Teknisi") {
-            return redirect()->intended('/input-data-ac');
+            return redirect()->intended('/data-ac-rsal');
         }else {
             Auth::logout();
             return back()->withErrors(['email' => 'Akses ditolak. Role tidak dikenali!']);

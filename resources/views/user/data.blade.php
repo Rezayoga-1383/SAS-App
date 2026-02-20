@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Input Data - PT Sarana Agung Sejahtera</title>
+  <title>Data AC RSPAL - PT Sarana Agung Sejahtera</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
 
@@ -108,7 +108,7 @@
     <!-- Section Title -->
     <div class="container section-title" data-aos="fade-up">
       <h2>Data AC</h2>
-      <p>Silahkan Masukkan Data AC Dengan Lengkap dan Benar</p>
+      <p>Data AC RSPAL DR Ramelan</p>
     </div>
     <!-- End Section Title -->
 
