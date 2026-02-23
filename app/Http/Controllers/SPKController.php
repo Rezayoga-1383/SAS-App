@@ -133,7 +133,7 @@ class SPKController extends Controller
 
             // ===== FILE SPK =====
             'file_spk.required'         => 'File SPK wajib diunggah.',
-            'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG.',
+            'file_spk.mimes'            => 'Tipe file harus berupa JPG, JPEG.',
             'file_spk.max'              => 'Ukuran file SPK maksimal adalah 10MB.',
         ]);
 

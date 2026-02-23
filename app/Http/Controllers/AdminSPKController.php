@@ -415,7 +415,7 @@ class AdminSPKController extends Controller
             'hormat_kami'        => 'required|exists:pengguna,id',
             'pelaksana_ttd'      => 'required|exists:pengguna,id',
 
-            'file_spk'           => 'nullable|file|mimes:pdf,jpg,jpeg|max:10240',
+            'file_spk'           => 'nullable|file|mimes:jpg,jpeg|max:10240',
         ]);
 
         DB::beginTransaction();
