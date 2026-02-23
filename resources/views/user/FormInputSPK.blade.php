@@ -460,8 +460,8 @@
         ? laravelErrors[`history_image.${i}`][0]
         : (laravelErrors && laravelErrors['history_image'] ? laravelErrors['history_image'][0] : ''));
 
-    const errFotoKolase = (laravelErrors && laravelErrors[`foto_kolase.${i}`])
-    ? laravelErrors[`foto_kolase.${i}`][0]
+    const errFotoKolase = (laravelErrors && laravelErrors[`images.${i}.foto_kolase`])
+    ? laravelErrors[`images.${i}.foto_kolase`][0]
     : '';
 
       acCard.innerHTML = `
@@ -518,9 +518,9 @@
                 <div class="mb-3">
                     <label class="form-label">Upload Foto Kolase</label>
                     <input type="file"
-                    name="foto_kolase[${i}]"
+                    name="images[${i}][foto_kolase]"
                     class="form-control ${errFotoKolase ? 'is-invalid' : ''}"
-                    accept=".jpg,.jpeg,.png">
+                    accept=".jpg,.jpeg">
 
                     ${errFotoKolase ? `<div class="invalid-feedback d-block">${errFotoKolase}</div>`
                     : ''}

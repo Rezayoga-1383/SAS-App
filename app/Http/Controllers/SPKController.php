@@ -64,19 +64,19 @@ class SPKController extends Controller
 
             // ===== Image History =====
             'history_image'             => 'required|array',
-            'history_image.*'           => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'history_image.*'           => 'required|image|mimes:jpg,jpeg|max:10240',
 
             // ===== Image Before & After =====
             'images' => 'nullable|array',
 
-            'images.*.foto_kolase'      => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'images.*.foto_kolase'      => 'nullable|image|mimes:jpg,jpeg|max:10240',
 
             'kepada'                    => 'required|string|max:100',
             'mengetahui'                => 'required|string|max:100',
             'hormat_kami'               => 'required|exists:pengguna,id',
             'pelaksana_ttd'             => 'required|exists:pengguna,id',
 
-            'file_spk'                  => 'required|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'file_spk'                  => 'required|file|mimes:pdf,jpg,jpeg|max:10240',
         ], [
 
             // ===== AC =====
@@ -117,12 +117,13 @@ class SPKController extends Controller
             'history_image.array'        => 'Format kartu history tidak valid.',
             'history_image.*.required'   => 'Kartu history AC wajib diunggah.',
             'history_image.*.image'      => 'File kartu history harus berupa gambar.',
-            'history_image.*.mimes'      => 'Kartu history harus JPG, JPEG, atau PNG.',
+            'history_image.*.mimes'      => 'Kartu history harus JPG, JPEG.',
             'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
 
             // ===== IMAGE BEFORE & AFTER =====
-            'foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
-            'foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
+            'images.*.foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
+            'images.*.foto_kolase.mimes'         => 'Foto Kolase harus JPG, JPEG.',
+            'images.*.foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
 
             // ===== BAGIAN ADMIN =====
             'kepada.required'           => 'Bagian “Kepada” wajib diisi.',
@@ -132,8 +133,8 @@ class SPKController extends Controller
 
             // ===== FILE SPK =====
             'file_spk.required'         => 'File SPK wajib diunggah.',
-            'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG, atau PNG.',
-            'file_spk.max'              => 'Ukuran file SPK maksimal adalah 20MB.',
+            'file_spk.mimes'            => 'Tipe file harus berupa PDF, JPG, JPEG.',
+            'file_spk.max'              => 'Ukuran file SPK maksimal adalah 10MB.',
         ]);
 
         DB::beginTransaction();
