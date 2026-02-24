@@ -76,7 +76,7 @@ class AdminSPKController extends Controller
         $departement = Departement::all();
         $pengguna = Pengguna::all();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
-        $admin = Pengguna::where('role', 'Admin')->get();
+        $admin = Pengguna::whereIn('nama',['Siti Aliyatur Rofiah','Nurul'])->get();
         return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin'));
     }
 
@@ -342,7 +342,7 @@ class AdminSPKController extends Controller
         $acdetail = DetailAC::all();
         $departement = Departement::all();
         $pengguna = Pengguna::all();
-        $admin = Pengguna::where('role', 'Admin')->get();
+        $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofiah', 'Nurul'])->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
         // ==== Persiapkan existing data untuk JS ====
