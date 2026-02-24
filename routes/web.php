@@ -13,7 +13,7 @@ use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\AdminSPKController;
 use App\Http\Controllers\DetailacController;
 use App\Http\Controllers\PenggunaController;
-use App\Http\Controllers\DashboardController;
+// use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartementController;
 
 
@@ -24,8 +24,8 @@ Route::get('/', [UserController::class, 'index'])->name('homepage');
 
 // Route Form Input Data AC
 Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan')->Middleware('Role:Teknisi');
-Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
-Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
+// Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->Middleware('Role:Teknisi');
+// Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->Middleware('Role:Teknisi');
 
 Route::get('/data-ac-rsal', [UserController::class, 'pagedata'])->name('ac.data.page')->Middleware('Role:Teknisi');
 Route::get('/data-ac', [UserController::class, 'show'])->name('ac.data')->Middleware('Role:Teknisi');

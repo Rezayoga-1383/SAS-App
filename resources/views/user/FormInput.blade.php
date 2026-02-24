@@ -62,7 +62,7 @@
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
             <li><a href="/data-ac-rsal">Data AC</a></li>
-            <li><a href="/input-data-ac" class="active">Form Input Data</a></li>
+            {{-- <li><a href="/input-data-ac" class="active">Form Input Data</a></li> --}}
             <li><a href="/input-data-spk">Form Input SPK</a></li>
             <li></li>
           </ul>
