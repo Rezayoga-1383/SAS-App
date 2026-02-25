@@ -90,9 +90,9 @@
 {{-- ================= HEADER ================= --}}
 <table class="header-table">
     <tr>
-        <td width="15%">
+        {{-- <td width="15%">
             <img src="{{ public_path('assets/image/logo_sas_ori.png') }}" class="logo">
-        </td>
+        </td> --}}
         <td width="85%">
             <strong style="font-size:15px;">PT SARANA AGUNG SEJAHTERA</strong><br>
             General Contractor, Technical, Mechanical, Electrical, Computer & Stationery<br>

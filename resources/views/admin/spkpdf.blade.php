@@ -4,70 +4,86 @@
     <meta charset="utf-8">
     <title>PDF | Data SPK</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 5px; }
-        th { background: #f2f2f2; }
+        @page {
+        size: A4 landscape;
+        margin: 20px;
+        }
 
-        /* Kop Sarana */
-        .sheet {
-            width: 100%;
-            max-width: var(--paper-w);
-            background: #fff;
-            padding: 26px;
-            border: 1 px solid #cfcfcf;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
+        body {
+        font-family: DejaVu Sans, sans-serif;
+        font-size: 11px;
         }
-        .hdr {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
+
+        /* HEADER */
+        .header-table td{
+        border:none;
+        padding:0;
         }
-        .logo {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
+
+        .title{
+        font-size:16px;
+        font-weight:bold;
+        margin-top:10px;
         }
-        .logo-img {
-            width: 80px;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 6px;
-            background: transparent;
+
+        .sub{
+        font-size:12px;
         }
-        .company {
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.15;
+
+        /* TABEL */
+        table{
+        width:100%;
+        border-collapse:collapse;
+        table-layout:fixed; /* penting */
+        margin-top:8px;
         }
-        .addr {
-            font-size: 12px;
-            text-align: right;
-            color: var(--muted);
+
+        th,td{
+        border:1px solid #000;
+        padding:4px;
+        word-wrap:break-word;
+        vertical-align:top;
         }
+
+        th{
+        background:#f2f2f2;
+        text-align:center;
+        }
+
+        thead { display: table-header-group; }
+        tr { page-break-inside: avoid; }
+
+        /* ukuran kolom */
+        .col-no{width:3%}
+        .col-tgl{width:8%}
+        .col-spk{width:7%}
+        .col-ac{width:8%}
+        .col-dept{width:12%}
+        .col-ruang{width:10%}
+        .col-keluhan{width:16%}
+        .col-pekerjaan{width:20%}
+        .col-teknisi{width:10%}
     </style>
 </head>
 <body>
     <div class="sheet">
-        <table width="100%" style="border: none; border-collapse: collapse;">
+        <table width="100%" class="header-table">
             <tr>
-                <td width="15%" style="border: none;">
+                {{-- <td width="15%" style="border: none;">
                     <img src="{{ public_path('assets/image/logo_sas_ori.png') }}" 
                         style="width:90px;">
-                </td>
+                </td> --}}
                 <td width="85%" style="border: none; text-align: left;">
                     <div style="font-size:16px; font-weight:bold;">
                         PT SARANA AGUNG SEJAHTERA
                     </div>
-                    <div style="font-size:12px;">
+                    <div class="sub">
                         General Contractor, Technical, Mechanical, Electrical, Computer & Stationery
                     </div>
-                    <div style="font-size:12px;">
+                    <div class="sub">
                         Ruko Palm Square Blok TF 31 Pondok Candra - Sidoarjo
                     </div>
-                    <div style="font-size:12px;">
+                    <div class="sub">
                         Telp : (031) 867 2677, 0811 349 2009 | Fax : (031) 867 2677
                     </div>
                 </td>
@@ -98,13 +114,15 @@ Periode:
 <table>
     <thead>
         <tr>
-            <th>No</th>
-            <th>Tanggal</th>
-            <th>No SPK</th>
-            <th>No AC</th>
-            <th>Keluhan</th>
-            <th>Jenis Pekerjaan</th>
-            <th>Teknisi</th>
+            <th class="col-no" >No</th>
+            <th class="col-tgl">Tanggal</th>
+            <th class="col-spk">No SPK</th>
+            <th class="col-ac">No AC</th>
+            <th class="col-dept">Departement</th>
+            <th class="col-ruang">Ruangan</th>
+            <th class="col-keluhan">Keluhan</th>
+            <th class="col-pekerjaan">Jenis Pekerjaan</th>
+            <th class="col-teknisi">Teknisi</th>
         </tr>
     </thead>
     <tbody>
@@ -124,6 +142,24 @@ Periode:
             <td>
                 {{ $spk->details->map(fn($d) => $d->acdetail->no_ac ?? '-')->join(', ') }}
             </td>
+
+            {{-- Gabungkan semua departement --}}
+            <td>
+                {{ $spk->details
+                    ->map(fn($d) => $d->acdetail->ruangan->departement->nama_departement ?? '-')
+                    ->filter()
+                    ->unique()
+                    ->join(', ') }}
+            </td>
+
+            {{-- Gabungkan semua ruangan --}}
+            <td>
+                {{ $spk->details
+                    ->map(fn($d) => $d->acdetail->ruangan->nama_ruangan ?? '-')
+                    ->filter()
+                    ->unique()
+                    ->join(', ') }}
+            </td>        
 
             {{-- Gabungkan semua keluhan --}}
             <td>

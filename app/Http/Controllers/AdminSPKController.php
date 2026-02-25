@@ -40,7 +40,7 @@ class AdminSPKController extends Controller
         $jenis  = $request->jenis_service;
 
         $query = LogService::with([
-            'details.acdetail',
+            'details.acdetail.ruangan.departement', // untuk menampilkan info AC, ruangan, dan departement
             'teknisi'
         ]);
 
@@ -60,11 +60,13 @@ class AdminSPKController extends Controller
         $data = $query->orderBy('tanggal', 'asc')->get();
 
         return Pdf::loadView('admin.spkpdf', [
-            'data' => $data,
-            'start_date' => $start,
-            'end_date' => $end,
-            'jenis_service' => $jenis,
-        ])->download('Data-SPK.pdf');
+                'data' => $data,
+                'start_date' => $start,
+                'end_date' => $end,
+                'jenis_service' => $jenis,
+            ])
+            ->setPaper('a4','landscape')
+            ->download('Data-SPK.pdf');
     }
 
     /**
