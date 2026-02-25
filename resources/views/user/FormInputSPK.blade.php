@@ -504,7 +504,7 @@
                 <input type="file"
                         name="history_image[${i}]"
                         class="form-control ${errHistory ? 'is-invalid' : ''}"
-                        accept=".jpg,.jpeg,.png">
+                        accept=".jpg,.jpeg">
                         ${errHistory ? `<div class="invalid-feedback d-block">${errHistory}</div>` : ''}
             </div>
 
@@ -516,9 +516,9 @@
                 <h6 class="fw-bold text-center mb-3">Foto Kolase</h6>
 
                 <div class="mb-3">
-                    <label class="form-label">Upload Foto Kolase</label>
-                    <input type="file"
-                    name="images[${i}][foto_kolase]"
+                    <label class="form-label">Upload Foto Kolase <span class="text-danger">*</span></label>
+                    <input type="hidden" name="images[${i}][exists]" value="1">
+                    <input type="file" name="images[${i}][foto_kolase]"
                     class="form-control ${errFotoKolase ? 'is-invalid' : ''}"
                     accept=".jpg,.jpeg">
 

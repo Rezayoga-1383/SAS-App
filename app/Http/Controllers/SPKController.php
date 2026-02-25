@@ -40,6 +40,7 @@ class SPKController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'acdetail_ids'              => 'required|array|min:1',
             'acdetail_ids.*'            => 'required|exists:acdetail,id',
@@ -67,9 +68,9 @@ class SPKController extends Controller
             'history_image.*'           => 'required|image|mimes:jpg,jpeg|max:10240',
 
             // ===== Image Before & After =====
-            'images' => 'nullable|array',
-
-            'images.*.foto_kolase'      => 'nullable|image|mimes:jpg,jpeg|max:10240',
+            'images'                    => 'required|array|min:1',
+            'images.*'                  => 'required|array',
+            'images.*.foto_kolase'      => 'required|file|image|mimes:jpg,jpeg|max:10240',
 
             'kepada'                    => 'required|string|max:100',
             'mengetahui'                => 'required|string|max:100',
@@ -121,6 +122,7 @@ class SPKController extends Controller
             'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
 
             // ===== IMAGE BEFORE & AFTER =====
+            'images.*.foto_kolase.required'      => 'Foto Kolase wajib diunggah.',
             'images.*.foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
             'images.*.foto_kolase.mimes'         => 'Foto Kolase harus JPG, JPEG.',
             'images.*.foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
@@ -182,9 +184,9 @@ class SPKController extends Controller
                     ]);
                 }
 
-                // ---- 4. BEFORE & AFTER IMAGES ----
-                if ($request->hasFile("foto_kolase.$i")) {
-                    $path = $request->file("foto_kolase.$i")
+                // ---- 4. Foto Kolase----
+                if ($request->hasFile("images.$i.foto_kolase")) {
+                    $path = $request->file("images.$i.foto_kolase")
                         ->store('spk_images/kolase', 'public');
 
                         LogServiceImage::create([
