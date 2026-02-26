@@ -1,14 +1,18 @@
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link rel="canonical" href="https://demo-basic.adminkit.io/" />
-
 {{-- datatables css --}}
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 
 <!-- Select2 CSS -->
 <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
 
-<link href="{{ asset('css/app.css') }}" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="{{ asset('css/app.css') }}" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'">
 
 <style>
  /* Tombol Logout Tanpa Style Default */

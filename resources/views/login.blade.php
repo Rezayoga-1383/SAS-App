@@ -10,16 +10,19 @@
     <meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="shortcut icon" href="img/icons/icon-48x48.png" />
-
-    <link rel="canonical" href="https://demo-basic.adminkit.io/pages-sign-in.html" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'">
 
     <title>Login | SAS</title>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/image/logo.png') }}">
 
+    {{-- <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"> --}}
     <link href="{{ asset('https://unpkg.com/@adminkit/core@latest/dist/css/app.css') }}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <!-- Dark mode overrides -->
     <style>
