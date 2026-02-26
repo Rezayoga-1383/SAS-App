@@ -242,7 +242,8 @@
     $(document).ready(function() {
         const table = $('#TabelDetailAC').DataTable({
             processing : true,
-            serverside : true,
+            serverSide : true,
+            // responsive: true,
             ajax : "{{ route('ac.data') }}",
             order : [],
             columns : [
@@ -284,7 +285,7 @@
                         </table>`;
 
                     Swal.fire({
-                        title: '<strong>Detail Data AC</strong>',
+                        title: 'Detail Data AC',
                         html: htmlDetail,
                         width: 500,
                         confirmButtonText: 'Tutup'

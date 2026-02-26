@@ -66,18 +66,45 @@
             top: 0.75rem;
             z-index: 50;
         }
+        /* icon */
+        .toogle-icon {
+            width: 18px;
+            height: 18px;
+            opacity: .6;
+            transition: .3s;
+        }
+        /* highlight sesuai mode */
+        html.dark .toggle-icon[data-feather="moon"]{
+            opacity:1;
+            color:#60a5fa;
+        }
+
+        html:not(.dark) .toggle-icon[data-feather="sun"]{
+            opacity:1;
+            color:#f59e0b;
+        }
+
+        /* switch style */
+        .form-check-input{
+            cursor:pointer;
+            transform:scale(1.2);
+        }
         /* ensure full-height background looks consistent */
         main.d-flex.w-100 { min-height: 100vh; }
     </style>
 </head>
 
 <body>
-    <!-- Dark mode toggle -->
-    <div class="dark-toggle">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="darkModeToggle" aria-label="Toggle dark mode">
-            <label class="form-check-label small" for="darkModeToggle">Dark Mode</label>
+    <div class="dark-toggle d-flex align-items-center gap-2">
+        
+        <i data-feather="sun" class="toggle-icon"></i>
+
+        <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="darkModeToggle">
         </div>
+
+        <i data-feather="moon" class="toggle-icon"></i>
+
     </div>
 
     <main class="d-flex w-100">
@@ -100,6 +127,32 @@
                             <div class="card-body">
                                 <div class="m-sm-3">
                                     <h1 class="h2 text-center"><strong>Login</strong></h1>
+
+                                    {{-- ALERT LOCK LOGIN --}}
+                                    @if(session('lock_seconds'))
+                                    <div class="alert alert-danger fw-bold text-center">
+                                        <br>
+                                        Terlalu banyak percobaan login.
+                                        Coba lagi dalam <span id="countdown">{{ session('lock_seconds') }}</span> detik.
+                                    </div>
+                                    <br>
+
+                                    <script>
+                                    let s = {{ session('lock_seconds') }};
+                                    let el = document.getElementById('countdown');
+
+                                    let timer = setInterval(() => {
+                                        s--;
+                                        el.innerText = s;
+
+                                        if(s <= 0){
+                                            clearInterval(timer);
+                                            location.reload();
+                                        }
+                                    }, 1000);
+                                    </script>
+                                    @endif
+                                    
                                     <form action="{{ route('autentikasi') }}" method="POST">
 										@csrf
                                         <div class="mb-3">

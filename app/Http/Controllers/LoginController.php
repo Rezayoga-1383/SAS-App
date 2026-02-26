@@ -11,6 +11,8 @@ use App\Models\Ruangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -20,40 +22,53 @@ class LoginController extends Controller
     }
 
     public function autentikasi(Request $request)
-    {
-    // Validasi input
+{
     $request->validate([
         'email'     => 'required|email',
         'password'  => 'required|min:8',
-    ], [
-        'email.required'    => 'Email wajib diisi',
-        'email.email'       => 'Format email tidak valid',
-        'password.required' => 'Password wajib diisi',
-        'password.min'      => 'Password minimal 8 karakter'
     ]);
 
-    $credentials = $request->only('email', 'password');
-    $remember    = $request->has('remember-me');
+    // key unik per email + ip
+    $key = Str::lower($request->email).'|'.$request->ip();
 
-    // Attempt login
+    // cek apakah kena limit
+    if (RateLimiter::tooManyAttempts($key, 3)) {
+
+        $seconds = RateLimiter::availableIn($key);
+
+        return back()->withErrors([
+            'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik."
+        ])->with('lock_seconds', $seconds);
+    }
+
+    $credentials = $request->only('email', 'password');
+    $remember = $request->has('remember-me');
+
     if (Auth::attempt($credentials, $remember)) {
+
+        RateLimiter::clear($key); // reset counter
         $request->session()->regenerate();
 
         $user = Auth::user();
 
-        if($user->role === 'Admin') {
+        if ($user->role === 'Admin') {
             return redirect()->intended('/admin/dashboard');
-        }elseif ($user->role === "Teknisi") {
+        } elseif ($user->role === 'Teknisi') {
             return redirect()->intended('/data-ac-rsal');
-        }else {
-            Auth::logout();
-            return back()->withErrors(['email' => 'Akses ditolak. Role tidak dikenali!']);
         }
+
+        Auth::logout();
+        return back()->withErrors(['email' => 'Akses ditolak.']);
     }
 
-    return back()->withErrors(['email' => 'Email atau Password salah!']);
+    // gagal login → tambah counter
+    RateLimiter::hit($key, 60); // lock 60 detik setelah limit
 
+    return back()->withErrors([
+        'email' => 'Email atau Password salah!'
+    ]);
 }
+
     public function admin()
     {
         // Data Jenis AC
