@@ -119,8 +119,8 @@ $(document).ready(function () {
                             <td>${item.jenis_pekerjaan}</td>
                             <td>${item.pelaksana_nama}</td>
                             <td>
-                                <a href="/admin/spk/detail/${item.id}"
-                                   class="btn btn-sm btn-info">
+                                <a href="/admin/spk/detail/${item.id}?from=history"
+                                class="btn btn-sm btn-info">
                                     <i data-feather="eye"></i> Detail
                                 </a>
                             </td>

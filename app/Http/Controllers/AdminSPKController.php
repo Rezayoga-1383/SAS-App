@@ -133,7 +133,7 @@ class AdminSPKController extends Controller
                         </button>
                     </form>
 
-                    <a href="/admin/spk/detail/'.$row->id.'" class="btn btn-md btn-secondary">
+                    <a href="/admin/spk/detail/'.$row->id.'?from=spk" class="btn btn-md btn-secondary">
                         <i data-feather="eye"></i> <strong>Detail</strong>
                     </a>
                 </div>';
@@ -174,10 +174,11 @@ class AdminSPKController extends Controller
             'history_image'             => 'required|array',
             'history_image.*'           => 'required|image|mimes:jpg,jpeg|max:10240',
 
-            // ===== Image Before & After =====
-            'images' => 'nullable|array',
+            // ===== Foto Kolase =====
+            'images'                    => 'required|array|min:1',
+            'images.*'                  => 'required|array',
+            'images.*.foto_kolase'      => 'required|file|image|mimes:jpg,jpeg|max:10240',
 
-            'images.*.foto_kolase'      => 'nullable|image|mimes:jpg,jpeg|max:10240',
 
             'kepada'                    => 'required|string|max:100',
             'mengetahui'                => 'required|string|max:100',
@@ -229,6 +230,7 @@ class AdminSPKController extends Controller
             'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
 
             // ===== IMAGE BEFORE & AFTER =====
+            'images.*.foto_kolase.required'         => 'Foto Kolase wajib diunggah.',
             'images.*.foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
             'images.*.foto_kolase.mimes'         => 'Foto Kolase harus JPG, JPEG.',
             'images.*.foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
@@ -291,8 +293,8 @@ class AdminSPKController extends Controller
                 }
 
                 // ---- 4. BEFORE & AFTER IMAGES ----
-                if ($request->hasFile("foto_kolase.$i")) {
-                    $path = $request->file("foto_kolase.$i")
+                if ($request->hasFile("images.$i.foto_kolase")) {
+                    $path = $request->file("images.$i.foto_kolase")
                         ->store('spk_images/kolase', 'public');
 
                         LogServiceImage::create([
@@ -671,7 +673,7 @@ class AdminSPKController extends Controller
         }
     }
 
-    public function detail($id)
+    public function detail(Request $request, $id)
     {
         $spk = LogService::with([
             'units.acdetail.ruangan.departement', // untuk menampilkan info AC dan ruangan
@@ -680,6 +682,8 @@ class AdminSPKController extends Controller
             'details'
         ])->findOrFail($id);
 
-        return view('admin.detailspk', compact('spk'));
+        $from = $request->query('from');
+
+        return view('admin.detailspk', compact('spk', 'from'));
     }
 }

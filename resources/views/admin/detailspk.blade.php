@@ -10,10 +10,19 @@
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h4 class="card-title">Detail SPK - {{ $spk->no_spk ?? '-' }}</h4>
           <div>
-            <a href="{{ route('history') }}" class="btn btn-outline-primary">Kembali History</a>
-            <a href="{{ route('admin.spk') }}" class="btn btn-outline-secondary">Kembali SPK</a>
-            {{-- <a href="{{ route('spk.generatePdf', $spk->id) }}" target="_blank" class="btn btn-primary">Buka SPK</a> --}}
-            {{-- <a href="{{ route('spk.generatePdf', $spk->id) }}?download=1" class="btn btn-outline-primary">Unduh SPK</a> --}}
+            <div>
+                @if($from === 'history')
+                    <a href="{{ route('history') }}" 
+                    class="btn btn-outline-primary"><i data-feather="clock"></i>
+                    <strong>Kembali</strong> 
+                    </a>
+                @elseif($from === 'spk')
+                    <a href="{{ route('admin.spk') }}" 
+                    class="btn btn-outline-primary"><i data-feather="file"></i>
+                    <strong>Kembali</strong> 
+                    </a>
+                @endif
+            </div>
           </div>
         </div>
 

@@ -336,8 +336,8 @@
 
                 <div class="mb-3">
                     <label class="form-label">Upload Foto Kolase</label>
-                    <input type="file"
-                    name="images[${i}][foto_kolase]"
+                    <input type="hidden" name="images[${i}][exists]" value="1">
+                    <input type="file" name="images[${i}][foto_kolase]"
                     class="form-control ${errFotoKolase ? 'is-invalid' : ''}"
                     accept=".jpg,.jpeg">
 
