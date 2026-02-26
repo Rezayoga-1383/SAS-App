@@ -31,7 +31,7 @@ class SPKController extends Controller
         $acdetail   = DetailAC::All();
         $departement= Departement::All();
         $teknisi    = Pengguna::where('role', 'Teknisi')->get();
-        $admin      = Pengguna::whereIn('nama', ['Siti Aliyatur Rofiah', 'Nurul'])->get();
+        $admin      = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         return view ('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin'));
     }
 

@@ -78,7 +78,7 @@ class AdminSPKController extends Controller
         $departement = Departement::all();
         $pengguna = Pengguna::all();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
-        $admin = Pengguna::whereIn('nama',['Siti Aliyatur Rofiah','Nurul'])->get();
+        $admin = Pengguna::whereIn('nama',['Siti Aliyatur Rofi Ah','Nurul'])->get();
         return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin'));
     }
 
