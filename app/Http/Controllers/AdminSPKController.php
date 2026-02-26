@@ -346,7 +346,7 @@ class AdminSPKController extends Controller
         $acdetail = DetailAC::all();
         $departement = Departement::all();
         $pengguna = Pengguna::all();
-        $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofiah', 'Nurul'])->get();
+        $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
 
         // ==== Persiapkan existing data untuk JS ====
