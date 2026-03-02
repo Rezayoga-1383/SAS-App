@@ -64,13 +64,17 @@
 
         /* SLOT FOTO TETAP */
         .foto-wrapper {
+            width: 100%;
             height: 10.5cm;
             border: 1px solid #ccc;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             text-align: center;
+            vertical-align: middle;
+            margin-bottom: 12px;
+        }
+
+        .foto-wrapper img {
+            width: 100%;
+            height: 10.5cm;
         }
 
         img.foto {

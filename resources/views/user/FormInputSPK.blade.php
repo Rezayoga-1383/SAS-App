@@ -598,4 +598,3 @@ function initSelect2() {
 
 </body>
 </html>
-

@@ -23,16 +23,26 @@
 		<h1 class="h3 mb-3"><strong>Dashboard</strong> Admin</h1>
 
 			{{-- Filter Bulan --}}
-			<div class="d-flex justify-content-end mb-3">
-				<select id="filter-bulan" class="form-select w-auto">
-					<option value="">Semua Bulan</option>
-					@foreach ([
-						1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
-						7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
-					] as $num => $nama)
-						<option value="{{ $num }}">{{ $nama }}</option>
-					@endforeach
-				</select>
+			<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+				<div>
+					<select id="target_cuci" class="form-select w-auto">
+						<option value="">Target Cuci AC</option>
+						@for ($i = 100; $i <= 900; $i+= 100)
+							<option value="{{ $i }}">{{ $i }} Unit</option>
+						@endfor
+					</select>
+				</div>
+				<div>
+					<select id="filter-bulan" class="form-select w-auto">
+						<option value="">Semua Bulan</option>
+						@foreach ([
+							1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
+							7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
+						] as $num => $nama)
+							<option value="{{ $num }}">{{ $nama }}</option>
+						@endforeach
+					</select>
+				</div>
 			</div>
 			<div class="row g-3">
 				{{-- Cuci AC --}}
@@ -258,15 +268,25 @@ document.addEventListener("DOMContentLoaded", function() {
     chartGanti = createChart('chart-ganti');
 
 
-    // ⭐ update chart
-    function updateChart(chart, semua, bulan, labelBulan){
+    // update chart
+    function updateChart(chart, semua, bulan, labelBulan, target = 0){
 
-        if(labelBulan){
-            chart.data.labels = ['Semua', labelBulan];
-            chart.data.datasets[0].data = [semua, bulan];
-            chart.data.datasets[0].backgroundColor = ['#4e73df','#1cc88a'];
+		let realisasi = labelBulan ? bulan : semua;
+        if(target > 0 && chart === chartCuci){
+			let sisa = target - realisasi;
+			if(sisa < 0) sisa = 0;
 
-        }else{
+            chart.data.labels = ['Realisasi', 'Sisa Target'];
+            chart.data.datasets[0].data = [realisasi, sisa];
+            chart.data.datasets[0].backgroundColor = ['#1cc88a', '#e74a3b'];
+		}
+		else if(labelBulan){
+			chart.data.labels = ['Semua', labelBulan];
+			chart.data.datasets[0].data = [semua, bulan];
+			chart.data.datasets[0].backgroundColor = ['#4e73df','#1cc88a'];
+		}
+
+        else{
             chart.data.labels = ['Semua'];
             chart.data.datasets[0].data = [semua];
             chart.data.datasets[0].backgroundColor = ['#4e73df'];
@@ -276,13 +296,34 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    // ⭐ render tabel (dipakai semua chart)
-    function renderTable(tbodyId, semua, bulan, labelBulan){
+    // render tabel (dipakai semua chart)
+    function renderTable(tbodyId, semua, bulan, labelBulan, target = 0){
 
         let tbody = document.getElementById(tbodyId);
         tbody.innerHTML = '';
 
-        if(labelBulan){
+		let realisasi = labelBulan ? bulan : semua;
+
+		if(target > 0 && tbodyId === 'table-cuci-body'){
+			let sisa = target - realisasi;
+			if(sisa < 0) sisa = 0;
+
+			tbody.innerHTML = `
+				<tr>
+					<td><span class="badge bg-info">Target Cuci</span></td>
+					<td class="text-end">${target}</td>
+				</tr>
+				<tr>
+					<td><span class="badge bg-success">Dikerjakan</span></td>
+					<td class="text-end">${realisasi}</td>
+				</tr>
+				<tr>
+					<td><span class="badge bg-danger">Belum Dikerjakan</span></td>
+					<td class="text-end">${sisa}</td>
+				</tr>`
+		}
+
+        else if(labelBulan){
             tbody.innerHTML = `
                 <tr>
                     <td><span class="badge bg-primary">Semua</span></td>
@@ -304,20 +345,21 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    // ⭐ load data
+    // load data
     function loadChartData(bulan=''){
 
+		let target = parseInt(document.getElementById('target_cuci').value) || 0;		
         fetch("{{ route('dashboard.chart') }}?bulan="+bulan)
         .then(r=>r.json())
         .then(data=>{
 
             // ===== CHART =====
-            updateChart(chartCuci, data.semua.cuci, data.bulan.cuci, data.bulan_label);
+            updateChart(chartCuci, data.semua.cuci, data.bulan.cuci, data.bulan_label, target);
             updateChart(chartPerbaikan, data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
             updateChart(chartGanti, data.semua.ganti, data.bulan.ganti, data.bulan_label);
 
             // ===== TABEL =====
-            renderTable('table-cuci-body', data.semua.cuci, data.bulan.cuci, data.bulan_label);
+            renderTable('table-cuci-body', data.semua.cuci, data.bulan.cuci, data.bulan_label, target);
             renderTable('table-perbaikan-body', data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
             renderTable('table-ganti-body', data.semua.ganti, data.bulan.ganti, data.bulan_label);
         });
@@ -330,6 +372,12 @@ document.addEventListener("DOMContentLoaded", function() {
         .addEventListener('change',function(){
             loadChartData(this.value);
         });
+	
+	document.getElementById('target_cuci')
+		.addEventListener('change', function(){
+			let bulan = document.getElementById('filter-bulan').value;
+			loadChartData(bulan);
+    	});
 
     // ===============================
     // PIE CHART (TETAP SEPERTI BIASA)

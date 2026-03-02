@@ -419,20 +419,20 @@
 .stamp { display: inline-block; margin-top: 12px; padding: 6px 10px; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; border-radius: 4px; font-size: 12px; }
 
 
-.image-card {
-    height: auto;
+.image-card{
+    aspect-ratio: 16 / 9;   /* paksa landscape */
+    overflow: hidden;
 }
 
-.image-card .card-body {
-    padding: 10px;
-    display: block; /* hapus flex */
-    min-height: unset;
+.image-card .card-body{
+    padding: 0;
+    height: 100%;
 }
 
-.image-card img {
-    max-height: 400px;
+.image-card img{
     width: 100%;
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;   /* crop otomatis jadi landscape */
 }
 
 /* small responsive tweak: make items stack on narrow screens but still aligned */
