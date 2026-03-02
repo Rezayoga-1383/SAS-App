@@ -50,6 +50,8 @@
                                         <tr>
                                             <th>No</th>
                                             <th>No AC</th>
+                                            <th>Merk AC</th>
+                                            <th>PK AC</th>
                                             <th>No SPK</th>
                                             <th>Tanggal</th>
                                             <th>Keluhan</th>
@@ -113,6 +115,8 @@ $(document).ready(function () {
                         <tr>
                             <td>${index + 1}</td>
                             <td>${item.no_ac}</td>
+                            <td>${item.merk_ac}</td>
+                            <td>${item.pk_ac}</td>
                             <td>${item.no_spk}</td>
                             <td>${item.tanggal}</td>
                             <td>${item.keluhan}</td>
