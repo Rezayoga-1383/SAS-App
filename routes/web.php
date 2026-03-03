@@ -16,6 +16,9 @@ use App\Http\Controllers\PenggunaController;
 // use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartementController;
 
+Route::get('/cek-php', function () {
+    phpinfo();
+});
 
 // Route::get('/pdftest', [AdminSPKController::class, 'pdftest'])->name('spk.pdftest');
 
