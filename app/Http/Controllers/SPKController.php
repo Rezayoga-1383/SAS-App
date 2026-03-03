@@ -192,11 +192,13 @@ class SPKController extends Controller
             ->route('formcreatespk')
             ->with('success', 'Data SPK berhasil disimpan');
 
-    } catch (\Throwable $e) {
+    } catch (\Exception $e) {
 
         DB::rollBack();
 
-        dd($e->getMessage());
+        return back()->withErrors([
+            'error' => $e->getMessage()
+        ])->withInput();
     }
 }
 
