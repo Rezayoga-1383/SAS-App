@@ -183,8 +183,6 @@ class SPKController extends Controller
         |--------------------------------------------------------------------------
         */
         $spk->teknisi()->sync($validated['teknisi']);
-        
-        // dd('masuk sebelum commit');
 
         DB::commit();
 

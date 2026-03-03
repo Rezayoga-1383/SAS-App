@@ -18,6 +18,10 @@ class ProcessSpkImages implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 120;   
+    public $tries = 3;       
+    public $backoff = 10;    
+
     protected $spkId;
     protected $historyPaths;
     protected $kolasePaths;
