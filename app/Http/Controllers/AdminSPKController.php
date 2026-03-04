@@ -39,25 +39,31 @@ class AdminSPKController extends Controller
         $end    = $request->end_date;
         $jenis  = $request->jenis_service;
 
-        $query = LogService::with([
-            'details.acdetail.ruangan.departement', // untuk menampilkan info AC, ruangan, dan departement
-            'teknisi'
+        $query = LogServiceDetail::with([
+            'logService.teknisi',
+            'acdetail.ruangan.departement'
         ]);
 
+        // ================= FILTER TANGGAL =================
         if ($start && $end) {
-        $query->whereBetween('tanggal', [$start, $end]);
-        }
-
-        // FILTER JENIS SERVICE (opsional)
-        if (!empty($request->jenis_service)) {
-            $query->whereHas('details', function($q) use ($request) {
-                $q->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
-                    '%' . strtolower($request->jenis_service) . '%'
-                ]);
+            $query->whereHas('logService', function ($q) use ($start, $end) {
+                $q->whereBetween('tanggal', [$start, $end]);
             });
         }
 
-        $data = $query->orderBy('tanggal', 'asc')->get();
+        // ================= FILTER JENIS SERVICE =================
+        if (!empty($jenis)) {
+            $query->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
+                '%' . strtolower($jenis) . '%'
+            ]);
+        }
+
+        // ================= ORDER BERDASARKAN TANGGAL SPK =================
+        $query->join('log_service', 'log_service.id', '=', 'log_service_detail.log_service_id')
+            ->orderBy('log_service.tanggal', 'asc')
+            ->select('log_service_detail.*');
+
+        $data = $query->get();
 
         return Pdf::loadView('admin.spkpdf', [
                 'data' => $data,
@@ -65,7 +71,7 @@ class AdminSPKController extends Controller
                 'end_date' => $end,
                 'jenis_service' => $jenis,
             ])
-            ->setPaper('a4','landscape')
+            ->setPaper('a4', 'landscape')
             ->download('Data-SPK.pdf');
     }
 

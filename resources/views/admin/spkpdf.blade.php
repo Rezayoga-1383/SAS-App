@@ -126,56 +126,44 @@ Periode:
         </tr>
     </thead>
     <tbody>
-        @foreach($data as $index => $spk)
-        <tr>
-            <td>
-                {{ $index + 1 }}
-            </td>
-            <td>
-                {{ $spk->tanggal }}
-            </td>
-            <td>
-                {{ $spk->no_spk }}
-            </td>
+        @foreach($data as $row)
+            <tr>
+                <td>{{ $loop->iteration }}</td>
 
-            {{-- Gabungkan semua No AC --}}
-            <td>
-                {{ $spk->details->map(fn($d) => $d->acdetail->no_ac ?? '-')->join(', ') }}
-            </td>
+                {{-- Tanggal SPK --}}
+                <td>{{ $row->logService->tanggal ?? '-' }}</td>
 
-            {{-- Gabungkan semua departement --}}
-            <td>
-                {{ $spk->details
-                    ->map(fn($d) => $d->acdetail->ruangan->departement->nama_departement ?? '-')
-                    ->filter()
-                    ->unique()
-                    ->join(', ') }}
-            </td>
+                {{-- No SPK --}}
+                <td>{{ $row->logService->no_spk ?? '-' }}</td>
 
-            {{-- Gabungkan semua ruangan --}}
-            <td>
-                {{ $spk->details
-                    ->map(fn($d) => $d->acdetail->ruangan->nama_ruangan ?? '-')
-                    ->filter()
-                    ->unique()
-                    ->join(', ') }}
-            </td>        
+                {{-- AC --}}
+                <td>
+                    {{ $row->acdetail->no_ac ?? '-' }}
+                </td>
 
-            {{-- Gabungkan semua keluhan --}}
-            <td>
-                {{ $spk->details->pluck('keluhan')->filter()->join(', ') }}
-            </td>
+                {{-- Departement --}}
+                <td>
+                    {{ $row->acdetail->ruangan->departement->nama_departement ?? '-' }}
+                </td>
 
-            {{-- Gabungkan semua jenis pekerjaan --}}
-            <td>
-                {{ $spk->details->pluck('jenis_pekerjaan')->filter()->join(', ') }}
-            </td>
+                {{-- Ruangan --}}
+                <td>
+                    {{ $row->acdetail->ruangan->nama_ruangan ?? '-' }}
+                </td>
 
-            {{-- Gabungkan semua teknisi --}}
-            <td>
-                {{ $spk->teknisi->pluck('nama')->filter()->join(', ') }}
-            </td>
-        </tr>
+                {{-- Keluhan --}}
+                <td>{{ $row->keluhan ?? '-' }}</td>
+
+                {{-- Jenis Pekerjaan --}}
+                <td>{{ $row->jenis_pekerjaan ?? '-' }}</td>
+
+                {{-- Teknisi --}}
+                <td>
+                    @foreach($row->logService->teknisi as $teknisi)
+                        {{ $teknisi->nama }}@if(!$loop->last), @endif
+                    @endforeach
+                </td>
+            </tr>
         @endforeach
     </tbody>
 </table>
