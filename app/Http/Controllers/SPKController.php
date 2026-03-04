@@ -27,7 +27,7 @@ class SPKController extends Controller
 
     public function store(Request $request)
     {
-        $start = microtime(true);
+        // $start = microtime(true);
 
         $validated = $request->validate([
             'acdetail_ids'       => 'required|array|min:1',
@@ -120,10 +120,10 @@ class SPKController extends Controller
 
             DB::commit();
 
-            $end = microtime(true);
-            $executionTime = $end - $start;
+            // $end = microtime(true);
+            // $executionTime = $end - $start;
 
-            Log::info('Execution time: ' . $executionTime . 'detik');
+            // Log::info('Execution time: ' . $executionTime . 'detik');
 
             return redirect()->route('formcreatespk')
                              ->with('success', 'Data SPK berhasil disimpan. Gambar akan diproses di background.');
