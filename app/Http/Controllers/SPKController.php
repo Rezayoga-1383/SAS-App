@@ -126,7 +126,7 @@ class SPKController extends Controller
             // Log::info('Execution time: ' . $executionTime . 'detik');
 
             return redirect()->route('formcreatespk')
-                             ->with('success', 'Data SPK berhasil disimpan. Gambar akan diproses di background.');
+                             ->with('success', 'Data SPK berhasil disimpan.');
 
         } catch (\Exception $e) {
             DB::rollBack();
