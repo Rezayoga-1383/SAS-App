@@ -22,7 +22,7 @@
 		<h1 class="h1 mb-1"><strong>{{ $greeting }}, {{ auth()->user()->nama }} </strong></h1>
 		<h1 class="h3 mb-3"><strong>Dashboard</strong> Admin</h1>
 
-			{{-- Filter Bulan --}}
+			{{-- Filter Target Cuci ac & Bulan --}}
 			<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
 				<div>
 					<select id="target_cuci" class="form-select w-auto">
@@ -46,7 +46,7 @@
 			</div>
 			<div class="row g-3">
 				{{-- Cuci AC --}}
-				<div class="col-12 col-lg-4">
+				<div class="col-12 col-lg-6">
 					<div class="card">
 						<div class="card-header">
 							<h5 class="card-title mb-0">Cuci AC</h5>
@@ -63,7 +63,7 @@
 				</div>
 
 				{{-- Perbaikan --}}
-				<div class="col-12 col-lg-4">
+				<div class="col-12 col-lg-6">
 					<div class="card">
 						<div class="card-header">
 							<h5 class="card-title mb-0">Perbaikan</h5>
@@ -80,7 +80,7 @@
 				</div>
 
 				{{-- Ganti Unit --}}
-				<div class="col-12 col-lg-4">
+				<div class="col-12 col-lg-6">
 					<div class="card">
 						<div class="card-header">
 							<h5 class="card-title mb-0">Ganti Unit</h5>
@@ -92,6 +92,23 @@
 						</div>
 						<table class="table mb-0">
 							<tbody id="table-ganti-body"></tbody>
+						</table>
+					</div>
+				</div>
+
+				{{-- Cek AC --}}
+				<div class="col-12 col-lg-6">
+					<div class="card">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Cek AC</h5>
+						</div>
+						<div class="card-body">
+							<div class="chart chart-xs mb-3">
+								<canvas id="chart-cek"></canvas>
+							</div>
+						</div>
+						<table class="table mb-0">
+							<tbody id="table-cek-body"></tbody>
 						</table>
 					</div>
 				</div>
@@ -242,7 +259,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    let chartCuci, chartPerbaikan, chartGanti;
+    let chartCuci, chartPerbaikan, chartGanti, chartCek;
 
     function createChart(canvasId) {
         return new Chart(document.getElementById(canvasId), {
@@ -265,7 +282,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     chartCuci = createChart('chart-cuci');
     chartPerbaikan = createChart('chart-perbaikan');
+	chartCek = createChart('chart-cek');
     chartGanti = createChart('chart-ganti');
+	
 
 
     // update chart
@@ -276,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			let sisa = target - realisasi;
 			if(sisa < 0) sisa = 0;
 
-            chart.data.labels = ['Realisasi', 'Sisa Target'];
+            chart.data.labels = ['Dikerjakan', 'Sisa Target'];
             chart.data.datasets[0].data = [realisasi, sisa];
             chart.data.datasets[0].backgroundColor = ['#1cc88a', '#e74a3b'];
 		}
@@ -356,11 +375,13 @@ document.addEventListener("DOMContentLoaded", function() {
             // ===== CHART =====
             updateChart(chartCuci, data.semua.cuci, data.bulan.cuci, data.bulan_label, target);
             updateChart(chartPerbaikan, data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
+			updateChart(chartCek, data.semua.cek, data.bulan.cek, data.bulan_label);
             updateChart(chartGanti, data.semua.ganti, data.bulan.ganti, data.bulan_label);
 
             // ===== TABEL =====
             renderTable('table-cuci-body', data.semua.cuci, data.bulan.cuci, data.bulan_label, target);
             renderTable('table-perbaikan-body', data.semua.perbaikan, data.bulan.perbaikan, data.bulan_label);
+			renderTable('table-cek-body', data.semua.cek, data.bulan.cek, data.bulan_label);
             renderTable('table-ganti-body', data.semua.ganti, data.bulan.ganti, data.bulan_label);
         });
     }

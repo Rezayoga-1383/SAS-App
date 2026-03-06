@@ -422,12 +422,16 @@
 
     // Ambil data dari server (Blade)
     const acdetailData = @json($acdetail->pluck('no_ac', 'id'));
+    const kategoriData = @json($kategoriPekerjaan);
+
+    const oldKategoriData = @json(old('kategori_pekerjaan', []));
     const oldKeluhanData = @json(old('keluhan', []));
     const oldJenisPekerjaanData = @json(old('jenis_pekerjaan', []));
     const oldAcdetailIds = @json(old('acdetail_ids', []));
 
     // Error messages
     const errorAcdetail = @json($errors->get('acdetail_ids.*'));
+    const errorKategori = @json($errors->get('kategori_pekerjaan.*'));
     const errorKeluhan = @json($errors->get('keluhan.*'));
     const errorJenisPekerjaan = @json($errors->get('jenis_pekerjaan.*'));
 
@@ -446,10 +450,15 @@
         const oldAcId = oldAcdetailIds[i] || '';
         const oldKeluhan = oldKeluhanData[i] || '';
         const oldJenisPekerjaan = oldJenisPekerjaanData[i] || '';
+        const oldKategori = oldKategoriData[i] || '';
 
     // ambil error dengan key yang benar (Laravel format)
     const errAc = errorAcdetail && errorAcdetail[`acdetail_ids.${i}`]
         ? errorAcdetail[`acdetail_ids.${i}`][0]
+        : '';
+
+    const errKategori = errorKategori && errorKategori[`kategori_pekerjaan.${i}`]
+        ? errorKategori[`kategori_pekerjaan.${i}`][0]
         : '';
 
     const errKeluhan = errorKeluhan && errorKeluhan[`keluhan.${i}`]
@@ -483,6 +492,23 @@
             </select>
             ${errAc ? `<div class="invalid-feedback d-block">${errAc}</div>` : ''}
           </div>
+
+          <!-- Kategori Pekerjaan -->
+            <div class="mb-3">
+                <label class="form-label">
+                    Kategori Pekerjaan <span class="text-danger">*</span>
+                </label>
+                <select name="kategori_pekerjaan[]" 
+                        class="form-select ${errKategori ? 'is-invalid' : ''}">
+                    <option value="">-- Pilih Kategori Pekerjaan --</option>
+                    ${kategoriData.map(k => 
+                        `<option value="${k}" ${oldKategori == k ? 'selected' : ''}>
+                            ${k}
+                        </option>`
+                    ).join('')}
+                </select>
+                ${errKategori ? `<div class="invalid-feedback d-block">${errKategori}</div>` : ''}
+            </div>
 
           <!-- Keluhan -->
           <div class="mb-3">

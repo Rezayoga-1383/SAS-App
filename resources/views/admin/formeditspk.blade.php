@@ -242,6 +242,8 @@ const pelaksanaSelect = document.getElementById('pelaksana_ttd');
 // Data AC master
 const acdetailData = {!! json_encode($acdetail ? $acdetail->pluck('no_ac', 'id')->toArray() : []) !!};
 
+const kategoriData = {!! json_encode($kategoriPekerjaan ?? []) !!};
+
 // Data existing AC dari SPK (via units)
 const existingAcData = {!! json_encode($existingAcData ?? []) !!};
 
@@ -254,6 +256,7 @@ const oldKeluhan = {!! json_encode(old('keluhan', [])) !!};
 const oldJenis = {!! json_encode(old('jenis_pekerjaan', [])) !!};
 const oldHistory = {!! json_encode(old('history_image', [])) !!};
 const oldFotoKolase = {!! json_encode(old('foto_kolase', [])) !!};
+const oldKategori = {!! json_encode(old('kategori_pekerjaan', [])) !!};
 
 // Helper untuk error
 function getErrorMessage(fieldName, index) {
@@ -280,6 +283,7 @@ function generateAcForms() {
         const jenisPekerjaan = oldJenis[i] ?? (existingAcData[i]?.jenis_pekerjaan ?? '');
         const historyFile = oldHistory[i] ?? (existingAcData[i]?.history_image ?? '');
         const FotoKolase     = oldFotoKolase[i] ?? (existingAcData[i]?.foto_kolase ?? '');
+        const Kategori = oldKategori[i] ?? (existingAcData[i]?.kategori_pekerjaan ?? '');
 
         const acError = hasError('acdetail_ids', i);
         const keluhanError = hasError('keluhan', i);
@@ -305,6 +309,23 @@ function generateAcForms() {
                         ${Object.entries(acdetailData).map(([id, noAc]) => `<option value="${id}" ${acId == id ? 'selected' : ''}>${noAc}</option>`).join('')}
                     </select>
                     ${acError ? `<div class="invalid-feedback d-block">${getErrorMessage('acdetail_ids', i)}</div>` : ''}
+                </div>
+
+                <!-- Kategori Pekerjaan -->
+                <div class="mb-3">
+                    <label class="form-label">Kategori Pekerjaan <span class="text-danger">*</span></label>
+                    <select name="kategori_pekerjaan[]" 
+                        class="form-select ${hasError('kategori_pekerjaan', i) ? 'is-invalid' : ''}" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        ${kategoriData.map(k => 
+                            `<option value="${k}" ${Kategori== k ? 'selected' : ''}>
+                                ${k}
+                            </option>`
+                        ).join('')}
+                    </select>
+                    ${hasError('kategori_pekerjaan', i) ? 
+                        `<div class="invalid-feedback d-block">${getErrorMessage('kategori_pekerjaan', i)}</div>` 
+                        : ''}
                 </div>
 
                 <!-- Keluhan -->

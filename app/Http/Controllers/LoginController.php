@@ -22,52 +22,52 @@ class LoginController extends Controller
     }
 
     public function autentikasi(Request $request)
-{
-    $request->validate([
-        'email'     => 'required|email',
-        'password'  => 'required|min:8',
-    ]);
+    {
+        $request->validate([
+            'email'     => 'required|email',
+            'password'  => 'required|min:8',
+        ]);
 
-    // key unik per email + ip
-    $key = Str::lower($request->email).'|'.$request->ip();
+        // key unik per email + ip
+        $key = Str::lower($request->email).'|'.$request->ip();
 
-    // cek apakah kena limit
-    if (RateLimiter::tooManyAttempts($key, 3)) {
+        // cek apakah kena limit
+        if (RateLimiter::tooManyAttempts($key, 3)) {
 
-        $seconds = RateLimiter::availableIn($key);
+            $seconds = RateLimiter::availableIn($key);
 
-        return back()->withErrors([
-            'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik."
-        ])->with('lock_seconds', $seconds);
-    }
-
-    $credentials = $request->only('email', 'password');
-    $remember = $request->has('remember-me');
-
-    if (Auth::attempt($credentials, $remember)) {
-
-        RateLimiter::clear($key); // reset counter
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-
-        if ($user->role === 'Admin') {
-            return redirect()->intended('/admin/dashboard');
-        } elseif ($user->role === 'Teknisi') {
-            return redirect()->intended('/data-ac-rsal');
+            return back()->withErrors([
+                'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik."
+            ])->with('lock_seconds', $seconds);
         }
 
-        Auth::logout();
-        return back()->withErrors(['email' => 'Akses ditolak.']);
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember-me');
+
+        if (Auth::attempt($credentials, $remember)) {
+
+            RateLimiter::clear($key); // reset counter
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->role === 'Admin') {
+                return redirect()->intended('/admin/dashboard');
+            } elseif ($user->role === 'Teknisi') {
+                return redirect()->intended('/data-ac-rsal');
+            }
+
+            Auth::logout();
+            return back()->withErrors(['email' => 'Akses ditolak.']);
+        }
+
+        // gagal login → tambah counter
+        RateLimiter::hit($key, 60); // lock 60 detik setelah limit
+
+        return back()->withErrors([
+            'email' => 'Email atau Password salah!'
+        ]);
     }
-
-    // gagal login → tambah counter
-    RateLimiter::hit($key, 60); // lock 60 detik setelah limit
-
-    return back()->withErrors([
-        'email' => 'Email atau Password salah!'
-    ]);
-}
 
     public function admin()
     {
@@ -106,35 +106,44 @@ class LoginController extends Controller
 
         // ===== TOTAL SEMUA =====
         $totalCuciSemua = (clone $base)
-            ->where('jenis_pekerjaan','like','%cuci ac%')
+            ->where('kategori_pekerjaan','Cuci AC')
             ->count();
 
         $totalPerbaikanSemua = (clone $base)
-            ->where('jenis_pekerjaan','like','%perbaikan%')
+            ->where('kategori_pekerjaan','Perbaikan')
             ->count();
 
+        $totalCekSemua = (clone $base)
+            ->where('kategori_pekerjaan','Cek AC')
+            ->count();
+        
         $totalGantiSemua = (clone $base)
-            ->where('jenis_pekerjaan','like','%ganti unit%')
+            ->where('kategori_pekerjaan', 'Ganti Unit')
             ->count();
 
         // ===== TOTAL BULAN =====
         $bulanCuci = 0;
         $bulanPerbaikan = 0;
+        $bulanCek = 0;
         $bulanGanti = 0;
 
         if ($bulan) {
             $bulanBase = (clone $base)->whereMonth('log_service.tanggal', $bulan);
 
             $bulanCuci = (clone $bulanBase)
-                ->where('jenis_pekerjaan','like','%cuci ac%')
+                ->where('kategori_pekerjaan', 'Cuci AC')
                 ->count();
 
             $bulanPerbaikan = (clone $bulanBase)
-                ->where('jenis_pekerjaan','like','%perbaikan%')
+                ->where('kategori_pekerjaan', 'Perbaikan')
+                ->count();
+            
+            $bulanCek = (clone $bulanBase)
+                ->where('kategori_pekerjaan', 'Cek AC')
                 ->count();
 
             $bulanGanti = (clone $bulanBase)
-                ->where('jenis_pekerjaan','like','%ganti unit%')
+                ->where('kategori_pekerjaan', 'Ganti Unit')
                 ->count();
         }
 
@@ -142,11 +151,13 @@ class LoginController extends Controller
             'semua' => [
                 'cuci'=>$totalCuciSemua,
                 'perbaikan'=>$totalPerbaikanSemua,
+                'cek' =>$totalCekSemua,
                 'ganti'=>$totalGantiSemua,
             ],
             'bulan' => [
                 'cuci'=>$bulanCuci,
                 'perbaikan'=>$bulanPerbaikan,
+                'cek'=>$bulanCek,
                 'ganti'=>$bulanGanti,
             ],
             'bulan_label' => $bulan ? Carbon::create()->month($bulan)->translatedFormat('F') : null

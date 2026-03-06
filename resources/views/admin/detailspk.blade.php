@@ -45,6 +45,18 @@
                     </tr>
 
                     <tr>
+                        <th>Kategori Pengerjaan</th>
+                        <td class="colon">:</td>
+                        <td>
+                            @if($spk->details->count())
+                                {{ $spk->details->pluck('kategori_pekerjaan')->join(', ') }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+
+                    <tr>
                         <th>No AC</th>
                         <td class="colon">:</td>
                         <td>

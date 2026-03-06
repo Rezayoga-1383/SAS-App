@@ -51,11 +51,9 @@ class AdminSPKController extends Controller
             });
         }
 
-        // ================= FILTER JENIS SERVICE =================
+        // ================= FILTER KATEGORI PEKERJAAN =================
         if (!empty($jenis)) {
-            $query->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
-                '%' . strtolower($jenis) . '%'
-            ]);
+            $query->where('kategori_pekerjaan', $jenis);
         }
 
         // ================= ORDER BERDASARKAN TANGGAL SPK =================
@@ -85,7 +83,14 @@ class AdminSPKController extends Controller
         $pengguna = Pengguna::all();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
         $admin = Pengguna::whereIn('nama',['Siti Aliyatur Rofi Ah','Nurul'])->get();
-        return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin'));
+        $kategoriPekerjaan = [
+            'Cuci AC',
+            'Perbaikan',
+            'Cek AC',
+            'Ganti Unit'
+        ];
+
+        return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin', 'kategoriPekerjaan'));
     }
 
     public function getData(Request $request)
@@ -108,7 +113,7 @@ class AdminSPKController extends Controller
         // FILTER JENIS SERVICE (baru: jenis_service)
         if ($request->jenis_service) {
             $query->whereHas('details', function($q) use ($request) {
-                $q->where('jenis_pekerjaan', 'like', '%' . $request->jenis_service . '%');
+                $q->where('kategori_pekerjaan', $request->jenis_service);
             });
         }
 
@@ -158,6 +163,8 @@ class AdminSPKController extends Controller
             'acdetail_ids'              => 'required|array|min:1',
             'acdetail_ids.*'            => 'required|exists:acdetail,id',
 
+            'kategori_pekerjaan.*'        => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
+
             'no_spk'                    => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'                   => 'required|date',
             'waktu_mulai'               => 'required|date_format:H:i',
@@ -198,6 +205,8 @@ class AdminSPKController extends Controller
             'acdetail_ids.required'     => 'Jumlah AC wajib diisi.',
             'acdetail_ids.*.required'   => 'Nomor AC wajib dipilih.',
             'acdetail_ids.*.exists'     => 'Nomor AC tidak valid.',
+
+            'kategori_pekerjaan.*.required' => 'Kategori Pekerjaan wajib dipilih',
 
             // ===== NOMOR SPK =====
             'no_spk.required'           => 'Nomor SPK wajib diisi.',
@@ -277,6 +286,7 @@ class AdminSPKController extends Controller
                 LogServiceDetail::create([
                     'log_service_id' => $spk->id,
                     'acdetail_id'    => $acdetailId,
+                    'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
                     'keluhan'        => $validated['keluhan'][$i] ?? null,
                     'jenis_pekerjaan'=> $validated['jenis_pekerjaan'][$i] ?? null,
                 ]);
@@ -354,6 +364,7 @@ class AdminSPKController extends Controller
         $pengguna = Pengguna::all();
         $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
+        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit'];
 
         // ==== Persiapkan existing data untuk JS ====
         $existingAcData = $spk->units->map(function($unit) use ($spk){
@@ -364,9 +375,10 @@ class AdminSPKController extends Controller
         $fotokolase = $unit->images->first()?->image_path ?? '';
 
             return [
-                'unit_id'         => $unit->id, // kalau mau simpan
-                'acdetail_id'     => $unit->acdetail_id, // 🔥 INI YANG PENTING
+                'unit_id'         => $unit->id, 
+                'acdetail_id'     => $unit->acdetail_id, 
                 'no_ac'           => $unit->acdetail->no_ac ?? '',
+                'kategori_pekerjaan' => $detail->kategori_pekerjaan ?? '',
                 'keluhan'         => $detail->keluhan ?? '',
                 'jenis_pekerjaan' => $detail->jenis_pekerjaan ?? '',
                 'history_image'   => $unit->historyImages->first()?->image_path ?? '',
@@ -376,7 +388,7 @@ class AdminSPKController extends Controller
         // dd($existingAcData->toArray());
 
         return view('admin.formeditspk', compact(
-            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData'
+            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData', 'kategoriPekerjaan'
         ));
     }
 
@@ -413,6 +425,9 @@ class AdminSPKController extends Controller
 
             'jenis_pekerjaan'    => 'required|array|min:1',
             'jenis_pekerjaan.*'  => 'required|string',
+
+            'kategori_pekerjaan' => 'required|array|min:1',
+            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,GantiUnit',
 
             'history_image'      => 'nullable|array',
             'history_image.*'    => 'nullable|image|mimes:jpg,jpeg|max:10240',
@@ -474,6 +489,7 @@ class AdminSPKController extends Controller
                         'acdetail_id'    => $acdetailId,
                     ],
                     [
+                        'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
                         'keluhan'         => $validated['keluhan'][$i] ?? null,
                         'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$i] ?? null,
                     ]

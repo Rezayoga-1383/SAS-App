@@ -9,9 +9,9 @@ use App\Models\LogServiceDetail;
 use App\Models\LogServiceUnit;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
 use App\Jobs\ProcessSPKImages;
 
 class SPKController extends Controller
@@ -22,7 +22,8 @@ class SPKController extends Controller
         $departement= Departement::all();
         $teknisi    = Pengguna::where('role', 'Teknisi')->get();
         $admin      = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
-        return view('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin'));
+        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit'];
+        return view('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin', 'kategoriPekerjaan'));
     }
 
     public function store(Request $request)
@@ -32,6 +33,7 @@ class SPKController extends Controller
         $validated = $request->validate([
             'acdetail_ids'       => 'required|array|min:1',
             'acdetail_ids.*'     => 'required|exists:acdetail,id',
+            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
             'no_spk'             => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'            => 'required|date',
             'waktu_mulai'        => 'required|date_format:H:i',
@@ -44,14 +46,63 @@ class SPKController extends Controller
             'jenis_pekerjaan'    => 'required|array|min:1',
             'jenis_pekerjaan.*'  => 'required|string',
             'history_image'      => 'required|array|min:1',
-            'history_image.*'    => 'required|file|image|mimes:jpg,jpeg|max:10240',
+            'history_image.*'    => 'required|file|image|mimes:jpg,jpeg|max:2048',
             'images'             => 'required|array|min:1',
-            'images.*.foto_kolase'=> 'required|file|image|mimes:jpg,jpeg|max:10240',
-            'file_spk'           => 'required|file|image|mimes:jpg,jpeg|max:10240',
+            'images.*.foto_kolase'=> 'required|file|image|mimes:jpg,jpeg|max:2048',
+            'file_spk'           => 'required|file|image|mimes:jpg,jpeg|max:2048',
             'kepada'             => 'required|string|max:100',
             'mengetahui'         => 'required|string|max:100',
             'hormat_kami'        => 'required|exists:pengguna,id',
             'pelaksana_ttd'      => 'required|exists:pengguna,id',
+        ], [
+            'acdetail_ids.required'         => 'Jumlah AC wajib diisi',
+            'acdetail_ids.*.required'       => 'Nomor AC wajib dipilih',
+            'acdetail_ids.*.exists'         => 'Nomor AC tidak valid',
+
+            'kategori_pekerjaan.*.required' => 'Kategori Pekerjaan wajib dipilih',
+
+            'no_spk.required'               => 'Nomor SPK wajib diisi',
+            'no_spk.unique'                 => 'Nomor SPK sudah digunakan',
+            'no_spk.digits'                 => 'Nomor SPK harus terdiri dari 4 digit angka',
+
+            'tanggal.required'              => 'Tanggal SPK wajib diisi',
+            'waktu_mulai.required'          => 'Waktu mulai wajib diisi',
+            'waktu_selesai.required'        => 'Waktu selesai wajib diisi',
+            'waktu_selesai.after'           => 'Waktu selesai harus setelah waktu mulai',
+            
+            'jumlah_orang.required'         => 'Jumlah teknisi wajib diisi',
+            'teknisi.required'              => 'Teknisi wajib dipilih',
+            'teknisi.*.required'            => 'Teknisi wajib dipilih',
+            'teknisi.*.exist'               => 'Teknisi tidak valid',
+
+            'jumlah_ac_input.required'      => 'Jumlah AC wajib diisi',
+
+            'keluhan.required'              => 'Keluhan wajib diisi',
+            'keluhan.*.required'            => 'Keluhan wajib diisi',
+
+            'jenis_pekerjaan.required'      => 'Jenis Pekerjaan wajib diisi',
+            'jenis_pekerjaan.*.required'    => 'Jenis Pekerjaan wajib diisi',
+
+            'history_image.required'        => 'Kartu History AC wajib diunggah',
+            'history_image.array'           => 'Format kartu history tidak valid',
+            'history_image.*.required'      => 'Kartu History AC wajib diunggah',
+            'history_image.*.image'         => 'File kartu history harus berupa gambar',
+            'history_image.*.mimes'         => 'Kartu History harus JPG/JPEG',
+            'history_image.*.max'           => 'Ukuran kartu history maksimal 2 MB',
+
+            'images.*.foto_kolase.required' => 'Foto Kolase wajib diunggah',
+            'images.*.foto_kolase.image'    => 'Foto Kolase harus berupa gambar',
+            'images.*.foto_kolase.mimes'    => 'Foto Kolase harus JPG/JPEG',
+            'images.*.foto_kolase.max'      => 'Ukuran foto kolase maksimal 2 MB',
+
+            'kepada.required'               => 'Bagian "Kepada" wajib diisi',
+            'mengetahui.required'           => 'Bagian "Mengetahui" wajib diisi',
+            'hormat_kami.required'          => 'Hormat Kami wajib dipilih',
+            'pelaksana_ttd.required'        => 'Pelaksana SPK wajib dipilih',
+
+            'file_spk.required'             => 'File SPK wajib diunggah',
+            'file_spk.mimes'                => 'Tipe file harus berupa JPG/JPEG',
+            'file_spk.max'                  => 'Ukuran file SPK maksimal 2 MB'
         ]);
 
         DB::beginTransaction();
@@ -80,6 +131,7 @@ class SPKController extends Controller
                 $detailInsert[] = [
                     'log_service_id' => $spk->id,
                     'acdetail_id'    => $acdetailId,
+                    'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
                     'keluhan'        => $validated['keluhan'][$i] ?? null,
                     'jenis_pekerjaan'=> $validated['jenis_pekerjaan'][$i] ?? null,
                     'created_at'     => now(),

@@ -10,6 +10,7 @@ class LogServiceDetail extends Model
     protected $fillable = [
         'log_service_id',
         'acdetail_id',
+        'kategori_pekerjaan',
         'keluhan',
         'jenis_pekerjaan',
     ];

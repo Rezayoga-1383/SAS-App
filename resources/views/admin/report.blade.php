@@ -35,6 +35,7 @@
                                         <option value="">Semua</option>
                                         <option value="cuci ac">Cuci AC</option>
                                         <option value="perbaikan">Perbaikan</option>
+                                        <option value="cek ac">Cek AC</option>
                                         <option value="ganti unit">Ganti Unit</option>
                                     </select>
                                 </div>

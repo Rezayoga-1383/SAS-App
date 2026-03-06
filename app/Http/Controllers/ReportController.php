@@ -15,7 +15,6 @@ class ReportController extends Controller
 
     public function getDokumentasi(Request $request)
     {
-        // WAJIB isi tanggal saja
         if (!$request->start_date || !$request->end_date) {
             return response()->json([]);
         }
@@ -24,7 +23,11 @@ class ReportController extends Controller
             'units.acdetail.ruangan.departement',
             'units.images',
             'units.historyImages',
-            'details'
+            'details' => function ($q) use ($request) {
+                if (!empty($request->jenis_service)) {
+                    $q->where('kategori_pekerjaan', $request->jenis_service);
+                }
+            }
         ]);
 
         // FILTER TANGGAL
@@ -33,12 +36,10 @@ class ReportController extends Controller
             $request->end_date
         ]);
 
-        // FILTER JENIS SERVICE (opsional)
+        // FILTER KATEGORI
         if (!empty($request->jenis_service)) {
             $query->whereHas('details', function($q) use ($request) {
-                $q->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
-                    '%' . strtolower($request->jenis_service) . '%'
-                ]);
+                $q->where('kategori_pekerjaan', $request->jenis_service);
             });
         }
 
@@ -49,14 +50,17 @@ class ReportController extends Controller
         foreach ($data as $spk) {
             foreach ($spk->units as $unit) {
 
+                // 🔥 Penting: hanya ambil detail yang cocok dengan unit ini
                 $detail = $spk->details
                     ->where('acdetail_id', $unit->acdetail_id)
                     ->first();
 
+                if (!$detail) continue;
+
                 $result[] = [
-                    'no_ac' => $unit->acdetail->no_ac ?? '-',
+                    'no_ac' => optional($unit->acdetail)->no_ac ?? '-',
                     'tanggal' => $spk->tanggal,
-                    'ruangan' => $unit->acdetail->ruangan->nama_ruangan ?? '-',
+                    'ruangan' => optional($unit->acdetail->ruangan)->nama_ruangan ?? '-',
                     'departemen' => optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-',
                     'keluhan' => $detail->keluhan ?? '-',
                     'foto_kolase' => optional($unit->images->first())->image_path,
