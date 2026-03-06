@@ -427,7 +427,7 @@ class AdminSPKController extends Controller
             'jenis_pekerjaan.*'  => 'required|string',
 
             'kategori_pekerjaan' => 'required|array|min:1',
-            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,GantiUnit',
+            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
 
             'history_image'      => 'nullable|array',
             'history_image.*'    => 'nullable|image|mimes:jpg,jpeg|max:10240',
