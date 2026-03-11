@@ -405,6 +405,9 @@ class AdminSPKController extends Controller
             'acdetail_ids'       => 'required|array|min:1',
             'acdetail_ids.*'     => 'required|exists:acdetail,id',
 
+            'unit_ids'   => 'nullable|array',
+            'unit_ids.*' => 'nullable|exists:log_service_unit,id',
+
             'no_spk' => [
                 'required',
                 'digits:4',
@@ -476,32 +479,61 @@ class AdminSPKController extends Controller
             ]);
 
            /* ================= AMBIL DATA LAMA ================= */
-            $oldUnits = $spk->units->keyBy('acdetail_id');
+            $oldUnits = $spk->units->keyBy('id');
 
             $usedUnitIds = [];
 
             foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
 
                 /* ===== DETAIL ===== */
-                LogServiceDetail::updateOrCreate(
-                    [
-                        'log_service_id' => $spk->id,
-                        'acdetail_id'    => $acdetailId,
-                    ],
-                    [
+                /* ===== DETAIL ===== */
+                $unitId = $request->unit_ids[$i] ?? null;
+
+                if ($unitId) {
+
+                    $detail = LogServiceDetail::where('log_service_id', $spk->id)
+                        ->where('acdetail_id', $oldUnits[$unitId]->acdetail_id)
+                        ->first();
+
+                    if ($detail) {
+
+                        $detail->update([
+                            'acdetail_id'        => $acdetailId,
+                            'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
+                            'keluhan'            => $validated['keluhan'][$i] ?? null,
+                            'jenis_pekerjaan'    => $validated['jenis_pekerjaan'][$i] ?? null,
+                        ]);
+                    }
+
+                } else {
+
+                    LogServiceDetail::create([
+                        'log_service_id'     => $spk->id,
+                        'acdetail_id'        => $acdetailId,
                         'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
-                        'keluhan'         => $validated['keluhan'][$i] ?? null,
-                        'jenis_pekerjaan' => $validated['jenis_pekerjaan'][$i] ?? null,
-                    ]
-                );
+                        'keluhan'            => $validated['keluhan'][$i] ?? null,
+                        'jenis_pekerjaan'    => $validated['jenis_pekerjaan'][$i] ?? null,
+                    ]);
+                }
 
                 /* ===== UNIT ===== */
-                if (isset($oldUnits[$acdetailId])) {
-                    $unit = $oldUnits[$acdetailId]; // pakai lama
+                $unitId = $request->unit_ids[$i] ?? null;
+
+                if ($unitId && isset($oldUnits[$unitId])) {
+
+                    // pakai unit lama
+                    $unit = $oldUnits[$unitId];
+
+                    $unit->update([
+                        'acdetail_id' => $acdetailId
+                    ]);
+
                 } else {
-                    $unit = LogServiceUnit::updateOrCreate([
+
+                    // unit baru
+                    $unit = LogServiceUnit::create([
                         'log_service_id' => $spk->id,
-                        'acdetail_id'    => $acdetailId,
+                        'acdetail_id' => $acdetailId,
                     ]);
                 }
 
@@ -538,7 +570,6 @@ class AdminSPKController extends Controller
                     }
                 }
 
-                $usedUnitIds[] = $unit->id;
                 /* ================= HAPUS FOTO KOLOSA (TOMBOL HAPUS) ================= */
                 if (isset($request->hapus_foto_kolase[$i]) && $request->hapus_foto_kolase[$i] == 1) {
 

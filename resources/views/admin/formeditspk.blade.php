@@ -279,6 +279,7 @@ function generateAcForms() {
         acCard.className = 'card mb-3 border';
 
         const acId = oldIds[i] ?? (existingAcData[i]?.acdetail_id ?? '');
+        const unitId = existingAcData[i]?.unit_id ?? '';
         const keluhan = oldKeluhan[i] ?? (existingAcData[i]?.keluhan ?? '');
         const jenisPekerjaan = oldJenis[i] ?? (existingAcData[i]?.jenis_pekerjaan ?? '');
         const historyFile = oldHistory[i] ?? (existingAcData[i]?.history_image ?? '');
@@ -294,6 +295,7 @@ function generateAcForms() {
 
         acCard.innerHTML = `
             <div class="card-body">
+                <input type="hidden" name="unit_ids[]" value="${unitId}">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="card-title mb-0">AC #${i + 1}</h6>
                     <button type="button" class="btn btn-sm btn-danger remove-ac-btn">
