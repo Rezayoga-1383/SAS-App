@@ -1,79 +1,122 @@
 <nav id="sidebar" class="sidebar js-sidebar">
-			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="{{ route('dashboard') }}">
-                    <span class="align-middle">PT SAS <br> Sarana Agung Sejahtera</span>
-                </a>
-                <!-- Dashboard -->
-		        <ul class="sidebar-nav">
-					<li class="sidebar-header">
-						Dashboard & History
+	<div class="sidebar-content js-simplebar">
+		<a class="sidebar-brand" href="{{ route('dashboard') }}">
+			<span class="align-middle">PT SAS <br> Sarana Agung Sejahtera</span>
+		</a>
+
+		<!-- Dashboard -->
+		<ul class="sidebar-nav">
+			<li class="sidebar-item {{ request()->routeIs('dashboard') || request()->routeIs('history') ? 'active' : '' }}">
+				<a data-bs-target="#dashboardMenu" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="home"></i>
+					<span class="align-middle fw-bolder">Home</span>
+				</a>
+				<ul id="dashboardMenu" class="sidebar-dropdown list-unstyled collapse">
+					<li class="sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('dashboard') }}">Dashboard</a>
 					</li>
-					<li class=" sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('dashboard') }}">
-                            <i class="align-middle" data-feather="home"></i> <span class="align-middle">Dashboard</span>
-                        </a>
+
+					<li class="sidebar-item {{ request()->routeIs('history') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('history') }}">History</a>
 					</li>
-					<li class=" sidebar-item {{ request()->routeIs('history') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('history') }}">
-                            <i class="align-middle" data-feather="clock"></i> <span class="align-middle">History</span>
-                        </a>
-					</li>
-					<li class="sidebar-header">
-						SPK & Report
-					</li>
+				</ul>
+			</li>
+
+			{{-- SPK & Report --}}
+			<li class="sidebar-item {{ request()->routeIs('admin.spk') || request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
+				<a data-bs-target="#spkmenu" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="file-text"></i>
+					<span class="align-middle fw-bolder">SPK & Report</span>
+				</a>
+
+				<ul id="spkmenu" class="sidebar-dropdown list-unstyled collapse">
 					<li class="sidebar-item {{ request()->routeIs('admin.spk') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('admin.spk') }}">
-                            <i class="align-middle" data-feather="file"></i> <span class="align-middle">SPK</span>
-                        </a>
+						<a class="sidebar-link" href="{{ route('admin.spk') }}">SPK</a>
 					</li>
-					<li class="sidebar-item {{ request()->routeIs('admin.report') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('admin.report') }}">
-                            <i class="align-middle" data-feather="file-text"></i> <span class="align-middle">Report</span>
-                        </a>
+
+					<li class="sidebar-item {{ request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
+						<a data-bs-target="#report" data-bs-toggle="collapse" class="sidebar-link fw-bolder">
+							Report
+						</a>
+
+						<ul id="report" class="sidebar-dropdown list-unstyled collapse ps-3">
+							<li class="sidebar-item {{ request()->routeIs('admin.report') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('admin.report') }}">Dokumentasi</a>
+							</li>
+
+							<li class="sidebar-item {{ request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('admin.reportperbaikan') }}">Perbaikan Ulang</a>
+							</li>
+
+							{{-- <li class="sidebar-item">
+								<a class="sidebar-link" href="#">Teknisi</a> 
+							</li> --}}
+						</ul>
 					</li>
-                    <!-- Management Data AC -->
-					<li class="sidebar-header">
-						Management Data AC
-					</li>
+
+					{{-- <li class="sidebar-item  {{ request()->routeIs('admin.report') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('admin.report') }}">Report</a>
+					</li> --}}
+				</ul>
+			</li>
+			
+			<!-- Master Data AC -->
+			<li class="sidebar-item {{ request()->routeIs('merk-ac') || request()->routeIs('jenis-ac') || request()->routeIs('detail-ac') ? 'active' : '' }}">
+				<a data-bs-target="#managedataac" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="database"></i>
+					<span class="align-middle fw-bolder">Master Data</span>
+				</a>
+
+				<ul id="managedataac" class="sidebar-dropdown list-unstyled collapse">
 					<li class="sidebar-item {{ request()->routeIs('merk-ac') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('merk-ac') }}">
-							<i class="align-middle" data-feather="database"></i> <span class="align-middle">Merk AC</span>
-						</a>
+						<a class="sidebar-link" href="{{ route('merk-ac') }}">Merk AC</a>
 					</li>
+
 					<li class="sidebar-item {{ request()->routeIs('jenis-ac') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('jenis-ac') }}">
-							<i class="align-middle" data-feather="database"></i> <span class="align-middle">Jenis AC</span>
-						</a>
+						<a class="sidebar-link" href="{{ route('jenis-ac') }}">Jenis AC</a>
 					</li>
-					<li class="sidebar-item {{ request()->routeIs('detail-ac') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('detail-ac') }}">
-							<i class="align-middle" data-feather="database"></i> <span class="align-middle">Detail AC</span>
-						</a>
+
+					<li class="sidebar-item {{ request()->routeIs('detail-ac') ? 'active' : ''}}">
+						<a class="sidebar-link" href="{{ route('detail-ac') }}">Detail AC</a>
 					</li>
-                    <!-- Departemen & Ruangan -->
-                    <li class="sidebar-header">
-						Departemen & Ruangan 
-					</li>
+				</ul>
+			</li>
+			
+			<!-- Departemen & Ruangan -->
+			<li class="sidebar-item {{ request()->routeIs('departement') || request()->routeIs('ruangan') ? 'active' : '' }}">
+				<a data-bs-target="#ruangan" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="map"></i>
+					<span class="align-middle fw-bolder">Lokasi</span>
+				</a>
+
+				<ul id="ruangan" class="sidebar-dropdown list-unstyled collapse">
 					<li class="sidebar-item {{ request()->routeIs('departement') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('departement') }}">
-              <i class="align-middle" data-feather="briefcase"></i> <span class="align-middle">Departemen</span>
-            </a>
+						<a class="sidebar-link" href="{{ route('departement') }}">Departement</a>
 					</li>
 
 					<li class="sidebar-item {{ request()->routeIs('ruangan') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('ruangan') }}">
-              <i class="align-middle" data-feather="server"></i> <span class="align-middle">Ruangan</span>
-            </a>
-					</li>
-                    <!-- Management User -->
-                    <li class="sidebar-header">
-						Management User 
-					</li>
-					<li class="sidebar-item {{ request()->routeIs('pengguna') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('pengguna') }}">
-              <i class="align-middle" data-feather="user"></i> <span class="align-middle">User</span>
-            </a>
+						<a class="sidebar-link" href="{{ route('ruangan') }}">Ruangan</a>
 					</li>
 				</ul>
-			</div>
-		</nav>
+			</li>
+
+			<!-- Management User -->
+			<li class="sidebar-item">
+				<a data-bs-target="#user" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="user"></i>
+					<span class="align-middle fw-bolder">Management User</span>
+				</a>
+
+				<ul id="user" class="sidebar-dropdown list-unstyled collapse">
+					<li class="sidebar-item {{ request()->routeIs('pengguna') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('pengguna') }}">Data User</a>
+					</li>
+
+					{{-- <li class="sidebar-item">
+						<a class="sidebar-link" href="#">Absensi Karyawan</a>
+					</li> --}}
+				</ul>
+			</li>
+		</ul>
+	</div>
+</nav>

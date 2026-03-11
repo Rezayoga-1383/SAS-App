@@ -9,8 +9,11 @@
       <div class="col-12 col-md-10 col-lg-9 mx-auto">
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h4 class="card-title">Detail SPK - {{ $spk->no_spk ?? '-' }}</h4>
-          <div>
-            <div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('spkdetail.download', $spk->id) }}" class="btn btn-secondary">
+                    <i data-feather="download"></i>
+                    <strong>Download</strong>
+                </a>
                 @if($from === 'history')
                     <a href="{{ route('history') }}" 
                     class="btn btn-outline-primary"><i data-feather="clock"></i>
@@ -18,12 +21,11 @@
                     </a>
                 @elseif($from === 'spk')
                     <a href="{{ route('admin.spk') }}" 
-                    class="btn btn-outline-primary"><i data-feather="file"></i>
+                    class="btn btn-outline-primary"><i data-feather="arrow-left"></i>
                     <strong>Kembali</strong> 
                     </a>
                 @endif
             </div>
-          </div>
         </div>
 
         <div class="card">
@@ -49,7 +51,7 @@
                         <td class="colon">:</td>
                         <td>
                             @if($spk->details->count())
-                                {{ $spk->details->pluck('kategori_pekerjaan')->join(', ') }}
+                                {{ $spk->details->pluck('kategori_pekerjaan')->unique()->join(', ') }}
                             @else
                                 -
                             @endif

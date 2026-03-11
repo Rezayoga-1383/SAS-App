@@ -698,7 +698,7 @@ class AdminSPKController extends Controller
     public function detail(Request $request, $id)
     {
         $spk = LogService::with([
-            'units.acdetail.ruangan.departement', // untuk menampilkan info AC dan ruangan
+            'units.acdetail.ruangan.departement', 
             'units.images',
             'units.historyImages',
             'details'
@@ -707,5 +707,22 @@ class AdminSPKController extends Controller
         $from = $request->query('from');
 
         return view('admin.detailspk', compact('spk', 'from'));
+    }
+
+    public function downloadpdf($id)
+    {
+        $spk = LogService::with([
+            'units.acdetail.ruangan.departement',
+            'details',
+            'teknisi',
+            'pelaksana',
+            'hormatKamiUser'
+        ])->findOrFail($id);
+
+        $pdf = Pdf::loadView('admin.spkdetaildownload', [
+            'spk' => $spk
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download('SPK-'.$spk->no_spk.'.pdf');
     }
 }

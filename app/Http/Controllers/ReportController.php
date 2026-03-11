@@ -74,7 +74,6 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request)
     {
-        // 🚫 WAJIB ISI FILTER
         if (!$request->start_date || !$request->end_date) {
             return redirect()->back()->with('error', 'Filter harus diisi lengkap.');
         }
@@ -83,7 +82,11 @@ class ReportController extends Controller
             'units.acdetail.ruangan.departement',
             'units.images',
             'units.historyImages',
-            'details'
+            'details' => function ($q) use ($request) {
+                if (!empty($request->jenis_service)) {
+                    $q->where('kategori_pekerjaan', $request->jenis_service);
+                }
+            }
         ]);
 
         // FILTER TANGGAL
