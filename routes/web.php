@@ -92,6 +92,10 @@ Route::get('/admin/report/perbaikan', [ReportPerbaikanController::class, 'index'
 Route::get('/admin/report-perbaikan/get', [ReportPerbaikanController::class, 'getReport'])->name('admin.data.perbaikan')->middleware('Role:Admin');
 Route::get('/admin/report/perbaikan/export', [ReportPerbaikanController::class, 'exportPdf'])->name('admin.reportpdf')->middleware('Role:Admin');
 
+Route::get('/admin/report/teknisi', [ReportPerbaikanController::class, 'viewteknisi'])->name('admin.reportteknisi')->middleware('Role:Admin');
+Route::get('/admin/report/teknisi/get', [ReportPerbaikanController::class, 'getReportTeknisi'])->name('admin.data.teknisi')->middleware('Role:Admin');
+Route::get('/admin/report/teknisi/export', [ReportPerbaikanController::class, 'exportReportTeknisi'])->name('admin.reportteknisipdf')->middleware('Role:Admin');
+
     // ================================ Merk AC ==================================
 // Merk AC Routes
 Route::get('/admin/merk-ac', [MerkacController::class, 'index'])->name('merk-ac')->middleware('Role:Admin');

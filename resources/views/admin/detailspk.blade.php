@@ -50,11 +50,15 @@
                         <th>Kategori Pengerjaan</th>
                         <td class="colon">:</td>
                         <td>
-                            @if($spk->details->count())
-                                {{ $spk->details->pluck('kategori_pekerjaan')->unique()->join(', ') }}
-                            @else
-                                -
-                            @endif
+                            @php
+                                $kategori = $spk->details
+                                    ->pluck('kategori_pekerjaan')
+                                    ->filter()
+                                    ->unique()
+                                    ->implode(', ');
+                            @endphp
+
+                            {{ $kategori ?: '-' }}
                         </td>
                     </tr>
 

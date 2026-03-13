@@ -23,7 +23,7 @@
 			</li>
 
 			{{-- SPK & Report --}}
-			<li class="sidebar-item {{ request()->routeIs('admin.spk') || request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
+			<li class="sidebar-item {{ request()->routeIs('admin.spk') || request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
 				<a data-bs-target="#spkmenu" data-bs-toggle="collapse" class="sidebar-link">
 					<i data-feather="file-text"></i>
 					<span class="align-middle fw-bolder">SPK & Report</span>
@@ -34,7 +34,7 @@
 						<a class="sidebar-link" href="{{ route('admin.spk') }}">SPK</a>
 					</li>
 
-					<li class="sidebar-item {{ request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
+					<li class="sidebar-item {{ request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
 						<a data-bs-target="#report" data-bs-toggle="collapse" class="sidebar-link fw-bolder">
 							Report
 						</a>
@@ -48,9 +48,9 @@
 								<a class="sidebar-link" href="{{ route('admin.reportperbaikan') }}">Perbaikan Ulang</a>
 							</li>
 
-							{{-- <li class="sidebar-item">
-								<a class="sidebar-link" href="#">Teknisi</a> 
-							</li> --}}
+							<li class="sidebar-item {{ request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('admin.reportteknisi') }}">Teknisi</a>
+							</li>
 						</ul>
 					</li>
 

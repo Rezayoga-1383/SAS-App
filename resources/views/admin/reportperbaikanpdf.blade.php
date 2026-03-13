@@ -26,18 +26,6 @@
             vertical-align: top;
         }
 
-        table {
-            table-layout: fixed;
-        }
-
-        td {
-            word-wrap: break-word;
-        }
-
-        img.logo {
-            width: 90px;
-        }
-
         .title {
             text-align: center;
             font-size: 16px;
@@ -49,51 +37,6 @@
             text-align: center;
             margin-top: 5px;
             margin-bottom: 20px;
-        }
-
-        /* ===== 1 DATA = 1 HALAMAN ===== */
-        .section {
-            margin-top: 15px;
-            page-break-inside: avoid;
-        }
-
-        .judul-lokasi {
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .info {
-            text-align: center;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        /* SLOT FOTO TETAP */
-        .foto-wrapper {
-            width: 100%;
-            height: 10.5cm;
-            border: 1px solid #ccc;
-            text-align: center;
-            vertical-align: middle;
-            margin-bottom: 12px;
-        }
-
-        .foto-wrapper img {
-            width: 100%;
-            height: 10.5cm;
-        }
-
-        img.foto {
-            max-height: 10.5cm;
-            max-width: 100%;
-        }
-
-        .foto-kosong {
-            font-size: 14px;
-            color: #777;
-            font-style: italic;
         }
     </style>
 </head>

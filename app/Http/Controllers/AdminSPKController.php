@@ -482,10 +482,11 @@ class AdminSPKController extends Controller
             $oldUnits = $spk->units->keyBy('id');
 
             $usedUnitIds = [];
+            $usedAcdetailIds = [];
 
             foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
 
-                /* ===== DETAIL ===== */
+                $usedAcdetailIds[] = $acdetailId;
                 /* ===== DETAIL ===== */
                 $unitId = $request->unit_ids[$i] ?? null;
 
@@ -636,6 +637,10 @@ class AdminSPKController extends Controller
 
                 $unit->delete();
             }
+
+            LogServiceDetail::where('log_service_id', $spk->id)
+                ->whereNotIn('acdetail_id', $usedAcdetailIds)
+                ->delete();
  
 
             /* ================= SYNC TEKNISI ================= */
