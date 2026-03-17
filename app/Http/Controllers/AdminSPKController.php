@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailAC;
-use App\Models\Pengguna;
-use App\Models\LogService;
-use App\Models\Departement;
-use Illuminate\Http\Request;
+use App\Jobs\ProcessSPKImages;
+use App\Jobs\ProcessUpdateSPKImages;
 use App\Models\AcHistoryImage;
-use App\Models\LogServiceUnit;
-use Illuminate\Support\Carbon;
-use App\Models\LogServiceImage;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Validation\Rule;
+use App\Models\Departement;
+use App\Models\DetailAC;
+use App\Models\LogService;
 use App\Models\LogServiceDetail;
-use Yajra\DataTables\DataTables;
+use App\Models\LogServiceImage;
+use App\Models\LogServiceUnit;
+use App\Models\Pengguna;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Yajra\DataTables\DataTables;
 
 class AdminSPKController extends Controller
 {
@@ -185,12 +187,12 @@ class AdminSPKController extends Controller
 
             // ===== Image History =====
             'history_image'             => 'required|array',
-            'history_image.*'           => 'required|image|mimes:jpg,jpeg|max:10240',
+            'history_image.*'           => 'required|image|mimes:jpg,jpeg|max:2048',
 
             // ===== Foto Kolase =====
             'images'                    => 'required|array|min:1',
             'images.*'                  => 'required|array',
-            'images.*.foto_kolase'      => 'required|file|image|mimes:jpg,jpeg|max:10240',
+            'images.*.foto_kolase'      => 'required|file|image|mimes:jpg,jpeg|max:2048',
 
 
             'kepada'                    => 'required|string|max:100',
@@ -198,7 +200,7 @@ class AdminSPKController extends Controller
             'hormat_kami'               => 'required|exists:pengguna,id',
             'pelaksana_ttd'             => 'required|exists:pengguna,id',
 
-            'file_spk'                  => 'required|file|mimes:pdf,jpg,jpeg|max:10240',
+            'file_spk'                  => 'required|file|mimes:pdf,jpg,jpeg|max:2048',
         ], [
 
             // ===== AC =====
@@ -242,13 +244,13 @@ class AdminSPKController extends Controller
             'history_image.*.required'   => 'Kartu history AC wajib diunggah.',
             'history_image.*.image'      => 'File kartu history harus berupa gambar.',
             'history_image.*.mimes'      => 'Kartu history harus JPG, JPEG.',
-            'history_image.*.max'        => 'Ukuran kartu history maksimal 10MB.',
+            'history_image.*.max'        => 'Ukuran kartu history maksimal 2 MB.',
 
             // ===== IMAGE BEFORE & AFTER =====
             'images.*.foto_kolase.required'         => 'Foto Kolase wajib diunggah.',
             'images.*.foto_kolase.image'         => 'Foto Kolase harus berupa gambar.',
             'images.*.foto_kolase.mimes'         => 'Foto Kolase harus JPG, JPEG.',
-            'images.*.foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 10 MB.',
+            'images.*.foto_kolase.max'           => 'Ukuran Foto Kolase maksimal 2 MB.',
 
             // ===== BAGIAN ADMIN =====
             'kepada.required'           => 'Bagian “Kepada” wajib diisi.',
@@ -259,13 +261,15 @@ class AdminSPKController extends Controller
             // ===== FILE SPK =====
             'file_spk.required'         => 'File SPK wajib diunggah.',
             'file_spk.mimes'            => 'Tipe file harus berupa JPG, JPEG.',
-            'file_spk.max'              => 'Ukuran file SPK maksimal adalah 10MB.',
+            'file_spk.max'              => 'Ukuran file SPK maksimal adalah 2 MB.',
         ]);
 
         DB::beginTransaction();
 
         try {
             // ================= SPK UTAMA =================
+            $fileSpkTemp = $request->file('file_spk')->store('temp/spk', 'public');
+
             $spk = LogService::create([
                 'no_spk'        => $validated['no_spk'],
                 'tanggal'       => $validated['tanggal'],
@@ -276,49 +280,50 @@ class AdminSPKController extends Controller
                 'mengetahui'    => $validated['mengetahui'],
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
-                'file_spk'      => $request->file('file_spk')->store('spk_files', 'public'),
+                'file_spk'      => $fileSpkTemp,
             ]);
 
             // ================= LOOP SETIAP AC =================
+            $detailInsert = [];
+            $unitInsert = [];
             foreach ($validated['acdetail_ids'] as $i => $acdetailId) {
-
-                // ---- 1. LOG SERVICE DETAIL (keluhan & jenis pekerjaan) ----
-                LogServiceDetail::create([
+                $detailInsert[] = [
                     'log_service_id' => $spk->id,
                     'acdetail_id'    => $acdetailId,
                     'kategori_pekerjaan' => $validated['kategori_pekerjaan'][$i] ?? null,
-                    'keluhan'        => $validated['keluhan'][$i] ?? null,
-                    'jenis_pekerjaan'=> $validated['jenis_pekerjaan'][$i] ?? null,
-                ]);
+                    'keluhan'            => $validated['keluhan'][$i] ?? null,
+                    'jenis_pekerjaan'    => $validated['jenis_pekerjaan'][$i] ?? null,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ];
 
-                // ---- 2. LOG SERVICE UNIT (untuk relasi gambar) ----
-                $unit = LogServiceUnit::create([
+                $unitInsert[] = [
                     'log_service_id' => $spk->id,
                     'acdetail_id'    => $acdetailId,
-                ]);
-
-                // ---- 3. AC HISTORY IMAGE ----
-                if ($request->hasFile("history_image.$i")) {
-                    $path = $request->file("history_image.$i")
-                        ->store('spk_images/kartu_history', 'public');
-
-                    AcHistoryImage::create([
-                        'log_service_unit_id' => $unit->id,
-                        'image_path'          => $path,
-                    ]);
-                }
-
-                // ---- 4. BEFORE & AFTER IMAGES ----
-                if ($request->hasFile("images.$i.foto_kolase")) {
-                    $path = $request->file("images.$i.foto_kolase")
-                        ->store('spk_images/kolase', 'public');
-
-                        LogServiceImage::create([
-                            'log_service_unit_id' => $unit->id,
-                            'image_path'          => $path,
-                        ]);
-                    }
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
+                ];
             }
+            LogServiceDetail::insert($detailInsert);
+            LogServiceUnit::insert($unitInsert);
+
+            $historyPaths = [];
+            foreach ($request->file('history_image') as $file) {
+                $historyPaths[] = $file->store('temp/history', 'public');
+            }
+
+            $kolasePaths = [];
+            foreach (collect($request->file('images'))->pluck('foto_kolase') as $file) {
+                $kolasePaths[] = $file->store('temp/kolase', 'public');
+            }
+
+            // Dispatch Job
+            ProcessSPKImages::dispatch(
+                $spk->id,
+                $historyPaths,
+                $kolasePaths,
+                $fileSpkTemp
+            );
 
             // ================= TEKNISI =================
             $spk->teknisi()->sync($validated['teknisi']);
@@ -450,15 +455,15 @@ class AdminSPKController extends Controller
 
         try {
 
+            // Create array temp
+            $historyPathsToProcess = [];
+            $kolasePathsToProcess = [];
+            $fileSpkTemp = null;
+
             /* ================= UPDATE FILE SPK ================= */
             if ($request->hasFile('file_spk')) {
-
-                if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
-                    Storage::disk('public')->delete($spk->file_spk);
-                }
-
-                $spk->file_spk = $request->file('file_spk')
-                    ->store('spk_files', 'public');
+                // Di controller jangan hapus existing file spk dulu agar tetep tampil sampai job kelar
+                $fileSpkTemp = $request->file('file_spk')->store('temp_spk_images', 'public');
             }
 
             /* ================= FORMAT WAKTU ================= */
@@ -542,33 +547,9 @@ class AdminSPKController extends Controller
 
                 /* ================= HISTORY IMAGE ================= */
                 if ($request->hasFile("history_image.$i")) {
-
                     $path = $request->file("history_image.$i")
-                        ->store('spk_images/kartu_history', 'public');
-
-                    $history = AcHistoryImage::where('log_service_unit_id', $unit->id)
-                        ->first();
-
-                    if ($history) {
-
-                        // Hapus file lama saja
-                        if (Storage::disk('public')->exists($history->image_path)) {
-                            Storage::disk('public')->delete($history->image_path);
-                        }
-
-                        // UPDATE record (ID tetap)
-                        $history->update([
-                            'image_path' => $path,
-                        ]);
-
-                    } else {
-
-                        // Kalau belum ada baru create
-                        AcHistoryImage::create([
-                            'log_service_unit_id' => $unit->id,
-                            'image_path'          => $path,
-                        ]);
-                    }
+                        ->store('temp_spk_images', 'public');
+                    $historyPathsToProcess[$unit->id] = $path;
                 }
 
                 /* ================= HAPUS FOTO KOLOSA (TOMBOL HAPUS) ================= */
@@ -589,33 +570,8 @@ class AdminSPKController extends Controller
 
                 /* ================= FOTO KOLOSA ================= */
                 if ($request->hasFile("foto_kolase.$i")) {
-
-                    // Cek apakah sudah ada foto lama
-                    $existingImage = LogServiceImage::where('log_service_unit_id', $unit->id)
-                        ->first();
-
-                    if ($existingImage) {
-
-                        // Hapus file lama dari storage
-                        if (Storage::disk('public')->exists($existingImage->image_path)) {
-                            Storage::disk('public')->delete($existingImage->image_path);
-                        }
-
-                        // Hapus record lama
-                        $existingImage->delete();
-                    }
-
-                    // Simpan file baru
-                    $path = $request->file("foto_kolase.$i")
-                        ->store("spk_images/kolase", 'public');
-
-                    LogServiceImage::updateOrCreate(
-                    [
-                        'log_service_unit_id' => $unit->id,
-                    ], 
-                    [
-                        'image_path'          => $path,
-                    ]);
+                    $path = $request->file("foto_kolase.$i")->store('temp_spk_images', 'public');
+                    $kolasePathsToProcess[$unit->id] = $path;
                 }
             }
 
@@ -648,6 +604,16 @@ class AdminSPKController extends Controller
 
             DB::commit();
 
+            // Dispatch job jika ada gambar/file yang diupload
+            if (!empty($historyPathsToProcess) || !empty($kolasePathsToProcess) || $fileSpkTemp) {
+                ProcessUpdateSPKImages::dispatch(
+                    $spk->id,
+                    $historyPathsToProcess,
+                    $kolasePathsToProcess,
+                    $fileSpkTemp
+                );
+            }
+
             return redirect()
                 ->route('admin.spk')
                 ->with('success', 'Data SPK berhasil diupdate');
@@ -673,6 +639,7 @@ class AdminSPKController extends Controller
 
             $spk = LogService::with([
                 'units.images',
+                'units.historyImages',
                 'units.acdetail',
             ])->findOrFail($id);
 
@@ -681,25 +648,22 @@ class AdminSPKController extends Controller
                 Storage::disk('public')->delete($spk->file_spk);
             }
 
-            /* ================= DELETE HISTORY IMAGE ================= */
-            $histories = AcHistoryImage::where('log_service_unit_id', $spk->id)->get();
-
-            foreach ($histories as $history) {
-                if (Storage::disk('public')->exists($history->image_path)) {
-                    Storage::disk('public')->delete($history->image_path);
-                }
-                $history->delete();
-            }
-
-            /* ================= DELETE UNIT IMAGES (KOLOSA) ================= */
+            /* ================= DELETE UNIT IMAGES ================= */
             foreach ($spk->units as $unit) {
 
-                foreach ($unit->images as $image) {
+                // Delete History Images
+                foreach ($unit->historyImages as $history) {
+                    if (Storage::disk('public')->exists($history->image_path)) {
+                        Storage::disk('public')->delete($history->image_path);
+                    }
+                    $history->delete();
+                }
 
+                // Delete Kolase Images
+                foreach ($unit->images as $image) {
                     if (Storage::disk('public')->exists($image->image_path)) {
                         Storage::disk('public')->delete($image->image_path);
                     }
-
                     $image->delete();
                 }
 

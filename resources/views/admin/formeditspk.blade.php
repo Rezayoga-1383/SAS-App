@@ -117,18 +117,21 @@
                                 <input type="number" id="jumlah_ac_input" name="jumlah_ac_input" 
                                   class="form-control form-control-md" 
                                   placeholder="Masukkan jumlah AC"
-                                  value="{{ old('jumlah_ac_input', $spk->acdetail && $spk->acdetail->count() > 0 ? $spk->acdetail->count() : 1) }}" min="1">
-                                <small class="text-muted">Akan menampilkan form input untuk setiap AC</small>
+                                  value="{{ old('jumlah_ac_input', $spk->acdetail && $spk->acdetail->count() > 0 ? $spk->acdetail->count() : 1) }}" min="1" readonly>
+                                <small class="text-muted">Jumlah AC akan menyesuaikan secara dinamis dengan card data AC</small>
                             </div>
 
                             <div class="mb-3">
                                 <h5 class="mb-3">Detail AC yang Diperbaiki</h5>
-                                <div id="ac_container">
-                                  <!-- AC items akan di-generate dengan JavaScript -->
-                                </div>
+                                <div id="ac_container"></div>
                                 @error('acdetail_ids')
                                   <div class="alert alert-danger mt-2">{{ $message }}</div>
                                 @enderror
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="button" id="add_ac_btn" class="btn btn-success">
+                                        <i data-feather="plus"></i> Tambah
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -233,8 +236,9 @@
 
 @push('script')
 <script>
+let acCount = 0;
+
 const jumlahInput = document.getElementById('jumlah_orang');
-const jumlahAcInput = document.getElementById('jumlah_ac_input');
 const acContainer = document.getElementById('ac_container');
 const checkboxes = document.querySelectorAll('.teknisi-checkbox');
 const pelaksanaSelect = document.getElementById('pelaksana_ttd');
@@ -270,8 +274,8 @@ function hasError(fieldName, index) {
 }
 
 // Generate form AC dinamis
-function generateAcForms() {
-    const jumlah = parseInt(jumlahAcInput.value) || 1;
+function generateAcForms(jumlah) {
+    // const jumlah = parseInt(jumlahAcInput.value) || 1;
     acContainer.innerHTML = '';
 
     for (let i = 0; i < jumlah; i++) {
@@ -354,7 +358,7 @@ function generateAcForms() {
 
                 <!-- Foto Kolase -->
                 <div class="mb-3">
-                    <label class="form-label">Foto Kolase</label>
+                    <label class="form-label">Foto Kolase <span class="text-danger">*</span></label>
 
                     ${FotoKolase ? `
                         <div class="mb-2" id="preview_foto_${i}">
@@ -382,6 +386,9 @@ function generateAcForms() {
 
         acContainer.appendChild(acCard);
 
+        const acSelect = acCard.querySelector('select[name="acdetail_ids[]"]');
+        $(acSelect).on('change', updateAcOptions);
+
         const hapusBtn = acCard.querySelector('.btn-hapus-foto');
 
         if (hapusBtn) {
@@ -400,8 +407,127 @@ function generateAcForms() {
         acCard.querySelector('.remove-ac-btn').addEventListener('click', e => {
             e.preventDefault();
             acCard.remove();
+            acCount--;
+            updateAcOptions();
+            updateAcNumber();
+            updateJumlahAcInput();
         });
     }
+}
+
+function updateJumlahAcInput() {
+    const count = document.querySelectorAll('#ac_container .card').length;
+    const input = document.getElementById('jumlah_ac_input');
+    if (input) {
+        input.value = count;
+    }
+}
+
+function generateSingleAcForm(i){
+
+    const acCard = document.createElement('div');
+    acCard.className = 'card mb-3 border';
+
+    acCard.innerHTML = `
+        <div class="card-body">
+            <input type="hidden" name="unit_ids[]" value="">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="card-title mb-0">AC #${i + 1}</h6>
+
+                <button type="button" class="btn btn-sm btn-danger remove-ac-btn">
+                    <i class="bi bi-trash"></i> Hapus
+                </button>
+            </div>
+
+            <!-- Nomor AC -->
+            <div class="mb-3">
+                <label for="acdetail_${i}" class="form-label">Nomor AC <span class="text-danger">*</span></label>
+                <select name="acdetail_ids[]" id="acdetail_${i}" class="form-select select2" required>
+                    <option value="">-- Pilih No AC --</option>
+                    ${Object.entries(acdetailData).map(([id,noAc]) =>
+                        `<option value="${id}">${noAc}</option>`
+                    ).join('')}
+                </select>
+            </div>
+
+            <!-- Kategori Pekerjaan -->
+            <div class="mb-3">
+                <label class="form-label">Kategori Pekerjaan <span class="text-danger">*</span></label>
+                <select name="kategori_pekerjaan[]" class="form-select" required>
+                    <option value="">-- Pilih Kategori --</option>
+                    ${kategoriData.map(k => `<option value="${k}">${k}</option>`).join('')}
+                </select>
+            </div>
+
+            <!-- Keluhan -->
+            <div class="mb-3">
+                <label for="keluhan_${i}" class="form-label">Keluhan <span class="text-danger">*</span></label>
+                <textarea name="keluhan[]" id="keluhan_${i}" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <!-- Jenis Pekerjaan -->
+            <div class="mb-3">
+                <label for="jenis_pekerjaan_${i}" class="form-label">Jenis Pekerjaan <span class="text-danger">*</span></label>
+                <textarea name="jenis_pekerjaan[]" id="jenis_pekerjaan_${i}" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <!-- History AC -->
+            <div class="mb-3">
+                <label class="form-label">Kartu History AC <span class="text-danger">*</span> </label>
+                <input type="file" name="history_image[${i}]" class="form-control" accept=".jpg,.jpeg,.png">
+            </div>
+
+            <!-- Foto Kolase -->
+            <div class="mb-3">
+                <label class="form-label">Foto Kolase <span class="text-danger">*</span></label>
+                <input type="file" name="foto_kolase[${i}]" class="form-control" accept=".jpg,.jpeg,.png">
+            </div>
+
+        </div>
+    `;
+
+    acContainer.appendChild(acCard);
+
+    // aktifkan select2
+    $(acCard).find('.select2').select2({
+        placeholder: '-- Pilih No AC --',
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    // event select
+    $(acCard).find('select[name="acdetail_ids[]"]').on('change', updateAcOptions);
+
+    // tombol hapus
+    acCard.querySelector('.remove-ac-btn').addEventListener('click', e => {
+
+        e.preventDefault();
+
+        acCard.remove();
+
+        updateAcOptions();
+        updateAcNumber();
+        updateJumlahAcInput();
+
+    });
+
+}
+
+// update ac number
+function updateAcNumber() {
+    const cards = document.querySelectorAll('#ac_container .card');
+
+    cards.forEach((card,index)=>{
+        card.querySelector('.card-title').innerText = `AC #${index+1}`;
+    });
+}
+
+function addAcForm() {
+    const index = document.querySelectorAll('#ac_container .card').length;
+
+    generateSingleAcForm(index);
+    updateJumlahAcInput();
 }
 
 // Teknisi limit & pelaksana filter
@@ -425,10 +551,54 @@ function updatePelaksanaOptions() {
     if(!selectedIds.includes(pelaksanaSelect.value)) pelaksanaSelect.value = "";
 }
 
+function updateAcOptions() {
+
+    const selectedValues = [];
+
+    document.querySelectorAll('select[name="acdetail_ids[]"]').forEach(select => {
+        if (select.value) {
+            selectedValues.push(select.value);
+        }
+    });
+
+    document.querySelectorAll('select[name="acdetail_ids[]"]').forEach(select => {
+        
+        const currentValue = select.value;
+        const $select = $(select);
+
+        // Hancurkan instance select2 lama agar manipulasi DOM tidak ditindih
+        if ($select.hasClass("select2-hidden-accessible")) {
+            $select.select2('destroy');
+        }
+
+        Array.from(select.options).forEach(option => {
+
+            if(option.value === "") return;
+
+            if(selectedValues.includes(option.value) && option.value !== currentValue){
+                option.disabled = true;
+            }else{
+                option.disabled = false;
+            }
+
+        });
+
+        // Initialize ualng select2
+        $select.select2({
+            placeholder: '-- Pilih No AC --',
+            allowClear: true,
+            width: '100%',
+            minimumResultsForSearch: 0
+        });
+
+    });
+
+}
+
 // Event listeners
-jumlahAcInput.addEventListener('input', generateAcForms);
 
 jumlahInput.addEventListener('input', () => {
+
     const maxTeknisi = parseInt(jumlahInput.value) || 0;
     const checked = document.querySelectorAll('.teknisi-checkbox:checked');
 
@@ -439,30 +609,38 @@ jumlahInput.addEventListener('input', () => {
     }
 
     updateCheckboxLimit();
+
 });
 
 checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
+
+document.getElementById('add_ac_btn').addEventListener('click', function(){
+
+    addAcForm();
+
+});
 
 
 // 🔥 INIT FIXED
 document.addEventListener('DOMContentLoaded', () => {
 
-    // PRIORITAS:
-    // 1. Kalau ada old input → pakai jumlah old
+    let jumlahAwal = 1;
+
+    // PRIORITAS DATA
     if (oldIds.length > 0) {
-        jumlahAcInput.value = oldIds.length;
+        jumlahAwal = oldIds.length;
     }
-    // 2. Kalau tidak ada old, tapi ada existing data dari DB
     else if (existingAcData.length > 0) {
-        jumlahAcInput.value = existingAcData.length;
-    }
-    // 3. Kalau kosong semua → default 1
-    else {
-        jumlahAcInput.value = 1;
+        jumlahAwal = existingAcData.length;
     }
 
-    generateAcForms();
+    generateAcForms(jumlahAwal);
+
     updateCheckboxLimit();
+
+    updateAcOptions();
+
+    updateJumlahAcInput();
 
     $('.select2').select2({
         placeholder: '-- Pilih No AC --',
@@ -470,14 +648,6 @@ document.addEventListener('DOMContentLoaded', () => {
         width: '100%',
         minimumResultsForSearch: 0
     });
-
-    $('.select2').select2({
-        placeholder: '-- Pilih Kepada --',
-        allowClear: true,
-        width: '100%',
-        minimumResultForSearch:0
-    });
 });
 </script>
-
 @endpush
