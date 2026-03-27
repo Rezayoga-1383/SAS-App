@@ -41,6 +41,7 @@ class SPKController extends Controller
             'jumlah_orang'       => 'required|integer|min:1',
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
+            'status'             => 'required|in:menunggu,selesai',
             'keluhan'            => 'required|array|min:1',
             'keluhan.*'          => 'required|string',
             'jenis_pekerjaan'    => 'required|array|min:1',
@@ -74,6 +75,8 @@ class SPKController extends Controller
             'teknisi.required'              => 'Teknisi wajib dipilih',
             'teknisi.*.required'            => 'Teknisi wajib dipilih',
             'teknisi.*.exist'               => 'Teknisi tidak valid',
+
+            'status.required'               => 'Status Wajib diisi',
 
             'jumlah_ac_input.required'      => 'Jumlah AC wajib diisi',
 
@@ -122,6 +125,7 @@ class SPKController extends Controller
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
                 'file_spk'      => $fileSpkTemp, // simpan sementara
+                'status'        => $validated['status'],
             ]);
 
             // ---------------- Bulk insert detail & unit ----------------

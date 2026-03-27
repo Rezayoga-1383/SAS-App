@@ -66,7 +66,7 @@ class PenggunaController extends Controller
     public function edit($id)
     {
         $pengguna = Pengguna::findOrFail($id);
-        $role = ['Admin', 'Teknisi'];
+        $role = ['Superadmin','Admin', 'Teknisi'];
         return view('admin.formeditpengguna', compact('pengguna','role'));
     }
 

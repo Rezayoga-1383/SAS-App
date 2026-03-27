@@ -66,7 +66,9 @@
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
             <li><a href="/data-ac-rsal">Data AC</a></li>
-            {{-- <li><a href="/input-data-ac">Form Input Data</a></li> --}}
+            @if (auth()->id() === 8)
+                <li><a href="/data-spk">Data SPK</a></li>
+            @endif
             <li><a href="/input-data-spk" class="active">Form Input SPK</a></li>
             <li></li>
           </ul>
@@ -212,6 +214,22 @@
                 </div>
                 @error('teknisi')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-sm-6">
+                <label for="status" class="form-label">Status SPK <span class="text-danger">*</span></label>
+                <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
+                  <option value="">Pilih Status</option>
+                  <option value="menunggu" {{ old('status') == 'menunggu' ? 'selected' : '' }}>
+                    Menunggu
+                  </option>
+                  <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>
+                    Selesai
+                  </option>
+                </select>
+                @error('status')
+                  <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
               
@@ -621,6 +639,31 @@ function initSelect2() {
         width: '100%' // pastikan full width
     });
 </script>
+
+@if (auth()->check() && auth()->id() == 8)
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('/check-pending-spk')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_pending) {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'SPK Belum Diapprove',
+                  text: 'Masih ada SPK degan status menunggu. Silahkan approve terlebih dahulu.',
+                  confirmButtonText: 'Ke Halaman SPK',
+                  allowOutsideClick: false,
+                  allowEscapeKey: false
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      window.location.href = '/data-spk';
+                  }
+              });
+            }
+        });
+});
+</script>
+@endif
 
 </body>
 </html>

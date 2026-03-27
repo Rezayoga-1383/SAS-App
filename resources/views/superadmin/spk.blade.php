@@ -1,4 +1,4 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
 @section('title', 'SPK - SAS')
 
@@ -50,12 +50,38 @@
 									<i data-feather="file-text"></i> PDF
 								</a>
 
-								<a href="{{ route('spk.create') }}" class="btn btn-primary btn-sm">
+								<a href="{{ route('superadmin.formcreate') }}" class="btn btn-primary btn-sm">
 									<i data-feather="plus-square"></i> Tambah
 								</a>
 
 							</div>
 						</div>
+						{{-- <div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
+							<h5 class="card-title m-0">Data SPK</h6>
+							<a href="{{ route('spk.create') }}">
+                                <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>
+                            </a>
+						</div> --}}
+						{{-- @if(session('success'))
+						<script>
+							document.addEventListener("DOMContentLoaded", function() {
+								Swal.fire({
+									icon: 'success',
+									title: 'Berhasil!',
+									text: '{{ session('success') }}',
+									showConfirmButton: false,
+									timer: 2000,
+									timerProgressBar: true,
+									background: '#f0fff4',
+									color: '#155724',
+									customClass: {
+										popup: 'swal2-border-radius'
+									}
+								});
+							});
+						</script>
+						@endif --}}
+						
 						<table id="TabelSPK" class="table hover stripe nowrap" style="width:100%">
 							<thead>
 								<tr>
@@ -72,7 +98,6 @@
 			</div>
 		</div>
 	</div>
-
 </main>
 @endsection
 
@@ -84,7 +109,7 @@ $(document).ready(function() {
         serverSide: true,
 		responsive: true,
         ajax: {
-			url: "{{ route('spk.data') }}",
+			url: "{{ route('superadmin.spk.data') }}",
 			data: function(d) {
 				d.start_date = $('#start_date').val();
 				d.end_date = $('#end_date').val();
@@ -201,116 +226,6 @@ $(document).ready(function() {
 		});
 	});
 });
-
-$(document).ready(function() {
-	$('#TabelSPK').on('draw.dt', function() {
-		$('#TabelSPK tbody tr').each(function() {
-			let row = $(this);
-			let hppStatus = row.data('hpp');
-			if (hppStatus) {
-				row.find('.btn-hpp').hide();
-			}
-		})
-	})
-})
-
-// Klik tombol HPP
-$(document).on('click', '.btn-hpp', function() {
-    let id = $(this).data('id');
-    let nospk = $(this).data('nospk');
-
-    Swal.fire({
-        title: 'Input HPP',
-		width: '600px',
-        html: `
-            <div style="text-align: left; margin-bottom: 15px;">
-                <label style="font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px;">No SPK</label>
-                <input type="text" class="form-control" value="${nospk}" disabled>
-            </div>
-            <table class="table table-bordered" id="table-hpp">
-				<thead>
-					<tr>
-						<th>Keterangan</th>
-						<th>Nominal</th>
-						<th width="65">Aksi</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td><input type="text" class="form-control keterangan"></td>
-						<td><input type="number" class="form-control nominal"></td>
-						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
-					</tr>
-				</tbody>
-			</table>
-
-			<button type="button" id="tambah-hpp" class="btn btn-sm btn-primary">+ Tambah</button>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Simpan',
-
-		didOpen: () => {
-			$('#tambah-hpp').on('click', function() {
-				$('#table-hpp tbody').append(`
-					<tr>
-						<td><input type="text" class="form-control keterangan"></td>
-						<td><input type="number" class="form-control nominal"></td>
-						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
-					</tr>
-				`);
-			});
-
-			$(document).on('click', '.btn-hapus', function() {
-				$(this).closest('tr').remove();
-			});
-		},
-
-		preConfirm: () => {
-			let data = [];
-
-			$('#table-hpp tbody tr').each(function() {
-				let ket = $(this).find('.keterangan').val();
-				let nom = $(this).find('.nominal').val();
-
-				if (ket && nom) {
-					data.push({
-						keterangan: ket,
-						nominal: nom
-					});
-				}
-			});
-
-			if (data.length === 0) {
-				Swal.showValidationMessage('Minimal 1 data Hpp diisi!');
-				return false;
-			}
-
-			return data;
-		}
-
-    }).then((result) => {
-        if (result.isConfirmed) {
-            let nominal = result.value;
-
-            // Proses AJAX
-            $.ajax({
-                url: `/admin/spk/${id}/hpp`,
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    hpp: result.value
-                },
-                success: function() {
-                    Swal.fire('Berhasil', 'HPP disimpan', 'success');
-					$('#TabelSPK').DataTable().ajax.reload();
-				},
-                error: function() {
-                    Swal.fire('Error', 'Gagal simpan HPP', 'error');
-                }
-            });
-        }
-    });
-});
 </script>
 
 <!-- SweetAlert Notifikasi Sukses atau Error -->
@@ -370,13 +285,6 @@ $(document).on('click', '.btn-hpp', function() {
         align-items: flex-start !important;
         gap: 10px;
     }
-}
-
-/* Efek Blur Latar Belakang Modal */
-.swal2-container.swal2-backdrop-show,
-.modal-backdrop.show {
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 </style>
 @endpush

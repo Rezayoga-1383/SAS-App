@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Superadmin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Departement;
 use App\Models\DetailAC;
 use App\Models\JenisAC;
@@ -10,71 +11,10 @@ use App\Models\MerkAC;
 use App\Models\Ruangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 
-class LoginController extends Controller
+class DashboardController extends Controller
 {
-    public function login()
-    {
-        return view('login');
-    }
-
-    public function autentikasi(Request $request)
-    {
-        $request->validate([
-            'email'     => 'required|email',
-            'password'  => 'required|min:8',
-        ]);
-
-        $key = Str::lower($request->email).'|'.$request->ip();
-
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-
-            $seconds = RateLimiter::availableIn($key);
-
-            return back()->withErrors([
-                'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik."
-            ])->with('lock_seconds', $seconds);
-        }
-
-        $credentials = $request->only('email', 'password');
-        $remember = $request->has('remember-me');
-
-        if (Auth::attempt($credentials, $remember)) {
-
-            RateLimiter::clear($key);
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-
-            // mapping redirect
-            $redirects = [
-                'Superadmin' => '/superadmin/dashboard',
-                'Admin'      => '/admin/dashboard',
-                'Teknisi'    => '/data-ac-rsal',
-            ];
-
-            if (array_key_exists($user->role, $redirects)) {
-                return redirect()->intended($redirects[$user->role]);
-            }
-
-            Auth::logout();
-
-            return back()->withErrors([
-                'email' => 'Role tidak dikenali.'
-            ]);
-        }
-
-        RateLimiter::hit($key, 60);
-
-        return back()->withErrors([
-            'email' => 'Email atau Password salah!'
-        ]);
-    }
-
-    public function admin()
+    public function superadmin()
     {
         // Data Jenis AC
         $datajenis = DetailAC::join('jenisac', 'acdetail.id_jenisac', '=', 'jenisac.id')
@@ -97,7 +37,7 @@ class LoginController extends Controller
         $jumlahdepartement          = Departement::count();
         $jumlahruangan              = Ruangan::count();
 
-        return view('admin.dashboard', compact('datajenis','datamerk', 'jumlahjenis', 'jumlahmerk', 'jumlahdepartement', 'jumlahruangan'));
+        return view('superadmin.dashboard', compact('datajenis','datamerk', 'jumlahjenis', 'jumlahmerk', 'jumlahdepartement', 'jumlahruangan'));
     }
 
     public function chartData(Request $request)

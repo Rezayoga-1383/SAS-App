@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware ->alias([
             'Role' => \App\Http\Middleware\Role::class,
+            'pending.spk' => \App\Http\Middleware\CheckPendingSpk::class,
+            'only.spk' => \App\Http\Middleware\OnlySpkApprover::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

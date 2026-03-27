@@ -12,35 +12,67 @@ use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportPerbaikanController;
 use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\SPKAprovalController;
 use App\Http\Controllers\SPKController;
+use App\Http\Controllers\Superadmin\DashboardController;
+use App\Http\Controllers\Superadmin\HistoryController as SuperadminHistoryController;
+use App\Http\Controllers\Superadmin\SPKController as SuperadminSPKController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/cek-php', function () {
-//     phpinfo();
-// });
 
-// Route::get('/pdftest', [AdminSPKController::class, 'pdftest'])->name('spk.pdftest');
 
-// User Routes
+// Homepage Routes
 Route::get('/', [UserController::class, 'index'])->name('homepage');
-
-// Route Form Input Data AC
-Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan')->middleware('Role:Teknisi');
-// Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate')->middleware('Role:Teknisi');
-// Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store')->middleware('Role:Teknisi');
-
-Route::get('/data-ac-rsal', [UserController::class, 'pagedata'])->name('ac.data.page')->middleware('Role:Teknisi');
-Route::get('/data-ac', [UserController::class, 'show'])->name('ac.data')->middleware('Role:Teknisi');
-Route::get('/data-ac/detail/{id}', [UserController::class, 'detail'])->name('detail.ac')->middleware('Role:Teknisi');
-
-// Route Form Input Data SPK
-Route::get('/input-data-spk', [SPKController::class, 'create'])->name('formcreatespk')->middleware('Role:Teknisi');
-Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk.store')->middleware('Role:Teknisi');
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/autentikasi', [LoginController::class, 'autentikasi'])->name('autentikasi');
+
+// Route Role: Teknisi
+Route::middleware(['Role:Teknisi'])->group(function () {
+    Route::get('/get-ruangan/{id}', [UserController::class, 'getRuangan'])->name('data.ruangan');
+    Route::get('/data-ac-rsal', [UserController::class, 'pagedata'])->name('ac.date.page');
+    Route::get('/data-ac', [UserController::class, 'show'])->name('ac.data');
+    Route::get('/data-ac/detail/{id}', [UserController::class, 'detail'])->name('detail.ac');
+    Route::get('/input-data-spk', [SPKController::class, 'create'])->name('formcreatespk');
+    Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk.store');
+    // Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate');
+    // Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store');
+
+    Route::get('/check-pending-spk', [SPKAprovalController::class, 'checkPendingSpk'])->name('spk.check.pending');
+    Route::middleware(['only.spk', 'pending.spk'])->group(function() {
+        Route::get('/data-spk', [SPKAprovalController::class, 'index'])->name('spk.index');
+        Route::get('/spk/data', [SPKAprovalController::class, 'data'])->name('spk.data.teknisi');
+        Route::get('/spk/detail/{id}', [SPKAprovalController::class, 'detail'])->name('spk.detail');
+        Route::post('/spk/approve/{id}', [SPKAprovalController::class, 'approve'])->name('spk.approve');
+        Route::post('/spk/selesai/{id}', [SPKAprovalController::class, 'selesai'])->name('spk.selesai');
+        Route::post('/update-keterangan/{id}', [SPKAprovalController::class, 'updateKeterangan'])->name('spk.update.keterangan');
+
+    });
+    
+});
+
+
+Route::middleware(['Role:Superadmin'])->group(function () {
+    Route::get('/superadmin/dashboard', [DashboardController::class, 'superadmin'])->name('dashboard.superadmin');
+    Route::get('/superadmin/dashboard/chart', [DashboardController::class, 'chartData'])->name('chart.superadmin');
+    Route::get('/superadmin/history', [SuperadminHistoryController::class, 'index'])->name('history.superadmin');
+    Route::get('/superadmin/history/search', [SuperadminHistoryController::class, 'search'])->name('searching.history');
+    Route::get('/superadmin/spk', [SuperadminSPKController::class, 'index'])->name('superadmin.spk');
+    Route::get('/superadmin/spk/data', [SuperadminSPKController::class, 'getData'])->name('superadmin.spk.data');
+    Route::get('/superadmin/spk/export', [SuperadminSPKController::class, 'exportPdf'])->name('superadmin.spk.export');
+    Route::get('/superadmin/spk/create', [SuperadminSPKController::class, 'create'])->name('superadmin.formcreate');
+    Route::post('/superadmin/spk/store', [SuperadminSPKController::class, 'store'])->name('superadmin.spk.store');
+    Route::get('/superadmin/spk/{id}/edit', [SuperadminSPKController::class, 'edit'])->name('superadmin.spk.edit');
+    Route::put('/superadmin/spk/{id}', [SuperadminSPKController::class, 'update'])->name('superadmin.spk.update');
+    Route::delete('/superadmin/spk/{id}', [SuperadminSPKController::class, 'destroy'])->name('superadmin.spk.destroy');
+    Route::get('/superadmin/spk/detail/{id}', [SuperadminSPKController::class, 'detail'])->name('superadmin.spk.detail');
+    Route::get('/superadmin/spk/detail/{id}/download', [SuperadminSPKController::class, 'exportdetail'])->name('superadmin.export.detail');
+    
+});
+
+
 
 // =============================== Admin Routes =================================
 
@@ -60,6 +92,7 @@ Route::get('/admin/history/search', [HistoryController::class, 'search'])->name(
 // ============================== SPK Routes =================================
 Route::get('/admin/spk', [AdminSPKController::class, 'index'])->name('admin.spk')->middleware('Role:Admin');
 Route::get('/admin/spk/data', [AdminSPKController::class, 'getData'])->name('spk.data')->middleware('Role:Admin');
+Route::post('/admin/spk/{id}/hpp', [AdminSPKController::class, 'storeHpp'])->name('spk.store.hpp')->middleware('Role:Admin');
 Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 
 // Create SPK Route
@@ -78,7 +111,7 @@ Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->nam
 Route::get('/admin/spk/detail/{id}/download', [AdminSPKController::class, 'downloadpdf'])->name('spkdetail.download')->middleware('Role:Admin');
 
 // Generate SPK PDF Route
-Route::get('/admin/spk/{id}/generate-pdf', [AdminSPKController::class, 'generatePdf'])->name('spk.generatePdf')->middleware('Role:Admin');
+// Route::get('/admin/spk/{id}/generate-pdf', [AdminSPKController::class, 'generatePdf'])->name('spk.generatePdf')->middleware('Role:Admin');
 
 // ================================ Report Routes =================================
 Route::get('/admin/report/dokumentasi', [ReportController::class, 'index'])->name('admin.report')->middleware('Role:Admin');

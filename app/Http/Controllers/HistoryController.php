@@ -31,14 +31,14 @@ class HistoryController extends Controller
 
         // Ambil history berdasarkan relasi belongsToMany
         $histories = LogService::whereHas('details', function ($query) use ($detailAc) {
-                $query->where('acdetail_id', $detailAc->id);
-            })
-            ->with([
-                'details.acdetail.merkac', // ✅ jalur relasi yang benar
-                'pelaksana'
-            ])
-            ->orderByDesc('tanggal')
-            ->get();
+            $query->where('acdetail_id', $detailAc->id);
+        })
+        ->with([
+            'details.acdetail.merkac', // ✅ jalur relasi yang benar
+            'pelaksana'
+        ])
+        ->orderByDesc('tanggal')
+        ->get();
 
         $data = $histories->map(function ($history) use ($detailAc) {
 

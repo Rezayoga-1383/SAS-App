@@ -69,7 +69,9 @@
         <nav id="navmenu" class="navmenu d-flex align-items-center">
           <ul>
             <li><a href="/data-ac" class="active">Data AC</a></li>
-            {{-- <li><a href="/input-data-ac">Form Input Data</a></li> --}}
+            @if (auth()->id() === 8)
+                <li><a href="/data-spk">Data SPK</a></li>
+            @endif
             <li><a href="/input-data-spk">Form Input SPK</a></li>
             <li></li>
           </ul>
@@ -307,6 +309,32 @@
     });
 
 </script>
+
+@if(auth()->check() && auth()->id() == 8)
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/check-pending-spk')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_pending) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'SPK Belum Diselesaikan',
+                    text: 'Masih ada SPK dengan status menunggu. Silahkan selesaikan terlebih dahulu.',
+                    confirmButtonText: 'Ke Halaman SPK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/data-spk';
+                    }
+                });
+            }
+        });
+});
+</script>
+@endif
+
 </body>
 </html>
 

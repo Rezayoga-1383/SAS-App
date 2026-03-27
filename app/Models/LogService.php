@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\DetailAC;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -11,6 +10,11 @@ class LogService extends Model
     use HasFactory;
 
     protected $table = 'log_service';
+
+    const STATUS_MENUNGGU   = 'menunggu';
+    const STATUS_DISETUJUI  = 'disetujui';
+    const STATUS_SELESAI    = 'selesai';
+
     protected $fillable = [
         'no_spk',
         'tanggal',
@@ -22,19 +26,17 @@ class LogService extends Model
         'hormat_kami',
         'pelaksana_ttd',
         'file_spk',
+        'status',
+    ];
+
+    protected $attributes = [
+        'status' => self::STATUS_MENUNGGU,
     ];
 
     public function units()
     {
         return $this->hasMany(LogServiceUnit::class, 'log_service_id');
     }
-
-    // public function acdetail()
-    // {
-    //     return $this->belongsToMany(
-    //         DetailAC::class, 'log_service_detail', 'log_service_id', 'acdetail_id'
-    //     )->withPivot('keluhan', 'jenis_pekerjaan')->withTimestamps();
-    // }
 
     public function pelaksana()
     {
@@ -54,6 +56,27 @@ class LogService extends Model
     public function details()
     {
         return $this->hasMany(LogServiceDetail::class, 'log_service_id');
+    }
+
+    // Helper
+    public function isMenunggu()
+    {
+        return $this->status === self::STATUS_MENUNGGU;
+    }
+
+    public function isDisetujui()
+    {
+        return $this->status === self::STATUS_DISETUJUI;
+    }
+
+    public function isSelesai()
+    {
+        return $this->status === self::STATUS_SELESAI;
+    }
+
+    public function hppDetail()
+    {
+        return $this->hasMany(HppDetail::class);
     }
 
 }
