@@ -99,9 +99,7 @@ class AdminSPKController extends Controller
     public function getData(Request $request)
     {
         $query = LogService::with(['units.acdetail', 'details'])
-                    ->select('log_service.*')
-                    ->withCount('hppDetail')
-                    ->where('status', LogService::STATUS_SELESAI);
+                    ->select('log_service.*');
 
         // FILTER TANGGAL (sesuai blade: start_date & end_date)
         if ($request->start_date && $request->end_date) {
@@ -153,17 +151,17 @@ class AdminSPKController extends Controller
                             <i data-feather="eye"></i> Detail
                         </a>';
                 
-                if ($row->status == LogService::STATUS_SELESAI) {
-                    $mode = $row->hpp_detail_count > 0 ? 'edit' : 'create';
-                    $label = $row->hpp_detail_count > 0 ? 'Edit HPP' : 'Input HPP';
-                    $btnClass = $row->hpp_detail_count > 0 ? 'btn-warning' : 'btn-primary';
-                    $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
-                                data-id="'.$row->id.'"
-                                data-nospk="'.$row->no_spk.'"
-                                data-mode="'.$mode.'">
-                                <i data-feather="dollar-sign"></i> '.$label.'
-                            </button>';
-                }
+                // if ($row->status == LogService::STATUS_SELESAI) {
+                //     $mode = $row->hpp_detail_count > 0 ? 'edit' : 'create';
+                //     $label = $row->hpp_detail_count > 0 ? 'Edit HPP' : 'Input HPP';
+                //     $btnClass = $row->hpp_detail_count > 0 ? 'btn-warning' : 'btn-primary';
+                //     $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
+                //                 data-id="'.$row->id.'"
+                //                 data-nospk="'.$row->no_spk.'"
+                //                 data-mode="'.$mode.'">
+                //                 <i data-feather="dollar-sign"></i> '.$label.'
+                //             </button>';
+                // }
 
                 $btn .= '</div>';
 

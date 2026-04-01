@@ -95,30 +95,30 @@ Route::middleware(['Role:Admin'])->group(function () {
     // Route::get('/admin/dashboard', [DashboardController::class, 'show'])->name('dashboard');
 
     // ============================== SPK Routes =================================
-    Route::middleware('pending.hpp')->group(function() {
+    // Route::middleware('pending.hpp')->group(function() {
 
-        Route::get('/admin/spk', [AdminSPKController::class, 'index'])->name('admin.spk')->middleware('Role:Admin');
-        Route::get('/admin/spk/data', [AdminSPKController::class, 'getData'])->name('spk.data')->middleware('Role:Admin');
-        Route::get('/admin/spk/{id}/hpp', [AdminSPKController::class, 'getHpp'])->name('spk.get.hpp')->middleware('Role:Admin');
-        Route::post('/admin/spk/{id}/hpp', [AdminSPKController::class, 'storeHpp'])->name('spk.store.hpp')->middleware('Role:Admin');
-        Route::put('/admin/spk/{id}/hpp', [AdminSPKController::class, 'updateHpp'])->name('spk.update.hpp')->middleware('Role:Admin');
-        Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
-    
-        // Create SPK Route
-        Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');
-        Route::post('/admin/spk/store', [AdminSPKController::class, 'store'])->name('spkadmin.store')->middleware('Role:Admin');
-    
-        // Edit SPK Route
-        Route::get('/admin/spk/{id}/edit', [AdminSPKController::class, 'edit'])->name('spk.edit')->middleware('Role:Admin');
-        Route::put('/admin/spk/{id}', [AdminSPKController::class, 'update'])->name('spk.update')->middleware('Role:Admin');
-    
-        // Delete SPK Route
-        Route::delete('/admin/spk/{id}', [AdminSPKController::class, 'destroy'])->name('spk.destroy')->middleware('Role:Admin');
-    
-        // Detail SPK Route
-        Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->name('spk.detail')->middleware('Role:Admin');
-        Route::get('/admin/spk/detail/{id}/download', [AdminSPKController::class, 'downloadpdf'])->name('spkdetail.download')->middleware('Role:Admin');
-    });
+    Route::get('/admin/spk', [AdminSPKController::class, 'index'])->name('admin.spk')->middleware('Role:Admin');
+    Route::get('/admin/spk/data', [AdminSPKController::class, 'getData'])->name('spk.data')->middleware('Role:Admin');
+    // Route::get('/admin/spk/{id}/hpp', [AdminSPKController::class, 'getHpp'])->name('spk.get.hpp')->middleware('Role:Admin');
+    // Route::post('/admin/spk/{id}/hpp', [AdminSPKController::class, 'storeHpp'])->name('spk.store.hpp')->middleware('Role:Admin');
+    // Route::put('/admin/spk/{id}/hpp', [AdminSPKController::class, 'updateHpp'])->name('spk.update.hpp')->middleware('Role:Admin');
+    Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
+
+    // Create SPK Route
+    Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');
+    Route::post('/admin/spk/store', [AdminSPKController::class, 'store'])->name('spkadmin.store')->middleware('Role:Admin');
+
+    // Edit SPK Route
+    Route::get('/admin/spk/{id}/edit', [AdminSPKController::class, 'edit'])->name('spk.edit')->middleware('Role:Admin');
+    Route::put('/admin/spk/{id}', [AdminSPKController::class, 'update'])->name('spk.update')->middleware('Role:Admin');
+
+    // Delete SPK Route
+    Route::delete('/admin/spk/{id}', [AdminSPKController::class, 'destroy'])->name('spk.destroy')->middleware('Role:Admin');
+
+    // Detail SPK Route
+    Route::get('/admin/spk/detail/{id}', [AdminSPKController::class, 'detail'])->name('spk.detail')->middleware('Role:Admin');
+    Route::get('/admin/spk/detail/{id}/download', [AdminSPKController::class, 'downloadpdf'])->name('spkdetail.download')->middleware('Role:Admin');
+    // });
 
     // Generate SPK PDF Route
     // Route::get('/admin/spk/{id}/generate-pdf', [AdminSPKController::class, 'generatePdf'])->name('spk.generatePdf')->middleware('Role:Admin');
