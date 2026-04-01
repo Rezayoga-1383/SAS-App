@@ -100,6 +100,7 @@ class AdminSPKController extends Controller
     {
         $query = LogService::with(['units.acdetail', 'details'])
                     ->select('log_service.*')
+                    ->withCount('hppDetail')
                     ->where('status', LogService::STATUS_SELESAI);
 
         // FILTER TANGGAL (sesuai blade: start_date & end_date)
@@ -134,13 +135,13 @@ class AdminSPKController extends Controller
             })
 
             ->addColumn('aksi', function ($row) {
-                $btn = '<div class="d-flex justify-content-center gap-1 flex-nowrap">';
+                $btn = '<div class="d-flex align-items-center justify-content-center gap-1 flex-wrap flex-md-nowrap">';
 
                 $btn .= '<a href="/admin/spk/'.$row->id.'/edit" class="btn btn-md btn-success">
                             <i data-feather="edit"></i> Edit
                         </a>';
                 
-                $btn .= '<form action="/admin/spk/'.$row->id.'" method="POST" class="d-inline form-delete">
+                $btn .= '<form action="/admin/spk/'.$row->id.'" method="POST" class="form-delete m-0">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                             <button type="submit" class="btn btn-md btn-danger">
@@ -153,10 +154,14 @@ class AdminSPKController extends Controller
                         </a>';
                 
                 if ($row->status == LogService::STATUS_SELESAI) {
-                    $btn .= '<button class="btn btn-md btn-primary btn-hpp"
+                    $mode = $row->hpp_detail_count > 0 ? 'edit' : 'create';
+                    $label = $row->hpp_detail_count > 0 ? 'Edit HPP' : 'Input HPP';
+                    $btnClass = $row->hpp_detail_count > 0 ? 'btn-warning' : 'btn-primary';
+                    $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
                                 data-id="'.$row->id.'"
-                                data-nospk="'.$row->no_spk.'">
-                                <i data-feather="dollar-sign"></i> HPP
+                                data-nospk="'.$row->no_spk.'"
+                                data-mode="'.$mode.'">
+                                <i data-feather="dollar-sign"></i> '.$label.'
                             </button>';
                 }
 
@@ -713,7 +718,8 @@ class AdminSPKController extends Controller
             'units.acdetail.ruangan.departement', 
             'units.images',
             'units.historyImages',
-            'details'
+            'details',
+            'hppDetail'
         ])->findOrFail($id);
 
         $from = $request->query('from');
@@ -771,6 +777,60 @@ class AdminSPKController extends Controller
                 'status' => 'error',
                 'message' => 'Gagal simpan HPP',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateHpp(Request $request, $id)
+    {
+        $request->validate([
+            'hpp' => 'required|array',
+            'hpp.*.keterangan' => 'required|string',
+            'hpp.*.nominal' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+
+        try{
+            $spk = LogService::findOrFail($id);
+
+            $spk->hppDetail()->delete();
+
+            foreach ($request->hpp as $item) {
+                $spk->hppDetail()->create([
+                    'keterangan' => $item['keterangan'],
+                    'nominal' => $item['nominal'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'HPP berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Gagal update HPP',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function getHpp($id)
+    {
+        try {
+            $spk = LogService::with('hppDetail')->findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $spk->hppDetail
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data HPP'
             ], 500);
         }
     }

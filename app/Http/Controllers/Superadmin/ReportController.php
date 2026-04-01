@@ -1,0 +1,136 @@
+<?php
+
+namespace App\Http\Controllers\Superadmin;
+
+use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\PDF;
+use App\Models\LogService;
+use Illuminate\Http\Request;
+
+class ReportController extends Controller
+{
+    public function index()
+    {
+        return view('superadmin.report');
+    }
+
+    public function getDokumentasi(Request $request)
+    {
+        if (!$request->start_date || !$request->end_date) {
+            return response()->json([]);
+        }
+
+        $query = LogService::with([
+            'units.acdetail.ruangan.departement',
+            'units.images',
+            'units.historyImages',
+            'details' => function ($q) use ($request) {
+                if (!empty($request->jenis_service)) {
+                    $q->where('kategori_pekerjaan', $request->jenis_service);
+                }
+            }
+        ]);
+
+        // FILTER TANGGAL
+        $query->whereBetween('tanggal', [
+            $request->start_date,
+            $request->end_date
+        ]);
+
+        // FILTER KATEGORI
+        if (!empty($request->jenis_service)) {
+            $query->whereHas('details', function($q) use ($request) {
+                $q->where('kategori_pekerjaan', $request->jenis_service);
+            });
+        }
+
+        $data = $query->orderBy('tanggal', 'asc')->get();
+
+        $result = [];
+
+        foreach ($data as $spk) {
+            foreach ($spk->units as $unit) {
+
+                // 🔥 Penting: hanya ambil detail yang cocok dengan unit ini
+                $detail = $spk->details
+                    ->where('acdetail_id', $unit->acdetail_id)
+                    ->first();
+
+                if (!$detail) continue;
+
+                $result[] = [
+                    'no_ac' => optional($unit->acdetail)->no_ac ?? '-',
+                    'tanggal' => $spk->tanggal,
+                    'ruangan' => optional($unit->acdetail->ruangan)->nama_ruangan ?? '-',
+                    'departemen' => optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-',
+                    'keluhan' => $detail->keluhan ?? '-',
+                    'foto_kolase' => optional($unit->images->first())->image_path,
+                    'foto_history' => optional($unit->historyImages->first())->image_path,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        if (!$request->start_date || !$request->end_date) {
+            return redirect()->back()->with('error', 'Filter harus diisi lengkap.');
+        }
+
+        $query = LogService::with([
+            'units.acdetail.ruangan.departement',
+            'units.images',
+            'units.historyImages',
+            'details' => function ($q) use ($request) {
+                if (!empty($request->jenis_service)) {
+                    $q->where('kategori_pekerjaan', $request->jenis_service);
+                }
+            }
+        ]);
+
+        // FILTER TANGGAL
+        $query->whereBetween('tanggal', [
+            $request->start_date,
+            $request->end_date
+        ]);
+
+        // FILTER JENIS SERVICE (opsional)
+        if (!empty($request->jenis_service)) {
+            $query->whereHas('details', function($q) use ($request) {
+                $q->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
+                    '%' . strtolower($request->jenis_service) . '%'
+                ]);
+            });
+        }
+
+        // URUTKAN DARI TANGGAL TERKECIL KE TERBESAR
+        $spkList = $query->orderBy('tanggal', 'asc')->get();
+
+        $data = [];
+
+        foreach ($spkList as $spk) {
+            foreach ($spk->units as $unit) {
+
+                $data[] = [
+                    'tanggal' => $spk->tanggal,
+                    'no_ac' => $unit->acdetail->no_ac ?? '-',
+                    'ruangan' => $unit->acdetail->ruangan->nama_ruangan ?? '-',
+                    'departemen' => optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-',
+                    'foto_history' => optional($unit->historyImages->first())->image_path,
+                    'foto_kolase' => optional($unit->images->first())->image_path,
+                ];
+            }
+        }
+
+        $pdf = \PDF::loadView('superadmin.reportpdf', [
+            'data' => $data,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'jenis_service' => $request->jenis_service
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('report-dokumentasi.pdf');
+    }
+}

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'Role' => \App\Http\Middleware\Role::class,
             'pending.spk' => \App\Http\Middleware\CheckPendingSpk::class,
             'only.spk' => \App\Http\Middleware\OnlySpkApprover::class,
+            'pending.hpp' => \App\Http\Middleware\HppPendingAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

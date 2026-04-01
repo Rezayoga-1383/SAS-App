@@ -119,6 +119,29 @@
                         <td class="colon">:</td>
                         <td>{{ \Carbon\Carbon::createFromFormat('H:i:s', $spk->waktu_selesai)->format('H.i') }}</td>
                     </tr>
+
+                    <tr>
+                        <th style="vertical-align: top;">HPP</th>
+                        <td class="colon" style="vertical-align: top;">:</td>
+                        <td>
+                            @forelse ($spk->hppDetail as $hpp)
+                                <div>
+                                    {{ $hpp->keterangan }} :
+                                    <strong>Rp {{ number_format($hpp->nominal, 0, ',', '.') }}</strong>
+                                </div>
+                            @empty
+                                -
+                            @endforelse
+
+                            @if($spk->hppDetail->count())
+                                <hr>
+                                <div>
+                                    <strong>Total HPP : </strong>
+                                    Rp {{ number_format($spk->hppDetail->sum('nominal'), 0, ',', '.') }}
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 

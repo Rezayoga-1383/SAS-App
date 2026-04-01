@@ -89,7 +89,7 @@ class LoginController extends Controller
             ->selectRaw('COUNT(acdetail.id) as total')
             ->groupBy('merkac.nama_merk')
             ->orderByDesc('total')
-            ->limit(5)
+            // ->limit(5)
             ->get();
 
         $jumlahjenis                = JenisAC::count();

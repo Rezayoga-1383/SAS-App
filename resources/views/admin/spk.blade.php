@@ -202,25 +202,14 @@ $(document).ready(function() {
 	});
 });
 
-$(document).ready(function() {
-	$('#TabelSPK').on('draw.dt', function() {
-		$('#TabelSPK tbody tr').each(function() {
-			let row = $(this);
-			let hppStatus = row.data('hpp');
-			if (hppStatus) {
-				row.find('.btn-hpp').hide();
-			}
-		})
-	})
-})
-
-// Klik tombol HPP
+// button HPP
 $(document).on('click', '.btn-hpp', function() {
     let id = $(this).data('id');
     let nospk = $(this).data('nospk');
+	let mode = $(this).data('mode');
 
     Swal.fire({
-        title: 'Input HPP',
+        title: mode === 'edit' ? 'Edit HPP' : 'Input HPP',
 		width: '600px',
         html: `
             <div style="text-align: left; margin-bottom: 15px;">
@@ -235,13 +224,7 @@ $(document).on('click', '.btn-hpp', function() {
 						<th width="65">Aksi</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
-						<td><input type="text" class="form-control keterangan"></td>
-						<td><input type="number" class="form-control nominal"></td>
-						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
-					</tr>
-				</tbody>
+				<tbody></tbody>
 			</table>
 
 			<button type="button" id="tambah-hpp" class="btn btn-sm btn-primary">+ Tambah</button>
@@ -250,19 +233,44 @@ $(document).on('click', '.btn-hpp', function() {
         confirmButtonText: 'Simpan',
 
 		didOpen: () => {
-			$('#tambah-hpp').on('click', function() {
+			function addRow(ket = '', nom = '') {
 				$('#table-hpp tbody').append(`
 					<tr>
-						<td><input type="text" class="form-control keterangan"></td>
-						<td><input type="number" class="form-control nominal"></td>
+						<td><input type="text" class="form-control keterangan" value="${ket}"></td>
+						<td><input type="number" class="form-control nominal" value="${nom}"></td>
 						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
 					</tr>
 				`);
+			}
+
+			$('#tambah-hpp').on('click', function() {
+				addRow();
 			});
 
 			$(document).on('click', '.btn-hapus', function() {
 				$(this).closest('tr').remove();
 			});
+
+
+			if(mode === 'edit') {
+				$.ajax({
+					url: `/admin/spk/${id}/hpp`,
+					method: 'GET',
+					success: function(res) {
+						$('#table-hpp tbody').empty();
+
+						if (res.data.length > 0) {
+							res.data.forEach(item => {
+								addRow(item.keterangan, item.nominal);
+							});
+						} else {
+							addRow();
+						}
+					}
+				});
+			} else {
+				addRow();
+			}
 		},
 
 		preConfirm: () => {
@@ -290,12 +298,13 @@ $(document).on('click', '.btn-hpp', function() {
 
     }).then((result) => {
         if (result.isConfirmed) {
-            let nominal = result.value;
+            let url = `/admin/spk/${id}/hpp`;
+			let method = (mode === 'edit') ? 'PUT' : 'POST';
 
             // Proses AJAX
             $.ajax({
-                url: `/admin/spk/${id}/hpp`,
-                method: 'POST',
+                url: url,
+                method: method,
                 data: {
                     _token: '{{ csrf_token() }}',
                     hpp: result.value
@@ -350,7 +359,8 @@ $(document).on('click', '.btn-hpp', function() {
 }
 
 @media (max-width: 768px) {
-	.aksi-btn .btn {
+	.aksi-btn .btn,
+	.aksi-btn form {
 		width: 100%;
 	}
 }

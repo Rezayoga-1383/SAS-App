@@ -23,7 +23,7 @@
 			</li>
 
 			{{-- SPK & Report --}}
-			<li class="sidebar-item {{ request()->routeIs('superadmin.spk') || request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
+			<li class="sidebar-item {{ request()->routeIs('superadmin.spk') || request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
 				<a data-bs-target="#spkmenu" data-bs-toggle="collapse" class="sidebar-link">
 					<i data-feather="file-text"></i>
 					<span class="align-middle fw-bolder">SPK & Report</span>
@@ -34,18 +34,18 @@
 						<a class="sidebar-link" href="{{ route('superadmin.spk') }}">SPK</a>
 					</li>
 
-					<li class="sidebar-item {{ request()->routeIs('admin.report') || request()->routeIs('admin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
+					<li class="sidebar-item {{ request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
 						<a data-bs-target="#report" data-bs-toggle="collapse" class="sidebar-link fw-bolder">
 							Report
 						</a>
 
 						<ul id="report" class="sidebar-dropdown list-unstyled collapse ps-3">
-							<li class="sidebar-item {{ request()->routeIs('admin.report') ? 'active' : '' }}">
-								<a class="sidebar-link" href="{{ route('admin.report') }}">Dokumentasi</a>
+							<li class="sidebar-item {{ request()->routeIs('superadmin.report') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('superadmin.report') }}">Dokumentasi</a>
 							</li>
 
-							<li class="sidebar-item {{ request()->routeIs('admin.reportperbaikan') ? 'active' : '' }}">
-								<a class="sidebar-link" href="{{ route('admin.reportperbaikan') }}">Perbaikan Ulang</a>
+							<li class="sidebar-item {{ request()->routeIs('superadmin.reportperbaikan') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('superadmin.reportperbaikan') }}">Perbaikan Ulang</a>
 							</li>
 
 							<li class="sidebar-item {{ request()->routeIs('admin.reportteknisi') ? 'active' : '' }}">
