@@ -196,6 +196,7 @@ class SPKAprovalController extends Controller
 
     public function updateKeterangan(Request $request, $id)
     {
+        // dd($request->all());
         // 🔒 Batasi hanya user tertentu
         if (auth()->id() != 8) {
             return response()->json([

@@ -21,7 +21,11 @@ class CheckPendingSpk
             if (auth()->id() == 8) {
                 $hasPending = LogService::where('status', 'menunggu')->exists();
 
-                if ($hasPending && !$request->is('data-spk*') && !$request->is('spk*')) {
+                if ($hasPending 
+                    && !$request->is('data-spk*') 
+                    && !$request->is('spk*')
+                    && !$request->ajax() // ✅ skip AJAX
+                ) {
                     return redirect('/data-spk')->with(
                         'warning',
                         'Anda harus menyelesaikan SPK yang masih menunggu!'
