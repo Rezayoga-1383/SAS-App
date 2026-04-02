@@ -82,6 +82,8 @@ class SPKAprovalController extends Controller
                     return '<span class="badge bg-warning text-dark">Menunggu</span>';
                 } elseif ($row->status == 'disetujui') {
                     return '<span class="badge bg-primary">Disetujui</span>';
+                } elseif ($row->status == 'belum selesai') {
+                    return '<span class="badge bg-secondary">Belum Selesai</span>';
                 } else {
                     return '<span class="badge bg-success">Selesai</span>';
                 }
@@ -123,9 +125,9 @@ class SPKAprovalController extends Controller
                                 </button>';
                     }
                     if (
-                        $row->status == 'disetujui' ||
-                        ($row->status == 'selesai' && is_null($row->keterangan_spk))
-                    ) {
+                        is_null($row->keterangan_spk) &&
+                        in_array($row->status, ['disetujui', 'belum selesai', 'selesai'])
+                    )   {   
                         if ($row->keterangan_spk == 'cocok') {
                             $color = 'success';
                             $icon = 'bi-check-lg';
@@ -146,6 +148,28 @@ class SPKAprovalController extends Controller
 
                 $btn .= '</div>';
                 return $btn;
+            })
+
+            ->filter(function ($query) use ($request) {
+                if ($request->has('search') && $request->search['value']) {
+                    $search = $request->search['value'];
+                    $query->where(function ($q) use ($search) {
+                        $q->where('no_spk', 'like', "%{$search}%")
+                            ->orWhere('status', 'like', "%{$search}%")
+                            ->orWhere('keterangan_spk', 'like', "%{$search}%")
+                            ->orWhereDate('tanggal', $search);
+                        
+                        $q->orWhereHas('teknisi', function ($q2) use ($search) {
+                            $q2->where('nama', 'like', "%{$search}%");
+                        });
+                        $q->orWhereHas('units.acdetail.ruangan.departement', function ($q3) use ($search) {
+                            $q3->where('nama_departement', 'like', "%{$search}%");
+                        });
+                        $q->orWhereHas('units.acdetail.ruangan', function ($q4) use ($search) {
+                            $q4->where('nama_ruangan', 'like', "%{$search}%");
+                        });
+                    });
+                }
             })
             ->rawColumns(['status','keterangan_spk', 'aksi'])
             ->make(true);
@@ -206,16 +230,23 @@ class SPKAprovalController extends Controller
 
         // ✅ Validasi
         $request->validate([
-            'keterangan_spk' => 'nullable|in:cocok,tidak cocok'
+            'keterangan_spk' => 'nullable|in:cocok,tidak cocok',
+            'catatan_spk' => 'required_if:keterangan_spk,tidak cocok|nullable|string|max:250'
         ]);
 
         // 🔍 Ambil data
         $data = LogService::findOrFail($id);
 
-        // 💾 Update
         $data->keterangan_spk = $request->keterangan_spk;
-        $data->save();
 
+        if ($request->keterangan_spk === 'tidak cocok') {
+            $data->catatan_spk = trim($request->catatan_spk);
+        } else {
+            $data->catatan_spk = null;
+        }
+
+        $data->save();
+        
         return response()->json([
             'message' => 'Keterangan berhasil diupdate'
         ]);

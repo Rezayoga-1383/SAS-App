@@ -121,6 +121,46 @@
                     </tr>
 
                     <tr>
+                        <th>Status</th>
+                        <td class="colon">:</td>
+                        <td>
+                            @if ($spk->status == 'menunggu')
+                                <span class="badge bg-warnig text-dark">Menunggu</span>
+                            @elseif ($spk->status == 'disetujui')
+                                <span class="badge bg-primary">Disetujui</span>
+                            @elseif ($spk->status == 'belum selesai')
+                                <span class="badge bg-secondary">Belum Selesai</span>
+                            @elseif ($spk->status == 'selesai')
+                                <span class="badge bg-success">Selesai</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Keterangan SPK</th>
+                        <td class="colon">:</td>
+                        <td>
+                            @if ($spk->keterangan_spk == 'cocok')
+                                <span class="badge bg-success">Cocok</span>
+                            @elseif ($spk->keterangan_spk == 'tidak cocok')
+                                <span class="badge bg-danger">Tidak Cocok</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Catatan</th>
+                        <td class="colon">:</td>
+                        <td>
+                            {{ $spk->catatan_spk ?? '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
                         <th style="vertical-align: top;">HPP</th>
                         <td class="colon" style="vertical-align: top;">:</td>
                         <td>

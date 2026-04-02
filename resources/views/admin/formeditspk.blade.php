@@ -110,6 +110,78 @@
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
+                            
+                            @php
+                                $statusValue = old('status', $spkMeta['status'] ?? null);
+                            @endphp
+                            <div class="mb-3">
+                                <label class="form-label">Status SPK <span class="text-danger">*</span> </label>
+                                @if($statusValue)
+                                    <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
+                                        <option value="">Pilih Status</option>
+                                        <option value="menunggu" {{ $statusValue == 'menunggu' ? 'selected' : '' }}>
+                                            Menunggu
+                                        </option>
+                                        <option value="disetujui" {{ $statusValue == 'disetujui' ? 'selected' : '' }}>
+                                            Disetujui
+                                        </option>
+                                        <option value="belum selesai" {{ $statusValue == 'belum selesai' ? 'selected' : '' }}>
+                                            Belum Selesai
+                                        </option>
+                                        <option value="selesai" {{ $statusValue == 'selesai' ? 'selected' : '' }}>
+                                            Selesai
+                                        </option>
+                                    </select>
+                                @else
+                                    <input type="text" class="form-control" value="-" readonly>
+                                    <input type="hidden" name="status" value="">
+                                @endif
+                                @error('status')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            @php
+                                $keteranganValue = old('keterangan_spk', $spkMeta['keterangan_spk'] ?? null);
+                            @endphp
+
+                            <div class="mb-3">
+                                <label for="keterangan" class="form-label">Keterangan SPK <span class="text-danger">*</span></label>
+                                @if($keteranganValue)
+                                    <select name="keterangan_spk" id="keterangan_spk" class="form-select @error('keterangan_spk') is-invalid @enderror" required>
+                                        <option value="">Pilih Keterangan SPK</option>
+                                        <option value="cocok" {{ $keteranganValue == 'cocok' ? 'selected' : '' }}>
+                                            Cocok
+                                        </option>
+                                        <option value="tidak cocok" {{ $keteranganValue == 'tidak cocok' ? 'selected' : '' }}>
+                                            Tidak Cocok
+                                        </option>
+                                    </select>
+                                @else
+                                    <input type="text" class="form-control" value="-" readonly>
+                                    <input type="hidden" name="keterangan_spk" value="">
+                                @endif
+                                @error('keterangan_spk')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            @php
+                                $catatanValue = old('catatan_spk', $spkMeta['catatan_spk'] ?? null);
+                            @endphp
+
+                            <div class="mb-3">
+                                <label class="form-label">Catatan</label>
+                                {{-- @if ($keteranganValue === 'tidak cocok') --}}
+                                <textarea name="catatan_spk" id="catatan_spk" class="form-control @error('catatan_spk') is-invalid @enderror" rows="3">{{ old('catatan_spk', $catatanValue) }}</textarea>
+                                @error('catatan_spk')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                                {{-- @else
+                                    <textarea class="form-control" rows="3" readonly>{{ $catatanValue ?? '-' }}</textarea>
+                                    <input type="hidden" name="catatan_spk" value="{{ $catatanValue }}"> 
+                                @endif --}}
+                            </div>
 
                              <!-- Dynamic AC Input Section -->
                             <div class="mb-3">
@@ -648,6 +720,24 @@ document.addEventListener('DOMContentLoaded', () => {
         width: '100%',
         minimumResultsForSearch: 0
     });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const keterangan = document.getElementById('keterangan_spk');
+    const catatan = document.getElementById('catatan_spk');
+
+    function toogleCatatan() {
+        if (keterangan.value === 'tidak cocok') {
+            catatan.removeAttribute('readonly');
+            catatan.focus();
+        } else {
+            catatan.setAttribute('readonly', true);
+            catatan.value = '';
+        }
+    }
+    toogleCatatan();
+
+    keterangan.addEventListener('change', toogleCatatan);
 });
 </script>
 @endpush

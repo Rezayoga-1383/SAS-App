@@ -407,8 +407,14 @@ class AdminSPKController extends Controller
         });
         // dd($existingAcData->toArray());
 
+        $spkMeta = [
+            'status' => $spk->status,
+            'keterangan_spk' => $spk->keterangan_spk,
+            'catatan_spk' => $spk->catatan_spk,
+        ];
+
         return view('admin.formeditspk', compact(
-            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData', 'kategoriPekerjaan'
+            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData', 'kategoriPekerjaan', 'spkMeta'
         ));
     }
 
@@ -443,6 +449,10 @@ class AdminSPKController extends Controller
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
 
+            'status'             => 'nullable|in:menunggu,disetujui,belum selesai,selesai',
+            'keterangan_spk'     => 'nullable|in:cocok,tidak cocok',
+            'catatan_spk'        => 'nullable|string|required_if:keterangan_spk,tidak cocok',
+
             'keluhan'            => 'required|array|min:1',
             'keluhan.*'          => 'required|string',
 
@@ -465,6 +475,21 @@ class AdminSPKController extends Controller
 
             'file_spk'           => 'nullable|file|mimes:jpg,jpeg|max:10240',
         ]);
+
+        $isStatusEditable = !is_null($spk->status);
+        $isKeteranganEditable = !is_null($spk->keterangan_spk);
+
+        if (!$isStatusEditable && $request->filled('status')) {
+            return back()
+                ->withErrors(['status' => 'Status tidak bisa diubah'])
+                ->withInput();
+        }
+
+        if (!$isKeteranganEditable && $request->filled('keterangan_spk')) {
+            return back()
+                ->withErrors(['keterangan_spk' => 'Keterangan SPK tidak bisa diubah'])
+                ->withInput();
+        }
 
         DB::beginTransaction();
 
@@ -496,6 +521,9 @@ class AdminSPKController extends Controller
                 'mengetahui'    => $validated['mengetahui'],
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
+                'status'        => $isStatusEditable ? $validated['status'] : $spk->status,
+                'keterangan_spk'=> $isKeteranganEditable ? $validated['keterangan_spk'] : $spk->keterangan_spk,
+                'catatan_spk'   => $request->keterangan_spk === 'tidak cocok' ? $validated['catatan_spk'] : null,
             ]);
 
            /* ================= AMBIL DATA LAMA ================= */
@@ -722,7 +750,13 @@ class AdminSPKController extends Controller
 
         $from = $request->query('from');
 
-        return view('admin.detailspk', compact('spk', 'from'));
+        $spkMeta = [
+            'status' => $spk->status ?? null,
+            'keterangan_spk' => $spk->keterangan_spk ?? null,
+            'catatan_spk' => $spk->catatan_spk ?? null,
+        ];
+
+        return view('admin.detailspk', compact('spk', 'from', 'spkMeta'));
     }
 
     public function downloadpdf($id)

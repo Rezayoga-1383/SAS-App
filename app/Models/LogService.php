@@ -14,6 +14,7 @@ class LogService extends Model
     const STATUS_MENUNGGU   = 'menunggu';
     const STATUS_DISETUJUI  = 'disetujui';
     const STATUS_SELESAI    = 'selesai';
+    const STATUS_BELUM_SELESAI = 'belum selesai';
 
     protected $fillable = [
         'no_spk',
@@ -27,6 +28,8 @@ class LogService extends Model
         'pelaksana_ttd',
         'file_spk',
         'status',
+        'keterangan_spk',
+        'catatan_spk',
     ];
 
     protected $attributes = [
@@ -74,6 +77,10 @@ class LogService extends Model
         return $this->status === self::STATUS_SELESAI;
     }
 
+    public function isBelumSelesai()
+    {
+        return $this->status === self::STATUS_BELUM_SELESAI;
+    }
     public function hppDetail()
     {
         return $this->hasMany(HppDetail::class);

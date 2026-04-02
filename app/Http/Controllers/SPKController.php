@@ -41,7 +41,7 @@ class SPKController extends Controller
             'jumlah_orang'       => 'required|integer|min:1',
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
-            'status'             => 'required|in:menunggu,selesai',
+            'status'             => 'required|in:menunggu,belum selesai,selesai',
             'keluhan'            => 'required|array|min:1',
             'keluhan.*'          => 'required|string',
             'jenis_pekerjaan'    => 'required|array|min:1',

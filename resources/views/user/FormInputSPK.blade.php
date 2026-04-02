@@ -224,6 +224,9 @@
                   <option value="menunggu" {{ old('status') == 'menunggu' ? 'selected' : '' }}>
                     Menunggu
                   </option>
+                  <option value="belum selesai" {{ old('status') == 'belum selesai' ? 'selected' : '' }}>
+                    Belum Selesai
+                  </option>
                   <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>
                     Selesai
                   </option>

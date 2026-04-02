@@ -355,6 +355,29 @@
                         statusBadge = '<span class="badge bg-success">Selesai</span>';
                     }
 
+                    let keteranganBadge = '<span class="text-muted">-</span>';
+                    if (response.keterangan_spk === 'cocok') {
+                        keteranganBadge = '<span class="badge bg-success">Cocok</span>';
+                    } else if (response.keterangan_spk === 'tidak cocok') {
+                        keteranganBadge = '<span class="badge bg-danger">Tidak Cocok</span>';
+                    }
+
+                    let catatanHtml = '';
+                    if (response.keterangan_spk === 'tidak cocok') {
+                        catatanHtml = `
+                            <tr>
+                                <th>Catatan</th>
+                                <td>
+                                    ${response.catatan_spk
+                                        ? `<div class="text-danger">
+                                            ${response.catatan_spk}
+                                        </div>`
+                                        : '<span class="text-muted">-</span>'}    
+                                </td>
+                            </tr>
+                        `;
+                    }
+
                     // ✅ Gambar SPK (file utama)
                     let fileSpk = response.file_spk 
                         ? `<a href="/storage/${response.file_spk}" class="glightbox" data-gallery="gallery-spk">
@@ -437,6 +460,11 @@
                                     <th>Status</th>
                                     <td>${statusBadge}</td>
                                 </tr>
+                                <tr>
+                                    <th>Keterangan</th>
+                                    <td>${keteranganBadge}</td>
+                                </tr>
+                                ${catatanHtml}
                             </table>
 
                             <div class="text-center mt-4">
@@ -578,55 +606,74 @@
               cancelButtonColor: '#6c757d'
           }).then((result) => {
 
-              let keterangan = null;
-
               if (result.isConfirmed) {
-                  keterangan = 'cocok';
-              } else if (result.isDenied) {
-                  keterangan = 'tidak cocok';
-              } else {
-                  return; // batal
+                kirimKeterangan(id, 'cocok', null);
               }
 
-              // loading
-              Swal.fire({
-                  title: 'Memproses...',
-                  allowOutsideClick: false,
-                  didOpen: () => {
-                      Swal.showLoading();
-                  }
-              });
+              else if (result.isDenied) {
+                Swal.fire({
+                    title: 'Masukkan Keterangan',
+                    input: 'textarea',
+                    inputPlaceholder: 'Jelaskan mengapa tidak cocok..',
+                    inputAttributes: {
+                        'aria-label': 'Masukkan Keterangan'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Simpan',
+                    cancelButtonText: 'batal',
+                    confirmButtonColor: '#dc3545',
 
-              $.ajax({
-                  url: '/update-keterangan/' + id,
-                  type: 'POST',
-                  data: {
-                      _token: $('meta[name="csrf-token"]').attr('content'),
-                      keterangan_spk: keterangan
-                  },
-                  success: function(res) {
-                      Swal.fire({
-                          icon: 'success',
-                          title: 'Berhasil',
-                          text: 'Keterangan berhasil diupdate',
-                          timer: 1500,
-                          showConfirmButton: false
-                      });
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Keterangan tidak boleh kosong!';
+                        }
+                    }
+                }).then((res2) => {
+                    if (res2.isConfirmed) {
+                        kirimKeterangan(id, 'tidak cocok', res2.value);
+                    }
+                });
+              }
+        });
 
-                      $('#TabelDetailSPK').DataTable().ajax.reload();
-                  },
-                  error: function(xhr) {
-                      Swal.fire({
-                          icon: 'error',
-                          title: 'Gagal',
-                          text: 'Terjadi kesalahan'
-                      });
-                  }
-              });
+        function kirimKeterangan(id, keterangan, catatan) {
+            Swal.fire({
+                title: 'Memproses...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            $.ajax({
+                url: '/update-keterangan/' + id,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    keterangan_spk: keterangan,
+                    catatan_spk: catatan
+                },
+                success: function(res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: res.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
 
-          });
-      });
-  });
+                    $('#TabelDetailSPK').DataTable().ajax.reload();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: xhr.resposeJSON?.message || 'Terjadi kesalahan'
+                    });
+                }
+            });
+        }
+    });
+});
 </script>
 <div class="modal fade" id="modalDetailSPK" tabindex="-1">
   <div class="modal-dialog modal-lg">
