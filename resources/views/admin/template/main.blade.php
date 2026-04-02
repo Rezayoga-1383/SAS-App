@@ -44,7 +44,7 @@
 			icon: 'warning',
 			title: 'HPP Belum Diselesaikan!',
 			html: `
-				<b>Anda wajib mengisi HPP terlebih dahulu</b><br>
+				<b>Harap mengisi HPP terlebih dahulu!</b><br>
 				sebelum mengakses menu lainnya.
 			`,
 			confirmButtonText: 'OK',
