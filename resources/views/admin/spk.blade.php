@@ -202,124 +202,124 @@ $(document).ready(function() {
 	});
 });
 
-// // button HPP
-// $(document).on('click', '.btn-hpp', function() {
-//     let id = $(this).data('id');
-//     let nospk = $(this).data('nospk');
-// 	let mode = $(this).data('mode');
+// button HPP
+$(document).on('click', '.btn-hpp', function() {
+    let id = $(this).data('id');
+    let nospk = $(this).data('nospk');
+	let mode = $(this).data('mode');
 
-//     Swal.fire({
-//         title: mode === 'edit' ? 'Edit HPP' : 'Input HPP',
-// 		width: '600px',
-//         html: `
-//             <div style="text-align: left; margin-bottom: 15px;">
-//                 <label style="font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px;">No SPK</label>
-//                 <input type="text" class="form-control" value="${nospk}" disabled>
-//             </div>
-//             <table class="table table-bordered" id="table-hpp">
-// 				<thead>
-// 					<tr>
-// 						<th>Keterangan</th>
-// 						<th>Nominal</th>
-// 						<th width="65">Aksi</th>
-// 					</tr>
-// 				</thead>
-// 				<tbody></tbody>
-// 			</table>
+    Swal.fire({
+        title: mode === 'edit' ? 'Edit HPP' : 'Input HPP',
+		width: '600px',
+        html: `
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px;">No SPK</label>
+                <input type="text" class="form-control" value="${nospk}" disabled>
+            </div>
+            <table class="table table-bordered" id="table-hpp">
+				<thead>
+					<tr>
+						<th>Keterangan</th>
+						<th>Nominal</th>
+						<th width="65">Aksi</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
 
-// 			<button type="button" id="tambah-hpp" class="btn btn-sm btn-primary">+ Tambah</button>
-//         `,
-//         showCancelButton: true,
-//         confirmButtonText: 'Simpan',
+			<button type="button" id="tambah-hpp" class="btn btn-sm btn-primary">+ Tambah</button>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Simpan',
 
-// 		didOpen: () => {
-// 			function addRow(ket = '', nom = '') {
-// 				$('#table-hpp tbody').append(`
-// 					<tr>
-// 						<td><input type="text" class="form-control keterangan" value="${ket}"></td>
-// 						<td><input type="number" class="form-control nominal" value="${nom}"></td>
-// 						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
-// 					</tr>
-// 				`);
-// 			}
+		didOpen: () => {
+			function addRow(ket = '', nom = '') {
+				$('#table-hpp tbody').append(`
+					<tr>
+						<td><input type="text" class="form-control keterangan" value="${ket}"></td>
+						<td><input type="number" class="form-control nominal" value="${nom}"></td>
+						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
+					</tr>
+				`);
+			}
 
-// 			$('#tambah-hpp').on('click', function() {
-// 				addRow();
-// 			});
+			$('#tambah-hpp').on('click', function() {
+				addRow();
+			});
 
-// 			$(document).on('click', '.btn-hapus', function() {
-// 				$(this).closest('tr').remove();
-// 			});
+			$(document).on('click', '.btn-hapus', function() {
+				$(this).closest('tr').remove();
+			});
 
 
-// 			if(mode === 'edit') {
-// 				$.ajax({
-// 					url: `/admin/spk/${id}/hpp`,
-// 					method: 'GET',
-// 					success: function(res) {
-// 						$('#table-hpp tbody').empty();
+			if(mode === 'edit') {
+				$.ajax({
+					url: `/admin/spk/${id}/hpp`,
+					method: 'GET',
+					success: function(res) {
+						$('#table-hpp tbody').empty();
 
-// 						if (res.data.length > 0) {
-// 							res.data.forEach(item => {
-// 								addRow(item.keterangan, item.nominal);
-// 							});
-// 						} else {
-// 							addRow();
-// 						}
-// 					}
-// 				});
-// 			} else {
-// 				addRow();
-// 			}
-// 		},
+						if (res.data.length > 0) {
+							res.data.forEach(item => {
+								addRow(item.keterangan, item.nominal);
+							});
+						} else {
+							addRow();
+						}
+					}
+				});
+			} else {
+				addRow();
+			}
+		},
 
-// 		preConfirm: () => {
-// 			let data = [];
+		preConfirm: () => {
+			let data = [];
 
-// 			$('#table-hpp tbody tr').each(function() {
-// 				let ket = $(this).find('.keterangan').val();
-// 				let nom = $(this).find('.nominal').val();
+			$('#table-hpp tbody tr').each(function() {
+				let ket = $(this).find('.keterangan').val();
+				let nom = $(this).find('.nominal').val();
 
-// 				if (ket && nom) {
-// 					data.push({
-// 						keterangan: ket,
-// 						nominal: nom
-// 					});
-// 				}
-// 			});
+				if (ket && nom) {
+					data.push({
+						keterangan: ket,
+						nominal: nom
+					});
+				}
+			});
 
-// 			if (data.length === 0) {
-// 				Swal.showValidationMessage('Minimal 1 data Hpp diisi!');
-// 				return false;
-// 			}
+			if (data.length === 0) {
+				Swal.showValidationMessage('Minimal 1 data Hpp diisi!');
+				return false;
+			}
 
-// 			return data;
-// 		}
+			return data;
+		}
 
-//     }).then((result) => {
-//         if (result.isConfirmed) {
-//             let url = `/admin/spk/${id}/hpp`;
-// 			let method = (mode === 'edit') ? 'PUT' : 'POST';
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let url = `/admin/spk/${id}/hpp`;
+			let method = (mode === 'edit') ? 'PUT' : 'POST';
 
-//             // Proses AJAX
-//             $.ajax({
-//                 url: url,
-//                 method: method,
-//                 data: {
-//                     _token: '{{ csrf_token() }}',
-//                     hpp: result.value
-//                 },
-//                 success: function() {
-//                     Swal.fire('Berhasil', 'HPP disimpan', 'success');
-// 					$('#TabelSPK').DataTable().ajax.reload();
-// 				},
-//                 error: function() {
-//                     Swal.fire('Error', 'Gagal simpan HPP', 'error');
-//                 }
-//             });
-//         }
-//     });
-// });
+            // Proses AJAX
+            $.ajax({
+                url: url,
+                method: method,
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    hpp: result.value
+                },
+                success: function() {
+                    Swal.fire('Berhasil', 'HPP disimpan', 'success');
+					$('#TabelSPK').DataTable().ajax.reload();
+				},
+                error: function() {
+                    Swal.fire('Error', 'Gagal simpan HPP', 'error');
+                 }
+             });
+         }
+     });
+});
 </script>
 
 <!-- SweetAlert Notifikasi Sukses atau Error -->
@@ -346,6 +346,25 @@ $(document).ready(function() {
 	});
 	</script>
 @endif
+
+{{-- @if(session('hpp_required'))
+<script>
+Swal.fire({
+    icon: 'warning',
+    title: 'HPP Belum Diisi!',
+    text: 'Silakan isi HPP terlebih dahulu sebelum mengakses menu lain.',
+    confirmButtonText: 'Isi HPP Sekarang',
+    allowOutsideClick: false,
+    allowEscapeKey: false
+}).then((result) => {
+    if (result.isConfirmed) {
+        // Tetap di halaman SPK
+        // Bisa scroll ke tabel biar fokus
+        document.getElementById('TabelSPK').scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+@endif --}}
 @endpush
 
 @push('style')

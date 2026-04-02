@@ -37,5 +37,24 @@
 
 	@include('admin.template.script')
 
+	@if(session('hpp_required'))
+	<script>
+	document.addEventListener("DOMContentLoaded", function() {
+		Swal.fire({
+			icon: 'warning',
+			title: 'HPP Belum Diselesaikan!',
+			html: `
+				<b>Anda wajib mengisi HPP terlebih dahulu</b><br>
+				sebelum mengakses menu lainnya.
+			`,
+			confirmButtonText: 'OK',
+			allowOutsideClick: false,
+			allowEscapeKey: false,
+			allowEnterKey: false,
+			focusConfirm: true, 
+		});
+	});
+	</script>
+	@endif
 </body>
 </html>

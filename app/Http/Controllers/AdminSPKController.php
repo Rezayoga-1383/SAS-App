@@ -98,10 +98,12 @@ class AdminSPKController extends Controller
 
     public function getData(Request $request)
     {
-        $query = LogService::with(['units.acdetail', 'details'])
+        $query = LogService::with(['units.acdetail', 'details', 'hppDetail']) // ✅ tambahkan hppDetail
                     ->select('log_service.*');
+        
+        $query->where('status', LogService::STATUS_SELESAI);
 
-        // FILTER TANGGAL (sesuai blade: start_date & end_date)
+        // FILTER TANGGAL
         if ($request->start_date && $request->end_date) {
             $query->whereBetween('tanggal', [
                 $request->start_date,
@@ -113,7 +115,7 @@ class AdminSPKController extends Controller
             $query->whereDate('tanggal', '<=', $request->end_date);
         }
 
-        // FILTER JENIS SERVICE (baru: jenis_service)
+        // FILTER JENIS SERVICE
         if ($request->jenis_service) {
             $query->whereHas('details', function($q) use ($request) {
                 $q->where('kategori_pekerjaan', $request->jenis_service);
@@ -133,6 +135,14 @@ class AdminSPKController extends Controller
             })
 
             ->addColumn('aksi', function ($row) {
+
+                // ✅ HITUNG LANGSUNG (ANTI ERROR)
+                $hppCount = $row->hppDetail->count();
+
+                $mode = $hppCount > 0 ? 'edit' : 'create';
+                $label = $hppCount > 0 ? 'Edit HPP' : 'Input HPP';
+                $btnClass = $hppCount > 0 ? 'btn-warning' : 'btn-primary';
+
                 $btn = '<div class="d-flex align-items-center justify-content-center gap-1 flex-wrap flex-md-nowrap">';
 
                 $btn .= '<a href="/admin/spk/'.$row->id.'/edit" class="btn btn-md btn-success">
@@ -150,23 +160,20 @@ class AdminSPKController extends Controller
                 $btn .= '<a href="/admin/spk/detail/'.$row->id.'?from=spk" class="btn btn-md btn-secondary">
                             <i data-feather="eye"></i> Detail
                         </a>';
-                
-                // if ($row->status == LogService::STATUS_SELESAI) {
-                //     $mode = $row->hpp_detail_count > 0 ? 'edit' : 'create';
-                //     $label = $row->hpp_detail_count > 0 ? 'Edit HPP' : 'Input HPP';
-                //     $btnClass = $row->hpp_detail_count > 0 ? 'btn-warning' : 'btn-primary';
-                //     $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
-                //                 data-id="'.$row->id.'"
-                //                 data-nospk="'.$row->no_spk.'"
-                //                 data-mode="'.$mode.'">
-                //                 <i data-feather="dollar-sign"></i> '.$label.'
-                //             </button>';
-                // }
+
+                // ✅ BUTTON HPP (SUDAH FIX)
+                $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
+                            data-id="'.$row->id.'"
+                            data-nospk="'.$row->no_spk.'"
+                            data-mode="'.$mode.'">
+                            <i data-feather="dollar-sign"></i> '.$label.'
+                        </button>';
 
                 $btn .= '</div>';
 
                 return $btn;
             })
+
             ->rawColumns(['aksi'])
             ->make(true);     
     }

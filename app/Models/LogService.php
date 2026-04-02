@@ -83,7 +83,7 @@ class LogService extends Model
     }
     public function hppDetail()
     {
-        return $this->hasMany(HppDetail::class);
+        return $this->hasMany(HppDetail::class, 'log_service_id');
     }
 
 }

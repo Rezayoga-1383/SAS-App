@@ -10,29 +10,38 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HppPendingAccess
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
 
-        if ($user && $user->role === 'Admin') {
-            $spkId = $request->route('id');
-            if ($spkId) {
-                $spk = LogService::find($spkId);
+        if ($user && $user->id == 6) {
 
-                if ($spk && !$spk->hppDetail()->exists()) {
-                    if ($request->routeIs('spk.get.hpp', 'spk.store.hpp', 'spk.update.hpp')) {
-                        return $next($request);
-                    }
-                    
-                    return redirect('/admin/spk')->with('error', 'Isi HPP terlebih dahulu!');
+            $spkPending = LogService::where('status', LogService::STATUS_SELESAI)
+                ->whereDate('tanggal', '>=', '2026-04-01') // 🔥 BATAS TANGGAL
+                ->whereDoesntHave('hppDetail')
+                ->exists();
+
+            if ($spkPending) {
+
+                // route yang tetap boleh diakses
+                if (
+                    $request->routeIs(
+                        'admin.spk',
+                        'spk.data',
+                        'spk.get.hpp',
+                        'spk.store.hpp',
+                        'spk.update.hpp'
+                    )
+                ) {
+                    return $next($request);
                 }
+
+                return redirect()
+                    ->route('admin.spk')
+                    ->with('hpp_required', true);
             }
         }
+
         return $next($request);
     }
 }
