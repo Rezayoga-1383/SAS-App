@@ -101,7 +101,7 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::get('/admin/spk/{id}/hpp', [AdminSPKController::class, 'getHpp'])->name('spk.get.hpp')->middleware('Role:Admin');
     Route::post('/admin/spk/{id}/hpp', [AdminSPKController::class, 'storeHpp'])->name('spk.store.hpp')->middleware('Role:Admin');
     Route::put('/admin/spk/{id}/hpp', [AdminSPKController::class, 'updateHpp'])->name('spk.update.hpp')->middleware('Role:Admin');
-    Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
+    // Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 
     // Create SPK Route
     Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');
@@ -249,5 +249,6 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
 
 // =============================== Admin Routes =================================
 
+Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 // Logout Route
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
