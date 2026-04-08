@@ -189,6 +189,10 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
 
     Route::get('/admin/report/dokumentasi/export', [ReportController::class, 'exportPdf'])
         ->name('admin.report.export')->middleware('Role:Admin');
+    
+    Route::get('/admin/report/check-status', [ReportController::class, 'checkStatus'])
+        ->name('admin.report.checkStatus')
+        ->middleware('Role:Admin');
 
     Route::get('/admin/report/perbaikan', [ReportPerbaikanController::class, 'index'])->name('admin.reportperbaikan')->middleware('Role:Admin');
     Route::get('/admin/report-perbaikan/get', [ReportPerbaikanController::class, 'getReport'])->name('admin.data.perbaikan')->middleware('Role:Admin');

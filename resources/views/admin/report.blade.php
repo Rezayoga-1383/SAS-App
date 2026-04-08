@@ -51,9 +51,9 @@
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <a href="#" id="exportPdf" class="btn btn-danger btn-sm">
+                                <button type="button" id="exportPdf" class="btn btn-danger btn-sm">
                                     <i data-feather="file-text"></i> Export PDF
-                                </a>
+                                </button>
                             </div>
 
                         <hr class="my-4">
@@ -194,15 +194,15 @@ $(document).ready(function() {
     });
 
     // ================= EXPORT PDF =================
-    $('#exportPdf').click(function(e) {
+    // $('#exportPdf').click(function(e) {
 
-        if (!isFilterValid()) {
-            e.preventDefault(); // stop link
-            showErrorAlert();
-            return;
-        }
+    //     if (!isFilterValid()) {
+    //         e.preventDefault(); // stop link
+    //         showErrorAlert();
+    //         return;
+    //     }
 
-    });
+    // });
 
     // ================= RESET =================
     $('#reset').click(function() {
@@ -227,6 +227,80 @@ $(document).ready(function() {
         $('#exportPdf').attr('href', url);
     }
 
+    // =================== Check Status Report ====================
+    let checking = false;
+
+    function checkReportStatus() {
+        
+        if (checking) return;
+        checking = true;
+
+        let interval = setInterval(function () {
+            $.ajax({
+                url: "{{ route('admin.report.checkStatus') }}",
+                type: "GET",
+                success: function(res) {
+                    if (res.status === 'done') {
+
+                        clearInterval(interval);
+                        checking = false;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Report Siap!',
+                            text: 'PDF sudah selesai dimuat',
+                            allowOutsideClick: false,
+                            showCancelButton: false,
+                            confirmButtonText: 'Download',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open('/storage/reports/' + res.file, '_blank');
+                                Swal.close();
+                            }
+                        });
+                    }
+                }
+            });
+        }, 5000);
+    }
+
+    // ================ Export PDF =================
+    $('#exportPdf').click(function(e) {
+
+        e.preventDefault();
+
+        if (!isFilterValid()) {
+            showErrorAlert();
+            return;
+        }
+
+        let start_date = $('#start_date').val();
+        let end_date = $('#end_date').val();
+        let jenis_service = $('#jenis_service').val();
+
+        Swal.fire({
+            title: 'Sedang Memproses...',
+            text: 'Report sedang dibuat, mohon tunggu',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        $.ajax({
+            url: "{{ route('admin.report.export') }}",
+            type: "GET",
+            data: {
+                start_date: start_date,
+                end_date: end_date,
+                jenis_service: jenis_service
+            },
+            success: function() {
+                checkReportStatus();
+            }
+        });
+    });
 });
 </script>
 @endpush

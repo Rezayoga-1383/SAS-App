@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\DomPDF\PDF;
+use App\Jobs\GenerateReportPdf;
 use App\Models\LogService;
+use App\Models\Report;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -75,61 +77,46 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         if (!$request->start_date || !$request->end_date) {
-            return redirect()->back()->with('error', 'Filter harus diisi lengkap.');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Filter harus diisi lengkap!'
+            ]);
         }
 
-        $query = LogService::with([
-            'units.acdetail.ruangan.departement',
-            'units.images',
-            'units.historyImages',
-            'details' => function ($q) use ($request) {
-                if (!empty($request->jenis_service)) {
-                    $q->where('kategori_pekerjaan', $request->jenis_service);
-                }
-            }
+        $report = Report::create([
+            'user_id' => auth()->id(),
+            'file' => null,
+            'status' => 'processing'
         ]);
 
-        // FILTER TANGGAL
-        $query->whereBetween('tanggal', [
+        GenerateReportPdf::dispatch(
             $request->start_date,
-            $request->end_date
+            $request->end_date,
+            $request->jenis_service,
+            auth()->id(),
+            $report->id
+        );
+
+        return response()->json([
+            'status' => 'processing'
         ]);
+    }
 
-        // FILTER JENIS SERVICE (opsional)
-        if (!empty($request->jenis_service)) {
-            $query->whereHas('details', function($q) use ($request) {
-                $q->whereRaw('LOWER(jenis_pekerjaan) LIKE ?', [
-                    '%' . strtolower($request->jenis_service) . '%'
-                ]);
-            });
+    public function checkStatus()
+    {
+        $report = Report::where('user_id', auth()->id())
+            ->latest()
+            ->first();
+        
+        if (!$report) {
+            return response()->json([
+                'status' => 'none'
+            ]);
         }
 
-        // URUTKAN DARI TANGGAL TERKECIL KE TERBESAR
-        $spkList = $query->orderBy('tanggal', 'asc')->get();
-
-        $data = [];
-
-        foreach ($spkList as $spk) {
-            foreach ($spk->units as $unit) {
-
-                $data[] = [
-                    'tanggal' => $spk->tanggal,
-                    'no_ac' => $unit->acdetail->no_ac ?? '-',
-                    'ruangan' => $unit->acdetail->ruangan->nama_ruangan ?? '-',
-                    'departemen' => optional($unit->acdetail->ruangan->departement)->nama_departement ?? '-',
-                    'foto_history' => optional($unit->historyImages->first())->image_path,
-                    'foto_kolase' => optional($unit->images->first())->image_path,
-                ];
-            }
-        }
-
-        $pdf = \PDF::loadView('admin.reportpdf', [
-            'data' => $data,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'jenis_service' => $request->jenis_service
-        ])->setPaper('a4', 'landscape');
-
-        return $pdf->download('report-dokumentasi.pdf');
+        return response()->json([
+            'status' => $report->status,
+            'file' => $report->file
+        ]);
     }
 }
