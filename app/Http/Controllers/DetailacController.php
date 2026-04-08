@@ -21,7 +21,7 @@ class DetailacController extends Controller
     public function getData(Request $request)
     {
         if (! $request->ajax()) {
-        abort(404); // tampilkan halaman not found
+            abort(404); // tampilkan halaman not found
         }
 
         $data = DetailAC::query()
@@ -48,8 +48,8 @@ class DetailacController extends Controller
             })
             ->addColumn('aksi', function($row){
                 return '
-                    <a href="/detail-ac/'.$row->id.'/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong> Edit</strong></a>
-                    <form action="/detail-ac/'.$row->id.'" method="POST" class="d-inline form-delete">
+                    <a href="/admin/detail-ac/'.$row->id.'/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong> Edit</strong></a>
+                    <form action="/admin/detail-ac/'.$row->id.'" method="POST" class="d-inline form-delete">
                         '.csrf_field().'
                         '.method_field('DELETE').'
                         <button type="submit" class="btn btn-md btn-danger">
@@ -274,7 +274,7 @@ class DetailacController extends Controller
             $detailAC->delete();
             return redirect()->route('detail-ac')->with('success', 'Data berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->route('detail-ac')->with('error', 'Data gagal dihapus. Mungkin masih terhubung dengan tabel lain.');
+            return redirect()->route('detail-ac')->with('error', 'Data gagal dihapus.');
         }
     }
 }

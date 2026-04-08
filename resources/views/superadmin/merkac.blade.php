@@ -1,4 +1,4 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
 @section('title', 'Merk AC - SAS')
 
@@ -11,7 +11,7 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h5 class="card-title m-0">Data Merk AC</h6>
-							<a href="{{ route('merk-ac.create') }}">
+							<a href="{{ route('superadmin.merkac.create') }}">
 							<button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i>Tambah Data</button>
 							</a>
 						</div>
@@ -59,7 +59,7 @@ $(document).ready(function() {
 		processing: true,
 		serverSide: true,
 		responsive: true,
-		ajax: "{{ route('merk-ac.data') }}",
+		ajax: "{{ route('superadmin.merkac.data') }}",
 		columns: [
 			{ 
 				data: null,
@@ -77,8 +77,8 @@ $(document).ready(function() {
 				render: function(data) {
 					return `
 					<div class="aksi-btn">
-						<a href="/admin/merk-ac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/admin/merk-ac/${data}" method="POST" class="d-inline form-delete">
+						<a href="/superadmin/merkac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/superadmin/merkac/${data}" method="POST" class="d-inline form-delete">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-md btn-danger btn-hapus">

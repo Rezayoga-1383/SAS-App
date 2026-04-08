@@ -38,6 +38,10 @@ class AdminSPKController extends Controller
 
     public function exportPdf(Request $request)
     {
+        // PENTING: Meninggikan batas waktu eksekusi & memori dari sisi PHP untuk PDF engine
+        ini_set('max_execution_time', 300); // 5 menit
+        ini_set('memory_limit', '1024M'); // 1 GB 
+
         $start  = $request->start_date;
         $end    = $request->end_date;
         $jenis  = $request->jenis_service;
@@ -45,26 +49,26 @@ class AdminSPKController extends Controller
         $query = LogServiceDetail::with([
             'logService.teknisi',
             'acdetail.ruangan.departement'
-        ]);
+        ])
+        ->join('log_service', 'log_service.id', '=', 'log_service_detail.log_service_id');
 
-        // ================= FILTER TANGGAL =================
+        // FILTER TANGGAL
         if ($start && $end) {
-            $query->whereHas('logService', function ($q) use ($start, $end) {
-                $q->whereBetween('tanggal', [$start, $end]);
-            });
+            $query->whereBetween('log_service.tanggal', [$start, $end]);
         }
 
-        // ================= FILTER KATEGORI PEKERJAAN =================
+        // FILTER JENIS
         if (!empty($jenis)) {
-            $query->where('kategori_pekerjaan', $jenis);
+            $query->where('log_service_detail.kategori_pekerjaan', $jenis);
         }
 
-        // ================= ORDER BERDASARKAN TANGGAL SPK =================
-        $query->join('log_service', 'log_service.id', '=', 'log_service_detail.log_service_id')
-            ->orderBy('log_service.tanggal', 'asc')
-            ->select('log_service_detail.*');
+        // SELECT & ORDER
+        $query->select('log_service_detail.*', 'log_service.tanggal')
+            ->orderBy('log_service.tanggal', 'asc');
 
-        $data = $query->get();
+        // BATASI DATA (WAJIB untuk production agar terhindar NGINX 504)
+        // Diturunkan dari 1000 ke 300 agar proses render selalu di bawah limit NGINX (60 detik)
+        $data = $query->limit(300)->get();
 
         return Pdf::loadView('admin.spkpdf', [
                 'data' => $data,
@@ -73,7 +77,7 @@ class AdminSPKController extends Controller
                 'jenis_service' => $jenis,
             ])
             ->setPaper('a4', 'landscape')
-            ->download('Data-SPK.pdf');
+            ->stream('Data-SPK.pdf'); // lebih ringan dari download
     }
 
     /**

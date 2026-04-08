@@ -37,7 +37,7 @@ class SPKController extends Controller
             'no_spk'             => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'            => 'required|date',
             'waktu_mulai'        => 'required|date_format:H:i',
-            'waktu_selesai'      => 'required|date_format:H:i|after:waktu_mulai',
+            'waktu_selesai'      => 'required|date_format:H:i',
             'jumlah_orang'       => 'required|integer|min:1',
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
@@ -69,7 +69,7 @@ class SPKController extends Controller
             'tanggal.required'              => 'Tanggal SPK wajib diisi',
             'waktu_mulai.required'          => 'Waktu mulai wajib diisi',
             'waktu_selesai.required'        => 'Waktu selesai wajib diisi',
-            'waktu_selesai.after'           => 'Waktu selesai harus setelah waktu mulai',
+            // 'waktu_selesai.after'           => 'Waktu selesai harus setelah waktu mulai',
             
             'jumlah_orang.required'         => 'Jumlah teknisi wajib diisi',
             'teknisi.required'              => 'Teknisi wajib dipilih',
@@ -107,6 +107,19 @@ class SPKController extends Controller
             'file_spk.mimes'                => 'Tipe file harus berupa JPG/JPEG',
             'file_spk.max'                  => 'Ukuran file SPK maksimal 2 MB'
         ]);
+
+        $mulai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_mulai']);
+        $selesai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_selesai']);
+        
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            $selesai->addDay();
+        }
+
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            return back()->withErrors([
+                'waktu_selesai' => 'Waktu selesai harus setelah waktu mulai'
+            ])->withInput();
+        }
 
         DB::beginTransaction();
 

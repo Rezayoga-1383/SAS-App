@@ -1,6 +1,6 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
-@section('title', 'Ruangan - SAS')
+@section('title', 'Jenis AC - SAS')
 
 @section('content')
 <main class="content">
@@ -10,10 +10,10 @@
 				<div class="card">
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
-							<h5 class="card-title m-0">Data Ruangan</h5>
-							<a href="{{ route('ruangan.create') }}">
-                                <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>    
-                            </a>
+							<h5 class="card-title m-0">Data Jenis AC</h6>
+							<a href="{{  route('superadmin.jenisac.create')  }}">
+								<button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>
+							</a>
 						</div>
 						@if(session('success'))
 						<script>
@@ -36,12 +36,11 @@
 						@endif
 						
 						<div class="table-responsive">
-							<table id="TabelRuangan" class="table hover stripe" style="width:100%">
+							<table id="TabelJenisAC" class="table hover stripe" style="width:100%">
 								<thead>
 									<tr>
 										<th>No</th>
-										<th>Departement</th>
-										<th>Ruangan</th>
+										<th>Jenis AC</th>
 										<th>Aksi</th>
 									</tr>
 								</thead>
@@ -58,12 +57,12 @@
 @push('script')
 <script>
 $(document).ready(function() {
-        $('#TabelRuangan').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('ruangan.data') }}",
-        columns: [
-			{
+		$('#TabelJenisAC').DataTable({
+		processing: true,
+		serverSide: true,
+		ajax: "{{ route('superadmin.jenisac.data') }}",
+		columns: [
+			{ 
 				data: null,
 				name: 'no',
 				orderable: false,
@@ -72,28 +71,27 @@ $(document).ready(function() {
 					return meta.row + meta.settings._iDisplayStart + 1;
 				}
 			},
-			{data: 'nama_departement', name: 'nama_departement'},
-			{ data: 'nama_ruangan', name: 'nama_ruangan' },
-			{ 
+			{ data: 'nama_jenis', name: 'nama_jenis' },
+			{
 				data: 'id',
 				render: function(data) {
 					return `
-						<a href="/admin/ruangan/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/admin/ruangan/${data}" method="POST" class="d-inline form-delete">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-md btn-danger btn-hapus">
-                                <i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
-                            </button>
-                        </form>
+						<a href="/superadmin/jenisac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/superadmin/jenisac/${data}" method="POST" class="d-inline form-delete">
+							@csrf
+							@method('DELETE')
+							<button type="submit" class="btn btn-md btn-danger btn-hapus">
+								<i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
+							</button>
+						</form>
 					`;
 				}
 			}
-        ],
+		],
 		drawCallback: function() {
 			feather.replace();
 		}
-    });
+	});
 	// Konfirmasi SweetAlert sebelum hapus
 	$(document).on('submit', '.form-delete', function(e) {
 		e.preventDefault();
@@ -118,8 +116,8 @@ $(document).ready(function() {
 </script>
 
 <!-- SweetAlert Notifikasi Sukses atau Error -->
-@if(session('success'))
-	<script>
+ @if(session('success'))
+ <script>
 	Swal.fire({
 		icon: 'success',
 		title: 'Berhasil!',
@@ -127,11 +125,11 @@ $(document).ready(function() {
 		timer: 2000,
 		showConfirmButton: false,
 	});
-	</script>
-@endif
+ </script>
+ @endif
 
-@if(session('error'))
-	<script>
+ @if(session('error'))
+ <script>
 	Swal.fire({
 		icon: 'error',
 		title: 'Gagal!',
@@ -139,6 +137,6 @@ $(document).ready(function() {
 		timer: 2000,
 		showConfirmButton: false,
 	});
-	</script>
-@endif
+</script>
+ @endif
 @endpush

@@ -14,7 +14,9 @@ class HppPendingAccess
     {
         $user = Auth::user();
 
-        if ($user && $user->id == 22) {
+        $hppRequiredUsers = [22, 18];
+
+        if ($user && in_array($user->id, $hppRequiredUsers)) {
 
             $spkPending = LogService::where('status', LogService::STATUS_SELESAI)
                 ->whereDate('tanggal', '>=', '2026-04-01') // 🔥 BATAS TANGGAL

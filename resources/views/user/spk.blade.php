@@ -351,7 +351,9 @@
                         statusBadge = '<span class="badge bg-warning text-dark">Menunggu</span>';
                     } else if (response.status === 'disetujui') {
                         statusBadge = '<span class="badge bg-primary">Disetujui</span>'; 
-                    } else {
+                    } else if (response.status === 'belum selesai') { 
+                        statusBadge = '<span class="badge bg-secondary">Belum Selesai</span>';
+                    }else {
                         statusBadge = '<span class="badge bg-success">Selesai</span>';
                     }
 

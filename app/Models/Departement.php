@@ -15,8 +15,6 @@ class Departement extends Model
         'nama_departement',
     ];
 
-    public $timestamps = false;
-
     public function ruangan()
     {
         return $this->hasMany(Ruangan::class, 'id_departement', 'id');

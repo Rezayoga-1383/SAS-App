@@ -10,7 +10,7 @@
 				<div class="card">
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
-							<h5 class="card-title m-0">Data Pengguna</h6>
+							<h5 class="card-title m-0">Data Pengguna</h5>
 							<a href="{{ route('pengguna.create') }}">
                             <button class="btn btn-md btn-primary">
                                 <i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong>
@@ -82,8 +82,8 @@ $(document).ready(function() {
 				data: 'id',
 				render: function(data) {
 					return `
-						<a href="/pengguna/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/pengguna/${data}" method="POST" class="d-inline form-delete">
+						<a href="/admin/pengguna/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/admin/pengguna/${data}" method="POST" class="d-inline form-delete">
 							@csrf
 							@method('DELETE')
 							<button type="submit" class="btn btn-md btn-danger btn-hapus">

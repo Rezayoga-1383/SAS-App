@@ -76,8 +76,8 @@ $(document).ready(function() {
 				data: 'id',
 				render: function(data) {
 					return `
-						<a href="/jenis-ac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/jenis-ac/${data}" method="POST" class="d-inline form-delete">
+						<a href="/admin/jenis-ac/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/admin/jenis-ac/${data}" method="POST" class="d-inline form-delete">
 							@csrf
 							@method('DELETE')
 							<button type="submit" class="btn btn-md btn-danger btn-hapus">

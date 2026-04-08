@@ -14,8 +14,6 @@ class JenisAC extends Model
         'nama_jenis',
     ];
 
-    public $timestamps = false;
-
     public function acdetail()
 {
     return $this->hasMany(DetailAC::class, 'id_jenisac', 'id');

@@ -1,4 +1,4 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
 @section('title', 'Ruangan - SAS')
 
@@ -11,7 +11,7 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h5 class="card-title m-0">Data Ruangan</h5>
-							<a href="{{ route('ruangan.create') }}">
+							<a href="{{ route('superadmin.ruangan.create') }}">
                                 <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>    
                             </a>
 						</div>
@@ -61,7 +61,7 @@ $(document).ready(function() {
         $('#TabelRuangan').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('ruangan.data') }}",
+        ajax: "{{ route('superadmin.ruangan.data') }}",
         columns: [
 			{
 				data: null,
@@ -78,8 +78,8 @@ $(document).ready(function() {
 				data: 'id',
 				render: function(data) {
 					return `
-						<a href="/admin/ruangan/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/admin/ruangan/${data}" method="POST" class="d-inline form-delete">
+						<a href="/superadmin/ruangan/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/superadmin/ruangan/${data}" method="POST" class="d-inline form-delete">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-md btn-danger btn-hapus">

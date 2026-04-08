@@ -16,7 +16,7 @@ class JenisacController extends Controller
     public function getData(Request $request)
     {
         if (! $request->ajax()) {
-        abort(404); // tampilkan halaman not found
+            abort(404); // tampilkan halaman not found
         }
         
         $data = JenisAC::select('id', 'nama_jenis');

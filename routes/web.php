@@ -19,6 +19,12 @@ use App\Http\Controllers\Superadmin\HistoryController as SuperadminHistoryContro
 use App\Http\Controllers\Superadmin\SPKController as SuperadminSPKController;
 use App\Http\Controllers\Superadmin\ReportController as SuperadminReportController;
 use App\Http\Controllers\Superadmin\ReportPerbaikanController as SuperadminReportPerbaikanController;
+use App\Http\Controllers\Superadmin\MerkACController as SuperadminMerkACController;
+use App\Http\Controllers\Superadmin\JenisACController as SuperadminJenisACController;
+use App\Http\Controllers\Superadmin\DetailACController as SuperadminDetailACController;
+use App\Http\Controllers\Superadmin\DepartementController as SuperadminDepartementController;
+use App\Http\Controllers\Superadmin\RuanganController as SuperadminRuanganController;
+use App\Http\Controllers\Superadmin\PenggunaController as SuperadminPenggunaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,8 +65,10 @@ Route::middleware(['Role:Teknisi'])->group(function () {
 Route::middleware(['Role:Superadmin'])->group(function () {
     Route::get('/superadmin/dashboard', [DashboardController::class, 'superadmin'])->name('dashboard.superadmin');
     Route::get('/superadmin/dashboard/chart', [DashboardController::class, 'chartData'])->name('chart.superadmin');
+
     Route::get('/superadmin/history', [SuperadminHistoryController::class, 'index'])->name('history.superadmin');
     Route::get('/superadmin/history/search', [SuperadminHistoryController::class, 'search'])->name('searching.history');
+
     Route::get('/superadmin/spk', [SuperadminSPKController::class, 'index'])->name('superadmin.spk');
     Route::get('/superadmin/spk/data', [SuperadminSPKController::class, 'getData'])->name('superadmin.spk.data');
     Route::get('/superadmin/spk/export', [SuperadminSPKController::class, 'exportPdf'])->name('superadmin.spk.export');
@@ -78,6 +86,58 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::get('/superadmin/report/perbaikan', [SuperadminReportPerbaikanController::class, 'index'])->name('superadmin.reportperbaikan');
     Route::get('/superadmin/report/perbaikan/data', [SuperadminReportPerbaikanController::class, 'getReport'])->name('superadmin.perbaikan.data');
     Route::get('/superadmin/report/perbaikan/export', [SuperadminReportPerbaikanController::class, 'exportPdf'])->name('superadmin.reportpdf');
+    Route::get('/superadmin/report/teknisi', [SuperadminReportPerbaikanController::class, 'viewteknisi'])->name('superadmin.reportteknisi');
+    Route::get('/superadmin/report/teknisi/data', [SuperadminReportPerbaikanController::class, 'getReportTeknisi'])->name('superadmin.teknisi.data');
+    Route::get('/superadmin/report/teknisi/export', [SuperadminReportPerbaikanController::class, 'exportReportTeknisi'])->name('superadmin.reportteknisipdf');
+
+    Route::get('/superadmin/merkac', [SuperadminMerkACController::class, 'index'])->name('superadmin.merkac');
+    Route::get('/superadmin/merkac/data', [SuperadminMerkACController::class, 'getData'])->name('superadmin.merkac.data');
+    Route::get('/superadmin/merkac/create', [SuperadminMerkACController::class, 'create'])->name('superadmin.merkac.create');
+    Route::post('/superadmin/merkac/store', [SuperadminMerkACController::class, 'store'])->name('superadmin.merkac.store');
+    Route::get('/superadmin/merkac/{id}/edit', [SuperadminMerkACController::class, 'edit'])->name('superadmin.merkac.edit');
+    Route::put('/superadmin/merkac/{id}', [SuperadminMerkACController::class, 'update'])->name('superadmin.merkac.update');
+    Route::delete('/superadmin/merkac/{id}', [SuperadminMerkACController::class, 'destroy'])->name('superadmin.merkac.delete');
+
+    Route::get('/superadmin/jenisac', [SuperadminJenisACController::class, 'index'])->name('superadmin.jenisac');
+    Route::get('/superadmin/jenisac/data', [SuperadminJenisACController::class, 'getData'])->name('superadmin.jenisac.data');
+    Route::get('/superadmin/jenisac/create', [SuperadminJenisACController::class, 'create'])->name('superadmin.jenisac.create');
+    Route::post('/superadmin/jenisac/store', [SuperadminJenisACController::class, 'store'])->name('superadmin.jenisac.store');
+    Route::get('/superadmin/jenisac/{id}/edit', [SuperadminJenisACController::class, 'edit'])->name('superadmin.jenisac.edit');
+    Route::put('/superadmin/jenisac/{id}', [SuperadminJenisACController::class, 'update'])->name('superadmin.jenisac.update');
+    Route::delete('/superadmin/jenisac/{id}', [SuperadminJenisACController::class, 'destroy'])->name('superadmin.jenisac.delete');
+
+    Route::get('/superadmin/detailac', [SuperadminDetailACController::class, 'index'])->name('superadmin.detailac');
+    Route::get('/superadmin/detailac/data', [SuperadminDetailACController::class, 'getData'])->name('superadmin.detailac.data');
+    Route::get('/superadmin/detailac/create', [SuperadminDetailACController::class, 'create'])->name('superadmin.detailac.create');
+    Route::post('/superadmin/detailac/store', [SuperadminDetailACController::class, 'store'])->name('superadmin.detailac.store');
+    Route::get('/superadmin/detailac/show/{id}', [SuperadminDetailACController::class, 'show'])->name('superadmin.detailac.show');
+    Route::get('/superadmin/detailac/{id}/edit', [SuperadminDetailACController::class, 'edit'])->name('superadmin.detailac.edit');
+    Route::put('/superadmin/detailac/{id}', [SuperadminDetailACController::class, 'update'])->name('superadmin.detailac.update');
+    Route::delete('/superadmin/detailac/{id}', [SuperadminDetailACController::class, 'destroy'])->name('superadmin.detailac.delete');
+
+    Route::get('/superadmin/departement', [SuperadminDepartementController::class, 'index'])->name('superadmin.departement');
+    Route::get('/superadmin/departement/data', [SuperadminDepartementController::class, 'getData'])->name('superadmin.departement.data');
+    Route::get('/superadmin/departement/create', [SuperadminDepartementController::class, 'create'])->name('superadmin.departement.create');
+    Route::post('/superadmin/departement/store', [SuperadminDepartementController::class, 'store'])->name('superadmin.departement.store');
+    Route::get('/superadmin/departement/{id}/edit', [SuperadminDepartementController::class, 'edit'])->name('superadmin.departement.edit');
+    Route::put('/superadmin/departement/{id}', [SuperadminDepartementController::class, 'update'])->name('superadmin.departement.update');
+    Route::delete('/superadmin/departement/{id}', [SuperadminDepartementController::class, 'destroy'])->name('superadmin.departement.delete');
+
+    Route::get('/superadmin/ruangan', [SuperadminRuanganController::class, 'index'])->name('superadmin.ruangan');
+    Route::get('/superadmin/ruangan/data', [SuperadminRuanganController::class, 'getData'])->name('superadmin.ruangan.data');
+    Route::get('/superadmin/ruangan/create', [SuperadminRuanganController::class, 'create'])->name('superadmin.ruangan.create');
+    Route::post('/superadmin/ruangan/store', [SuperadminRuanganController::class, 'store'])->name('superadmin.ruangan.store');
+    Route::get('/superadmin/ruangan/{id}/edit', [SuperadminRuanganController::class, 'edit'])->name('superadmin.ruangan.edit'); 
+    Route::put('/superadmin/ruangan/{id}', [SuperadminRuanganController::class, 'update'])->name('superadmin.ruangan.update');
+    Route::delete('/superadmin/ruangan/{id}', [SuperadminRuanganController::class, 'destroy'])->name('superadmin.ruangan.destroy'); 
+    
+    Route::get('/superadmin/pengguna', [SuperadminPenggunaController::class, 'index'])->name('superadmin.pengguna');
+    Route::get('/superadmin/pengguna/data', [SuperadminPenggunaController::class, 'getData'])->name('superadmin.pengguna.data');
+    Route::get('/superadmin/pengguna/create', [SuperadminPenggunaController::class, 'create'])->name('superadmin.pengguna.create');
+
+
+
+
 });
 
 Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
@@ -101,7 +161,7 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::get('/admin/spk/{id}/hpp', [AdminSPKController::class, 'getHpp'])->name('spk.get.hpp')->middleware('Role:Admin');
     Route::post('/admin/spk/{id}/hpp', [AdminSPKController::class, 'storeHpp'])->name('spk.store.hpp')->middleware('Role:Admin');
     Route::put('/admin/spk/{id}/hpp', [AdminSPKController::class, 'updateHpp'])->name('spk.update.hpp')->middleware('Role:Admin');
-    // Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
+    Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 
     // Create SPK Route
     Route::get('/admin/spk/create', [AdminSPKController::class, 'create'])->name('spk.create')->middleware('Role:Admin');
@@ -149,11 +209,11 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/merk-ac/store', [MerkacController::class, 'store'])->name('merk-ac.store')->middleware('Role:Admin');
 
     // Edit Merk AC Form Route
-    Route::get('/merk-ac/{id}/edit', [MerkacController::class, 'edit'])->name('merk-ac.edit')->middleware('Role:Admin');
-    Route::put('/merk-ac/{id}', [MerkacController::class, 'update'])->name('merk-ac.update')->middleware('Role:Admin');
+    Route::get('/admin/merk-ac/{id}/edit', [MerkacController::class, 'edit'])->name('merk-ac.edit')->middleware('Role:Admin');
+    Route::put('/admin/merk-ac/{id}', [MerkacController::class, 'update'])->name('merk-ac.update')->middleware('Role:Admin');
 
     // Delete Merk AC Route
-    Route::delete('/merk-ac/{id}', [MerkacController::class, 'destroy'])->name('merk-ac.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/merk-ac/{id}', [MerkacController::class, 'destroy'])->name('merk-ac.destroy')->middleware('Role:Admin');
 
 
     // ================================ Jenis AC ==================================
@@ -167,11 +227,11 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/jenis-ac/store', [JenisacController::class, 'store'])->name('jenis-ac.store')->middleware('Role:Admin');
 
     // Edit Jenis AC Form Route
-    Route::get('/jenis-ac/{id}/edit', [JenisacController::class, 'edit'])->name('jenis-ac.edit')->middleware('Role:Admin');
-    Route::put('/jenis-ac/{id}', [JenisacController::class, 'update'])->name('jenis-ac.update')->middleware('Role:Admin');
+    Route::get('/admin/jenis-ac/{id}/edit', [JenisacController::class, 'edit'])->name('jenis-ac.edit')->middleware('Role:Admin');
+    Route::put('/admin/jenis-ac/{id}', [JenisacController::class, 'update'])->name('jenis-ac.update')->middleware('Role:Admin');
 
     // Delete Jenis AC Route
-    Route::delete('/jenis-ac/{id}', [JenisacController::class, 'destroy'])->name('jenis-ac.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/jenis-ac/{id}', [JenisacController::class, 'destroy'])->name('jenis-ac.destroy')->middleware('Role:Admin');
 
 
     // ================================ Detail AC ==================================
@@ -188,11 +248,11 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/detail-ac/store', [DetailacController::class, 'store'])->name('detail-ac.store')->middleware('Role:Admin');
 
     // Edit Detail AC Form Route
-    Route::get('/detail-ac/{id}/edit', [DetailacController::class, 'edit'])->name('detail-ac.edit')->middleware('Role:Admin');
-    Route::put('/detail-ac/{id}', [DetailacController::class, 'update'])->name('detail-ac.update')->middleware('Role:Admin');
+    Route::get('/admin/detail-ac/{id}/edit', [DetailacController::class, 'edit'])->name('detail-ac.edit')->middleware('Role:Admin');
+    Route::put('/admin/detail-ac/{id}', [DetailacController::class, 'update'])->name('detail-ac.update')->middleware('Role:Admin');
 
     // Delete Detail AC Route
-    Route::delete('/detail-ac/{id}', [DetailacController::class, 'destroy'])->name('detail-ac.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/detail-ac/{id}', [DetailacController::class, 'destroy'])->name('detail-ac.destroy')->middleware('Role:Admin');
 
     // ================================ Departement ==================================
     // Departement Routes
@@ -200,8 +260,8 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::get('/admin/departement/data', [DepartementController::class, 'getData'])->name('departement.data')->middleware('Role:Admin');
 
     // Edit Departement Form Route
-    Route::get('/departement/{id}/edit', [DepartementController::class, 'edit'])->name('departement.edit')->middleware('Role:Admin');
-    Route::put('/departement/{id}', [DepartementController::class, 'update'])->name('departement.update')->middleware('Role:Admin');
+    Route::get('/admin/departement/{id}/edit', [DepartementController::class, 'edit'])->name('departement.edit')->middleware('Role:Admin');
+    Route::put('/admin/departement/{id}', [DepartementController::class, 'update'])->name('departement.update')->middleware('Role:Admin');
 
     // Create Departement Form Route
     Route::get('/admin/departement/create', [DepartementController::class, 'create'])->name('departement.create')->middleware('Role:Admin');
@@ -209,7 +269,7 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/departement/store', [DepartementController::class, 'store'])->name('departement.store')->middleware('Role:Admin');
 
     // Delete Departement Route
-    Route::delete('/departement/{id}', [DepartementController::class, 'destroy'])->name('departement.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/departement/{id}', [DepartementController::class, 'destroy'])->name('departement.destroy')->middleware('Role:Admin');
 
     // ================================ Ruangan ==================================
     // Ruangan Routes
@@ -222,11 +282,11 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/ruangan/store', [RuanganController::class, 'store'])->name('ruangan.store')->middleware('Role:Admin');
 
     // Edit Ruangan Form Route
-    Route::get('/ruangan/{id}/edit', [RuanganController::class, 'edit'])->name('ruangan.edit')->middleware('Role:Admin');
-    Route::put('/ruangan/{id}', [RuanganController::class, 'update'])->name('ruangan.update')->middleware('Role:Admin');
+    Route::get('/admin/ruangan/{id}/edit', [RuanganController::class, 'edit'])->name('ruangan.edit')->middleware('Role:Admin');
+    Route::put('/admin/ruangan/{id}', [RuanganController::class, 'update'])->name('ruangan.update')->middleware('Role:Admin');
 
     // Delete Ruangan Route
-    Route::delete('/ruangan/{id}', [RuanganController::class, 'destroy'])->name('ruangan.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/ruangan/{id}', [RuanganController::class, 'destroy'])->name('ruangan.destroy')->middleware('Role:Admin');
 
     // ================================ Pengguna ==================================
     // Pengguna Routes
@@ -239,16 +299,16 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::post('/admin/pengguna/store', [PenggunaController::class, 'store'])->name('pengguna.store')->middleware('Role:Admin');
 
     // Edit Pengguna Form Route
-    Route::get('/pengguna/{id}/edit', [PenggunaController::class, 'edit'])->name('pengguna.edit')->middleware('Role:Admin');
-    Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update')->middleware('Role:Admin');
+    Route::get('/admin/pengguna/{id}/edit', [PenggunaController::class, 'edit'])->name('pengguna.edit')->middleware('Role:Admin');
+    Route::put('/admin/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update')->middleware('Role:Admin');
 
     // Delete Pengguna Route
-    Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy')->middleware('Role:Admin');
+    Route::delete('/admin/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy')->middleware('Role:Admin');
 
 });
 
 // =============================== Admin Routes =================================
 
-Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
+// Route::get('/admin/spk/export-pdf', [AdminSPKController::class, 'exportPdf'])->name('spk.exportPdf')->middleware('Role:Admin');
 // Logout Route
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');

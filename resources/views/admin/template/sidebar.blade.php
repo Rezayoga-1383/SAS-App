@@ -101,7 +101,7 @@
 			</li>
 
 			<!-- Management User -->
-			<li class="sidebar-item">
+			<li class="sidebar-item {{ request()->routeIs('pengguna') ? 'active' : '' }}">
 				<a data-bs-target="#user" data-bs-toggle="collapse" class="sidebar-link">
 					<i data-feather="user"></i>
 					<span class="align-middle fw-bolder">Management User</span>

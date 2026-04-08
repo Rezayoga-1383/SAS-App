@@ -16,7 +16,7 @@ class DepartementController extends Controller
     public function getData(Request $request)
     {
         if (! $request->ajax()) {
-        abort(404); // tampilkan halaman not found
+            abort(404); // tampilkan halaman not found
         }
         
         $data = Departement::select('id', 'nama_departement');
@@ -41,7 +41,7 @@ class DepartementController extends Controller
                 'nama_departement.required' => 'Nama Departement wajib diisi.',
                 'nama_departement.string' => 'Nama Departement harus berupa string.',
                 'nama_departement.max' => 'Nama Departement maksimal 255 karakter.',
-                'nama_departement.unique' => 'Nama Departement sudah ada di database.',
+                'nama_departement.unique' => 'Nama Departement sudah ada.',
         ]);
 
         Departement::create([

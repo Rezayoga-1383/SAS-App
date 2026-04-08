@@ -1,6 +1,6 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
-@section('title', 'Ruangan - SAS')
+@section('title', 'Departement - SAS')
 
 @section('content')
 <main class="content">
@@ -10,9 +10,9 @@
 				<div class="card">
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
-							<h5 class="card-title m-0">Data Ruangan</h5>
-							<a href="{{ route('ruangan.create') }}">
-                                <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>    
+							<h5 class="card-title m-0">Data Departement</h6>
+							<a href="{{ route('superadmin.departement.create') }}">
+                                <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong></button>
                             </a>
 						</div>
 						@if(session('success'))
@@ -36,12 +36,11 @@
 						@endif
 						
 						<div class="table-responsive">
-							<table id="TabelRuangan" class="table hover stripe" style="width:100%">
+							<table id="TabelDepartement" class="table hover stripe" style="width:100%">
 								<thead>
 									<tr>
 										<th>No</th>
 										<th>Departement</th>
-										<th>Ruangan</th>
 										<th>Aksi</th>
 									</tr>
 								</thead>
@@ -58,13 +57,12 @@
 @push('script')
 <script>
 $(document).ready(function() {
-        $('#TabelRuangan').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('ruangan.data') }}",
-        columns: [
-			{
-				data: null,
+		$('#TabelDepartement').DataTable({
+		processing: true,
+		serverSide: true,
+		ajax: "{{ route('superadmin.departement.data') }}",
+		columns: [
+			{ 	data: null,
 				name: 'no',
 				orderable: false,
 				searchable: false,
@@ -72,28 +70,27 @@ $(document).ready(function() {
 					return meta.row + meta.settings._iDisplayStart + 1;
 				}
 			},
-			{data: 'nama_departement', name: 'nama_departement'},
-			{ data: 'nama_ruangan', name: 'nama_ruangan' },
-			{ 
+			{ data: 'nama_departement', name: 'nama_departement' },
+			{
 				data: 'id',
 				render: function(data) {
 					return `
-						<a href="/admin/ruangan/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/admin/ruangan/${data}" method="POST" class="d-inline form-delete">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-md btn-danger btn-hapus">
-                                <i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
-                            </button>
-                        </form>
+						<a href= "/superadmin/departement/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
+						<form action="/superadmin/departement/${data}" method="POST" class="d-inline form-delete">
+							@csrf
+							@method('DELETE')
+							<button type="submit" class="btn btn-md btn-danger btn-hapus">
+								<i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
+							</button>
+						</form>
 					`;
 				}
 			}
-        ],
+		],
 		drawCallback: function() {
 			feather.replace();
 		}
-    });
+	});
 	// Konfirmasi SweetAlert sebelum hapus
 	$(document).on('submit', '.form-delete', function(e) {
 		e.preventDefault();
@@ -135,7 +132,7 @@ $(document).ready(function() {
 	Swal.fire({
 		icon: 'error',
 		title: 'Gagal!',
-		text: '{{ session('error') }}',
+		html: '{!! session('error') !!}',
 		timer: 2000,
 		showConfirmButton: false,
 	});
