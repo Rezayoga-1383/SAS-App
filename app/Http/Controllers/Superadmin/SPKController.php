@@ -29,8 +29,12 @@ class SPKController extends Controller
 
     public function getData(Request $request)
     {
-        $query  = LogService::with(['units.acdetail', 'details'])->select('log_service.*');
+        $query = LogService::with(['units.acdetail', 'details', 'hppDetail']) // ✅ tambahkan hppDetail
+                    ->select('log_service.*');
+        
+        // $query->where('status', LogService::STATUS_SELESAI);
 
+        // FILTER TANGGAL
         if ($request->start_date && $request->end_date) {
             $query->whereBetween('tanggal', [
                 $request->start_date,
@@ -42,45 +46,71 @@ class SPKController extends Controller
             $query->whereDate('tanggal', '<=', $request->end_date);
         }
 
+        // FILTER JENIS SERVICE
         if ($request->jenis_service) {
             $query->whereHas('details', function($q) use ($request) {
                 $q->where('kategori_pekerjaan', $request->jenis_service);
             });
         }
 
-        return DataTables::of($query)->addIndexColumn()
+        if ($request->status_spk) {
+            $query->where('status', $request->status_spk);
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+
             ->addColumn('no_ac', function ($row) {
                 if ($row->units->count()) {
                     return $row->units->map(function ($unit) {
                         return $unit->acdetail->no_ac ?? '-';
                     })->filter()->join(', ');
-                }            
+                }
                 return '-';
             })
 
-            ->addcolumn('aksi', function ($row) {
-                return '
-                <div class="aksi-btn">
-                    <a href="/superadmin/spk/'.$row->id.'/edit" class="btn btn-md btn-success">
-                        <i data-feather="edit"></i> <strong>Edit</strong>
-                    </a>
-                    
-                    <form action="/superadmin/spk/'.$row->id.'" method="POST" class="d-inline form-delete">
-                        '.csrf_field().'
-                        '.method_field('DELETE').'
-                        <button type="submit" class="btn btn-md btn-danger">
-                            <i data-feather="trash-2"></i> <strong>Hapus</strong>
-                        </button>
-                    </form>
-                    
-                    <a href="/superadmin/spk/detail/'.$row->id.'?from=spk" class="btn btn-md btn-secondary">
-                        <i data-feather="eye"></i> <strong>Detail</strong>
-                    </a>
-                </div>';
+            ->addColumn('aksi', function ($row) {
+
+                // ✅ HITUNG LANGSUNG (ANTI ERROR)
+                $hppCount = $row->hppDetail->count();
+
+                $mode = $hppCount > 0 ? 'edit' : 'create';
+                $label = $hppCount > 0 ? 'Edit HPP' : 'Input HPP';
+                $btnClass = $hppCount > 0 ? 'btn-warning' : 'btn-primary';
+
+                $btn = '<div class="d-flex align-items-center justify-content-center gap-1 flex-wrap flex-md-nowrap">';
+
+                $btn .= '<a href="/superadmin/spk/'.$row->id.'/edit" class="btn btn-md btn-success">
+                            <i data-feather="edit"></i> Edit
+                        </a>';
+                
+                $btn .= '<form action="/superadmin/spk/'.$row->id.'" method="POST" class="form-delete m-0">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" class="btn btn-md btn-danger">
+                                <i data-feather="trash-2"></i> Hapus
+                            </button>
+                        </form>';
+                
+                $btn .= '<a href="/superadmin/spk/detail/'.$row->id.'?from=spk" class="btn btn-md btn-secondary">
+                            <i data-feather="eye"></i> Detail
+                        </a>';
+
+                // ✅ BUTTON HPP (SUDAH FIX)
+                $btn .= '<button class="btn btn-md '.$btnClass.' btn-hpp"
+                            data-id="'.$row->id.'"
+                            data-nospk="'.$row->no_spk.'"
+                            data-mode="'.$mode.'">
+                            <i data-feather="dollar-sign"></i> '.$label.'
+                        </button>';
+
+                $btn .= '</div>';
+
+                return $btn;
             })
 
             ->rawColumns(['aksi'])
-            ->make(true);
+            ->make(true);     
     }
 
     public function create()
@@ -614,6 +644,7 @@ class SPKController extends Controller
         $start  = $request->start_date;
         $end    = $request->end_date;
         $jenis  = $request->jenis_service;
+        $status = $request->status_spk;
 
         $query  = LogServiceDetail::with([
             'logService.teknisi',
@@ -630,6 +661,12 @@ class SPKController extends Controller
             $query->where('kategori_pekerjaan', $jenis);
         }
 
+        if (!empty($status)) {
+            $query->whereHas('logService', function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
         $query->join('log_service', 'log_service.id', '=', 'log_service_detail.log_service_id')
             ->orderBy('log_service.tanggal', 'asc')->select('log_service_detail.*');
         
@@ -640,7 +677,99 @@ class SPKController extends Controller
             'start_date'    => $start,
             'end_date'      => $end,
             'jenis_service' => $jenis,
+            'status_spk'    => $status,
         ])->setPaper('a4'. 'landscape')->download('Data-SPK.pdf');
+    }
+
+    public function storeHpp(Request $request, $id)
+    {
+        $request->validate([
+            'hpp' => 'required|array',
+            'hpp.*.keterangan' => 'required|string',
+            'hpp.*.nominal' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $spk = LogService::findOrFail($id);
+
+            foreach ($request->hpp as $item) {
+                $spk->hppDetail()->create([
+                    'keterangan' => $item['keterangan'],
+                    'nominal' => $item['nominal'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'HPP berhasil ditambahkan'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal simpan HPP',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateHpp(Request $request, $id)
+    {
+        $request->validate([
+            'hpp' => 'required|array',
+            'hpp.*.keterangan' => 'required|string',
+            'hpp.*.nominal' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+
+        try{
+            $spk = LogService::findOrFail($id);
+
+            $spk->hppDetail()->delete();
+
+            foreach ($request->hpp as $item) {
+                $spk->hppDetail()->create([
+                    'keterangan' => $item['keterangan'],
+                    'nominal' => $item['nominal'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'HPP berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Gagal update HPP',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function getHpp($id)
+    {
+        try {
+            $spk = LogService::with('hppDetail')->findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $spk->hppDetail
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data HPP'
+            ], 500);
+        }
     }
 
 

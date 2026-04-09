@@ -32,7 +32,7 @@
                             <div class="mb-3">
                                 <label for="nama" class="form-label">Nama Pengguna <span class="text-danger">*</span></label>
                                 <input
-                                    type="nama"
+                                    type="text"
                                     id="nama"
                                     name="nama"
                                     required
@@ -104,26 +104,26 @@
 
 @push('script')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // feather icons
-    if (window.feather) { feather.replace(); }
+    document.addEventListener('DOMContentLoaded', function () {
+        // feather icons
+        if (window.feather) { feather.replace(); }
 
-    // Toggle password visibility (sederhana, ganti ikon sesuai state)
-    const toggleBtn = document.getElementById('togglePassword');
-    const pwdInput = document.getElementById('password');
-    if (toggleBtn && pwdInput) {
-        toggleBtn.addEventListener('click', function () {
-            const isPwd = pwdInput.getAttribute('type') === 'password';
-            pwdInput.setAttribute('type', isPwd ? 'text' : 'password');
+        // Toggle password visibility (sederhana, ganti ikon sesuai state)
+        const toggleBtn = document.getElementById('togglePassword');
+        const pwdInput = document.getElementById('password');
+        if (toggleBtn && pwdInput) {
+            toggleBtn.addEventListener('click', function () {
+                const isPwd = pwdInput.getAttribute('type') === 'password';
+                pwdInput.setAttribute('type', isPwd ? 'text' : 'password');
 
-            // ubah ikon
-            const icon = this.querySelector('i');
-            if (icon) {
-                icon.setAttribute('data-feather', isPwd ? 'eye-off' : 'eye');
-                if (window.feather) feather.replace();
-            }
-        });
-    }
-});
+                // ubah ikon
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-feather', isPwd ? 'eye-off' : 'eye');
+                    if (window.feather) feather.replace();
+                }
+            });
+        }
+    });
 </script>
 @endpush

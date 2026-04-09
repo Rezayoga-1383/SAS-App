@@ -54,7 +54,7 @@ class PenggunaController extends Controller
         Pengguna::create([
             'nama' => $validatedData['nama'],
             'email' => $validatedData['email'],
-            'password' => bcrypt($validateData['password']),
+            'password' => bcrypt($validatedData['password']),
             'role' => $validatedData['role'],
         ]);
 

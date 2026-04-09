@@ -7,6 +7,7 @@
 	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
 	<meta name="author" content="AdminKit">
 	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 
 	<link rel="icon" type="image/png" href="{{ asset('assets/image/logo.png') }}">
 	<title>@yield('title')</title>

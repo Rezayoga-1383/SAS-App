@@ -79,6 +79,9 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::delete('/superadmin/spk/{id}', [SuperadminSPKController::class, 'destroy'])->name('superadmin.spk.destroy');
     Route::get('/superadmin/spk/detail/{id}', [SuperadminSPKController::class, 'detail'])->name('superadmin.spk.detail');
     Route::get('/superadmin/spk/detail/{id}/download', [SuperadminSPKController::class, 'exportdetail'])->name('superadmin.export.detail');
+    Route::get('/superadmin/spk/{id}/hpp', [SuperadminSPKController::class, 'getHpp'])->name('superadmin.spk.get.hpp');
+    Route::post('/superadmin/spk/{id}/hpp', [SuperadminSPKController::class, 'storeHpp'])->name('superadmin.spk.store.hpp');
+    Route::put('/superadmin/spk/{id}/hpp', [SuperadminSPKController::class, 'updateHpp'])->name('superadmin.spk.update.hpp');
     
     Route::get('/superadmin/report/dokumentasi', [SuperadminReportController::class, 'index'])->name('superadmin.report');
     Route::get('/superadmin/report/dokumentasi/data', [SuperadminReportController::class, 'getDokumentasi'])->name('superadmin.report.data');
@@ -134,6 +137,10 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::get('/superadmin/pengguna', [SuperadminPenggunaController::class, 'index'])->name('superadmin.pengguna');
     Route::get('/superadmin/pengguna/data', [SuperadminPenggunaController::class, 'getData'])->name('superadmin.pengguna.data');
     Route::get('/superadmin/pengguna/create', [SuperadminPenggunaController::class, 'create'])->name('superadmin.pengguna.create');
+    Route::post('/superadmin/pengguna/store', [SuperadminPenggunaController::class, 'store'])->name('superadmin.pengguna.store');
+    Route::get('/superadmin/pengguna/{id}/edit', [SuperadminPenggunaController::class, 'edit'])->name('superadmin.pengguna.edit');
+    Route::put('/superadmin/pengguna/{id}', [SuperadminPenggunaController::class, 'update'])->name('superadmin.pengguna.update');
+    Route::delete('/superadmin/pengguna/{id}', [SuperadminPenggunaController::class, 'destroy'])->name('superadmin.penguna.destroy');
 
 
 

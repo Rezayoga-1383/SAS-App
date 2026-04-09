@@ -38,6 +38,17 @@
 									</select>
 								</div>
 
+								<div>
+									<label class="form-label small mb-1">Status SPK</label>
+									<select id="status_spk" class="form-select form-select-sm">
+										<option value="">Semua</option>
+										<option value="menunggu">Menunggu</option>
+										<option value="disetujui">Disetujui</option>
+										<option value="belum selesai">Belum Selesai</option>
+										<option value="selesai">Selesai</option>
+									</select>
+								</div>
+
 								<button id="filter" class="btn btn-success btn-sm">
 									<i data-feather="filter"></i> Filter
 								</button>
@@ -114,6 +125,7 @@ $(document).ready(function() {
 				d.start_date = $('#start_date').val();
 				d.end_date = $('#end_date').val();
 				d.jenis_service = $('#jenis_service').val();
+				d.status_spk = $('#status_spk').val();
 			}
 		},
         columns: [
@@ -163,11 +175,16 @@ $(document).ready(function() {
 		applyFilter();
 	});
 
+	$('#status_spk').change(function() {
+		applyFilter();
+	})
+
 	// Reset button
 	$('#reset').click(function() {
 		$('#start_date').val('');
 		$('#end_date').val('');
 		$('#jenis_service').val('');
+		$('#status_spk').val('');
 		applyFilter();
 	});
 
@@ -176,8 +193,9 @@ $(document).ready(function() {
 		let start = $('#start_date').val();
 		let end   = $('#end_date').val();
 		let jenis = $('#jenis_service').val();
+		let status = $('#status_spk').val();
 
-		let baseUrl = "{{ route('spk.exportPdf') }}";
+		let baseUrl = "{{ route('superadmin.spk.export') }}";
 		let params = [];
 
 		// Kalau tanggal belum lengkap → disable tombol PDF
@@ -191,6 +209,7 @@ $(document).ready(function() {
 		if (start) params.push("start_date=" + encodeURIComponent(start));
 		if (end)   params.push("end_date=" + encodeURIComponent(end));
 		if (jenis) params.push("jenis_service=" + encodeURIComponent(jenis));
+		if (status) params.push("status_spk=" + encodeURIComponent(status));
 
 		let finalUrl = baseUrl + "?" + params.join("&");
 
@@ -200,7 +219,7 @@ $(document).ready(function() {
 	}
 
     // Jalankan saat pertama load
-    $('#start_date, #end_date, #jenis_service').change(function() {
+    $('#start_date, #end_date, #jenis_service, #status_spk').change(function() {
 		updateExportLink();
 	});
 
@@ -224,6 +243,123 @@ $(document).ready(function() {
 				form.submit();
 			}
 		});
+	});
+});
+
+
+// modal button HPP
+$(document).on('click', '.btn-hpp', function() {
+	let id = $(this).data('id');
+	let nospk = $(this).data('nospk');
+	let mode = $(this).data('mode');
+
+	Swal.fire({
+		title: mode === 'edit' ? 'Edit HPP' : 'INput HPP',
+		width: '600px',
+		html: `
+			<div style="text-align: left; margin-bottom: 15px;">
+				<label style="font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px;">No SPK</label>
+				<input type="text" class="form-control" value="${nospk}" disabled>
+			</div>
+			<table class="table table-bordered" id="table-hpp">
+				<thead>
+					<tr>
+						<th>Keterangan</th>
+						<th>Nominal</th>
+						<th width="65">Aksi</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+
+			<button type="button" id="tambah-hpp" class="btn btn-sm btn-primary">+ Tambah</button>
+		`,
+		showCancelButton: true,
+		confirmButtonText: 'Simpan',
+
+		didOpen: () => {
+			function addRow(ket = '', nom = '') {
+				$('#table-hpp tbody').append(`
+					<tr>
+						<td><input type="text" class="form-control keterangan" value="${ket}"></td>
+						<td><input type="number" class="form-control nominal" value="${nom}"></td>
+						<td><button type="button" class="btn btn-danger btn-sm btn-hapus">X</button></td>
+					</tr>
+				`);
+			}
+
+			$('#tambah-hpp').on('click', function() {
+				addRow();
+			});
+
+			$(document).on('click', '.btn-hapus', function() {
+				$(this).closest('tr').remove();
+			});
+
+			if(mode === 'edit') {
+				$.ajax({
+					url: `/superadmin/spk/${id}/hpp`,
+					method: 'GET',
+					success: function(res) {
+						$('#table-hpp tbody').empty();
+
+						if (res.data.length > 0) {
+							res.data.forEach(item => {
+								addRow(item.keterangan, item.nominal);
+							});
+						} else {
+							addRow();
+						}
+					}
+				});
+			} else {
+				addRow();
+			}
+		},
+
+		preConfirm: () => {
+			let data = [];
+
+			$('#table-hpp tbody tr').each(function() {
+				let ket = $(this).find('.keterangan').val();
+				let nom = $(this).find('.nominal').val();
+
+				if (ket && nom) {
+					data.push({
+						keterangan: ket,
+						nominal: nom
+					});
+				}
+			});
+
+			if (data.length === 0) {
+				Swal.showValidationMessage('Minimal 1 data HPP diisi!');
+				return false;
+			}
+
+			return data;
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			let url = `/superadmin/spk/${id}/hpp`;
+			let method = (mode === 'edit') ? 'PUT' : 'POST';
+
+			$.ajax({
+				url: url,
+				method: method,
+				data: {
+					_token: '{{ csrf_token() }}',
+					hpp: result.value
+				},
+				success: function() {
+					Swal.fire('Berhasil', 'HPP disimpan', 'success');
+					$('#TabelSPK').DataTable().ajax.reload();
+				},
+				error: function() {
+					Swal.fire('Error', 'Gagal simpan HPP', 'error');
+				}
+			});
+		}
 	});
 });
 </script>

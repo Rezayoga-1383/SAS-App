@@ -1,4 +1,4 @@
-@extends('admin.template.main')
+@extends('superadmin.template.main')
 
 @section('title', 'Detail SPK - SAS')
 
@@ -10,17 +10,17 @@
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h4 class="card-title">Detail SPK - {{ $spk->no_spk ?? '-' }}</h4>
             <div class="d-flex gap-2">
-                <a href="{{ route('spkdetail.download', $spk->id) }}" class="btn btn-secondary">
+                <a href="{{ route('superadmin.export.detail', $spk->id) }}" class="btn btn-secondary">
                     <i data-feather="download"></i>
                     <strong>Download</strong>
                 </a>
                 @if($from === 'history')
-                    <a href="{{ route('history') }}" 
+                    <a href="{{ route('superadmin.history') }}" 
                     class="btn btn-outline-primary"><i data-feather="clock"></i>
                     <strong>Kembali</strong> 
                     </a>
                 @elseif($from === 'spk')
-                    <a href="{{ route('admin.spk') }}" 
+                    <a href="{{ route('superadmin.spk') }}" 
                     class="btn btn-outline-primary"><i data-feather="arrow-left"></i>
                     <strong>Kembali</strong> 
                     </a>

@@ -77,7 +77,7 @@
                         }
                     },
                     { data: 'email', name: 'email' },
-                    { data: 'name', name: 'nama' },
+                    { data: 'nama', name: 'nama' },
                     { data: 'role', name: 'role' },
                     {
                         data: 'id',
