@@ -20,7 +20,9 @@ class PenggunaController extends Controller
             abort(404); // tampilkan halaman not found
         }
         
-        $data = Pengguna::select('id', 'email', 'nama', 'role');
+        $data = Pengguna::select('id', 'email', 'nama', 'role')
+            ->whereIn('role', ['Admin', 'Teknisi']);
+
         return DataTables::of($data)->make(true);
     }
 

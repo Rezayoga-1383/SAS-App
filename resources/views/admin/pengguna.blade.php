@@ -11,11 +11,11 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h5 class="card-title m-0">Data Pengguna</h5>
-							<a href="{{ route('pengguna.create') }}">
+							{{-- <a href="{{ route('pengguna.create') }}">
                             <button class="btn btn-md btn-primary">
                                 <i class="align-middle" data-feather="plus-square"></i> <strong>Tambah Data</strong>
                             </button>
-                            </a>
+                            </a> --}}
 						</div>
 						@if(session('success'))
 						<script>

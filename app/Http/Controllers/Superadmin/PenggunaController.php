@@ -73,22 +73,26 @@ class PenggunaController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email',
-            'password' => 'required|string|min:8',
+            'password' => 'nullable|string|min:8',
             'role' => 'required',
         ], [
             'nama.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
-            'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 8 karakter.',
             'role.required' => 'Role wajib diisi.',
         ]);
 
         $pengguna = Pengguna::findOrFail($id);
+
         $pengguna->nama = $request->input('nama');
         $pengguna->email = $request->input('email');
-        $pengguna->password = bcrypt($request->input('password'));
         $pengguna->role = $request->input('role');
+
+        if ($request->filled('password')) {
+            $pengguna->password = bcrypt($request->password);
+        }
+        
         $pengguna->save();
 
         return redirect()->route('superadmin.pengguna')->with('success', 'Data pengguna berhasil di update.');

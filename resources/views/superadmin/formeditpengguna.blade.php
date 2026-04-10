@@ -36,7 +36,7 @@
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="password" id="password" name="password" required class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="Password minimal 8 karakter" value="{{ old('password', $pengguna->password) }}">
+                                    <input type="password" id="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="Kosongkan jika tidak ingin mengganti password">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Tampilkan password">
                                         <i data-feather="eye"></i>
                                     </button>

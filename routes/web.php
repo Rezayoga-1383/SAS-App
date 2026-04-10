@@ -305,9 +305,9 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     Route::get('/admin/pengguna/data', [PenggunaController::class, 'getData'])->name('pengguna.data')->middleware('Role:Admin');
 
     // Create Pengguna Form Route
-    Route::get('/admin/pengguna/create', [PenggunaController::class, 'create'])->name('pengguna.create')->middleware('Role:Admin');
+    // Route::get('/admin/pengguna/create', [PenggunaController::class, 'create'])->name('pengguna.create')->middleware('Role:Admin');
     // Store New Pengguna Route
-    Route::post('/admin/pengguna/store', [PenggunaController::class, 'store'])->name('pengguna.store')->middleware('Role:Admin');
+    // Route::post('/admin/pengguna/store', [PenggunaController::class, 'store'])->name('pengguna.store')->middleware('Role:Admin');
 
     // Edit Pengguna Form Route
     // Route::get('/admin/pengguna/{id}/edit', [PenggunaController::class, 'edit'])->name('pengguna.edit')->middleware('Role:Admin');
