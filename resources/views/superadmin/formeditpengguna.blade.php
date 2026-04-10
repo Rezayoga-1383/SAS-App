@@ -37,7 +37,7 @@
                                 <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="password" id="password" name="password" required class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="Password minimal 8 karakter" value="{{ old('password', $pengguna->password) }}">
-                                    <button class="btn btn-outline-secondary" type="button" id="togglePasword" aria-label="Tampilkan password">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Tampilkan password">
                                         <i data-feather="eye"></i>
                                     </button>
                                     @error('password')
@@ -85,10 +85,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             if (window.feather) { feather.replace(); }
 
-            const toggleBtn = document.getElementById('tooglePassword');
+            const toggleBtn = document.getElementById('togglePassword');
             const pwdInput = document.getElementById('password');
 
-            if (togleBtn && pwdInput) {
+            if (toggleBtn && pwdInput) {
                 toggleBtn.addEventListener('click', function () {
                     const isPwd = pwdInput.getAttribute('type') === 'password';
                     pwdInput.setAttribute('type', isPwd ? 'text' : 'password');

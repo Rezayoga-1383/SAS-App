@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class PenggunaController extends Controller
@@ -63,51 +63,51 @@ class PenggunaController extends Controller
         return redirect()->route('pengguna')->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
 
-    public function edit($id)
-    {
-        $pengguna = Pengguna::findOrFail($id);
-        $role = ['Superadmin','Admin', 'Teknisi'];
-        return view('admin.formeditpengguna', compact('pengguna','role'));
-    }
+    // public function edit($id)
+    // {
+    //     $pengguna = Pengguna::findOrFail($id);
+    //     $role = ['Superadmin','Admin', 'Teknisi'];
+    //     return view('admin.formeditpengguna', compact('pengguna','role'));
+    // }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-        'nama' => 'required|string|max:255',
-        'email' => 'required|email',
-        'password' => 'required|string|min:8',
-        'role'      => 'required',
-        ], [
-            'nama.required' => 'Nama wajib diisi.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'role'         => 'Role wajib diisi',
-        ]);
+    // public function update(Request $request, $id)
+    // {
+    //     $request->validate([
+    //     'nama' => 'required|string|max:255',
+    //     'email' => 'required|email',
+    //     'password' => 'required|string|min:8',
+    //     'role'      => 'required',
+    //     ], [
+    //         'nama.required' => 'Nama wajib diisi.',
+    //         'email.required' => 'Email wajib diisi.',
+    //         'email.email' => 'Format email tidak valid.',
+    //         'password.required' => 'Password wajib diisi.',
+    //         'password.min' => 'Password minimal 8 karakter.',
+    //         'role'         => 'Role wajib diisi',
+    //     ]);
 
-        $pengguna = Pengguna::findOrFail($id);
-        $pengguna->nama = $request->input('nama');
-        $pengguna->email = $request->input('email');
-        $pengguna->password = bcrypt($request->input('password'));
-        $pengguna->role = $request->input('role');
-        $pengguna->save();
+    //     $pengguna = Pengguna::findOrFail($id);
+    //     $pengguna->nama = $request->input('nama');
+    //     $pengguna->email = $request->input('email');
+    //     $pengguna->password = bcrypt($request->input('password'));
+    //     $pengguna->role = $request->input('role');
+    //     $pengguna->save();
 
-        return redirect()->route('pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
-    }
+    //     return redirect()->route('pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
+    // }
 
-    public function destroy($id)
-    {
-        $pengguna = Pengguna::findOrFail($id);
+    // public function destroy($id)
+    // {
+    //     $pengguna = Pengguna::findOrFail($id);
 
-        // Cek apakah pengguna yang akan dihapus adalah pengguna yang sedang login
-        if (Auth::check() && Auth::id() == $pengguna->id) {
-            return redirect()->route('pengguna')
-                ->with('error', 'Anda sedang Login, data tidak dapat dihapus.');
-        }
+    //     // Cek apakah pengguna yang akan dihapus adalah pengguna yang sedang login
+    //     if (Auth::check() && Auth::id() == $pengguna->id) {
+    //         return redirect()->route('pengguna')
+    //             ->with('error', 'Anda sedang Login, data tidak dapat dihapus.');
+    //     }
         
-        $pengguna->delete();
+    //     $pengguna->delete();
 
-        return redirect()->route('pengguna')->with('success', 'Data berhasil dihapus.');
-    }
+    //     return redirect()->route('pengguna')->with('success', 'Data berhasil dihapus.');
+    // }
 }

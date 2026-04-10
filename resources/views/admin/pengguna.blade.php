@@ -45,7 +45,7 @@
 										<th>Email</th>
 										<th>Nama</th>
 										<th>Role</th>
-										<th>Aksi</th>
+										{{-- <th>Aksi</th> --}}
 									</tr>
 								</thead>
 							</table>
@@ -78,21 +78,6 @@ $(document).ready(function() {
 			{ data: 'email', name: 'email' },
 			{ data: 'nama', name: 'nama' },
 			{ data: 'role', name: 'role' },
-			{
-				data: 'id',
-				render: function(data) {
-					return `
-						<a href="/admin/pengguna/${data}/edit" class="btn btn-md btn-success"><i class="align-middle" data-feather="edit"></i><strong>Edit</strong></a>
-						<form action="/admin/pengguna/${data}" method="POST" class="d-inline form-delete">
-							@csrf
-							@method('DELETE')
-							<button type="submit" class="btn btn-md btn-danger btn-hapus">
-								<i class="align-middle" data-feather="trash-2"></i> <strong>Hapus</strong>
-							</button>
-						</form>
-					`;
-				}
-			}
 		],
 		drawCallback: function() {
 			feather.replace();
