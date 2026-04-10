@@ -79,6 +79,16 @@
 @push('script')
 <script>
 $(document).ready(function() {
+	let savedFilter = localStorage.getItem('spk_filter');
+
+	if (savedFilter) {
+		let f = JSON.parse(savedFilter);
+
+		$('#start_date').val(f.start_date);
+		$('#end_date').val(f.end_date);
+		$('#jenis_service').val(f.jenis_service);
+	}
+
 	const table = $('#TabelSPK').DataTable({
         processing: true,
         serverSide: true,
@@ -103,6 +113,11 @@ $(document).ready(function() {
         }
     });
 
+	if (savedFilter) {
+		table.draw();
+		updateExportLink();
+	}
+
 	function validateTanggal() {
 		let start = $('#start_date').val();
 		let end   = $('#end_date').val();
@@ -123,6 +138,12 @@ $(document).ready(function() {
 
 	// function global
 	function applyFilter() {
+		localStorage.setItem('spk_filter', JSON.stringify({
+			start_date: $('#start_date').val(),
+			end_date: $('#end_date').val(),
+			jenis_service: $('#jenis_service').val()
+		}));
+		
 		table.draw();
 		updateExportLink();
 	}
