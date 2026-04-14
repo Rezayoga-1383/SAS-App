@@ -98,7 +98,7 @@ $(document).ready(function () {
         $('#noResultsMessage').addClass('d-none');
 
         $.ajax({
-            url: "{{ route('searching.history') }}",
+            url: "{{ route('superadmin.searching.history') }}",
             method: 'GET',
             data: { no_ac: noAc },
             success: function (res) {
@@ -123,7 +123,7 @@ $(document).ready(function () {
                             <td>${item.jenis_pekerjaan}</td>
                             <td>${item.pelaksana_nama}</td>
                             <td>
-                                <a href="/admin/spk/detail/${item.id}?from=history"
+                                <a href="/superadmin/spk/detail/${item.id}?from=history"
                                 class="btn btn-sm btn-info">
                                     <i data-feather="eye"></i> Detail
                                 </a>

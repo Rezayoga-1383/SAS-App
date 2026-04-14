@@ -1,29 +1,29 @@
 <nav id="sidebar" class="sidebar js-sidebar">
 	<div class="sidebar-content js-simplebar">
-		<a class="sidebar-brand" href="{{ route('dashboard.superadmin') }}">
+		<a class="sidebar-brand" href="{{ route('superadmin.dashboard') }}">
 			<span class="align-middle">PT SAS <br> Sarana Agung Sejahtera</span>
 		</a>
 
 		<!-- Dashboard -->
 		<ul class="sidebar-nav">
-			<li class="sidebar-item {{ request()->routeIs('dashboard.superadmin') || request()->routeIs('history.superadmin') ? 'active' : '' }}">
+			<li class="sidebar-item {{ request()->routeIs('superadmin.dashboard') || request()->routeIs('history.superadmin') ? 'active' : '' }}">
 				<a data-bs-target="#dashboardMenu" data-bs-toggle="collapse" class="sidebar-link">
 					<i data-feather="home"></i>
 					<span class="align-middle fw-bolder">Home</span>
 				</a>
 				<ul id="dashboardMenu" class="sidebar-dropdown list-unstyled collapse">
-					<li class="sidebar-item {{ request()->routeIs('dashboard.superadmin') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('dashboard.superadmin') }}">Dashboard</a>
+					<li class="sidebar-item {{ request()->routeIs('superadmin.dashboard') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
 					</li>
 
-					<li class="sidebar-item {{ request()->routeIs('history.superadmin') ? 'active' : '' }}">
-						<a class="sidebar-link" href="{{ route('history.superadmin') }}">History</a>
+					<li class="sidebar-item {{ request()->routeIs('superadmin.history') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('superadmin.history') }}">History</a>
 					</li>
 				</ul>
 			</li>
 
 			{{-- SPK & Report --}}
-			<li class="sidebar-item {{ request()->routeIs('superadmin.spk') || request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('superadmin.reportteknisi') ? 'active' : '' }}">
+			<li class="sidebar-item {{ request()->routeIs('superadmin.spk') || request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('superadmin.reportteknisi') || request()->routeIs('superadmin.hpp') ? 'active' : '' }}">
 				<a data-bs-target="#spkmenu" data-bs-toggle="collapse" class="sidebar-link">
 					<i data-feather="file-text"></i>
 					<span class="align-middle fw-bolder">SPK & Report</span>
@@ -34,7 +34,7 @@
 						<a class="sidebar-link" href="{{ route('superadmin.spk') }}">SPK</a>
 					</li>
 
-					<li class="sidebar-item {{ request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('superadmin.reportteknisi') ? 'active' : '' }}">
+					<li class="sidebar-item {{ request()->routeIs('superadmin.report') || request()->routeIs('superadmin.reportperbaikan') || request()->routeIs('superadmin.reportteknisi') || request()->routeIs('superadmin.hpp') ? 'active' : '' }}">
 						<a data-bs-target="#report" data-bs-toggle="collapse" class="sidebar-link fw-bolder">
 							Report
 						</a>
@@ -50,6 +50,10 @@
 
 							<li class="sidebar-item {{ request()->routeIs('superadmin.reportteknisi') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('superadmin.reportteknisi') }}">Teknisi</a>
+							</li>
+
+							<li class="sidebar-item {{ request()->routeIs('superadmin.hpp') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('superadmin.hpp') }}">HPP</a>
 							</li>
 						</ul>
 					</li>

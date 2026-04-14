@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function loadChartData(bulan=''){
 
 		let target = parseInt(document.getElementById('target_cuci').value) || 0;		
-        fetch("{{ route('chart.superadmin') }}?bulan="+bulan)
+        fetch("{{ route('superadmin.chart') }}?bulan="+bulan)
         .then(r=>r.json())
         .then(data=>{
 

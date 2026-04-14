@@ -34,7 +34,7 @@ class HistoryController extends Controller
             $query->where('acdetail_id', $detailAc->id);
         })
         ->with([
-            'details.acdetail.merkac', // ✅ jalur relasi yang benar
+            'details.acdetail.merkac',
             'pelaksana'
         ])
         ->orderByDesc('tanggal')

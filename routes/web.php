@@ -25,6 +25,7 @@ use App\Http\Controllers\Superadmin\DetailACController as SuperadminDetailACCont
 use App\Http\Controllers\Superadmin\DepartementController as SuperadminDepartementController;
 use App\Http\Controllers\Superadmin\RuanganController as SuperadminRuanganController;
 use App\Http\Controllers\Superadmin\PenggunaController as SuperadminPenggunaController;
+use App\Http\Controllers\Superadmin\ReportHPPController as SuperadminReportHPPController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,11 +64,11 @@ Route::middleware(['Role:Teknisi'])->group(function () {
 
 
 Route::middleware(['Role:Superadmin'])->group(function () {
-    Route::get('/superadmin/dashboard', [DashboardController::class, 'superadmin'])->name('dashboard.superadmin');
-    Route::get('/superadmin/dashboard/chart', [DashboardController::class, 'chartData'])->name('chart.superadmin');
+    Route::get('/superadmin/dashboard', [DashboardController::class, 'superadmin'])->name('superadmin.dashboard');
+    Route::get('/superadmin/dashboard/chart', [DashboardController::class, 'chartData'])->name('superadmin.chart');
 
-    Route::get('/superadmin/history', [SuperadminHistoryController::class, 'index'])->name('history.superadmin');
-    Route::get('/superadmin/history/search', [SuperadminHistoryController::class, 'search'])->name('searching.history');
+    Route::get('/superadmin/history', [SuperadminHistoryController::class, 'index'])->name('superadmin.history');
+    Route::get('/superadmin/history/search', [SuperadminHistoryController::class, 'search'])->name('superadmin.searching.history');
 
     Route::get('/superadmin/spk', [SuperadminSPKController::class, 'index'])->name('superadmin.spk');
     Route::get('/superadmin/spk/data', [SuperadminSPKController::class, 'getData'])->name('superadmin.spk.data');
@@ -92,6 +93,9 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::get('/superadmin/report/teknisi', [SuperadminReportPerbaikanController::class, 'viewteknisi'])->name('superadmin.reportteknisi');
     Route::get('/superadmin/report/teknisi/data', [SuperadminReportPerbaikanController::class, 'getReportTeknisi'])->name('superadmin.teknisi.data');
     Route::get('/superadmin/report/teknisi/export', [SuperadminReportPerbaikanController::class, 'exportReportTeknisi'])->name('superadmin.reportteknisipdf');
+    Route::get('/superadmin/report/hpp', [SuperadminReportHPPController::class, 'index'])->name('superadmin.hpp');
+    Route::get('/superadmin/report/hpp/data', [SuperadminReportHPPController::class, 'getData'])->name('superadmin.hpp.data');
+    Route::get('/superadmin/report/hpp/export', [SuperadminReportHPPController::class, 'exportPdf'])->name('superadmin.hpp.export');
 
     Route::get('/superadmin/merkac', [SuperadminMerkACController::class, 'index'])->name('superadmin.merkac');
     Route::get('/superadmin/merkac/data', [SuperadminMerkACController::class, 'getData'])->name('superadmin.merkac.data');
