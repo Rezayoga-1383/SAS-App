@@ -203,6 +203,8 @@ class AdminSPKController extends Controller
             'teknisi'                   => 'required|array|min:1',
             'teknisi.*'                 => 'required|exists:pengguna,id',
 
+            'status'                    => 'required|in:menunggu,belum selesai,selesai',      
+
             'jumlah_ac_input'           => 'required|integer|min:1',
 
             'keluhan'                   => 'required|array|min:1',
@@ -245,13 +247,15 @@ class AdminSPKController extends Controller
             'tanggal.required'          => 'Tanggal SPK wajib diisi.',
             'waktu_mulai.required'      => 'Waktu mulai wajib diisi.',
             'waktu_selesai.required'    => 'Waktu selesai wajib diisi.',
-            'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai.',
+            // 'waktu_selesai.after'       => 'Waktu selesai harus setelah waktu mulai.',
 
             // ===== TEKNISI =====
             'jumlah_orang.required'     => 'Jumlah teknisi wajib diisi.',
             'teknisi.required'          => 'Teknisi wajib dipilih.',
             'teknisi.*.required'        => 'Teknisi wajib dipilih.',
             'teknisi.*.exists'          => 'Teknisi tidak valid.',
+
+            'status.required'           => 'Status wajib diisi.',
 
             // ==== JUMLAH AC =====
             'jumlah_ac_input.required'  => 'Jumlah AC wajib diisi.',
@@ -290,6 +294,19 @@ class AdminSPKController extends Controller
             'file_spk.max'              => 'Ukuran file SPK maksimal adalah 2 MB.',
         ]);
 
+        $mulai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_mulai']);
+        $selesai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_selesai']);
+
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            $selesai->addDay();
+        }
+
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            return back()->withErrors([
+                'waktu_selesai' => 'Waktu selesai harus setelah waktu mulai'
+            ])->withInput();
+        }
+
         DB::beginTransaction();
 
         try {
@@ -307,6 +324,7 @@ class AdminSPKController extends Controller
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
                 'file_spk'      => $fileSpkTemp,
+                'status'        => $validated['status'],
             ]);
 
             // ================= LOOP SETIAP AC =================

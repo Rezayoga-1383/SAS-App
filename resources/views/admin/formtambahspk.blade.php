@@ -111,6 +111,25 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status SPK <span class="text-danger">*</span></label>
+                                <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
+                                    <option value="">Pilih Status</option>
+                                    <option value="menunggu" {{ old('status') == 'menunggu' ? 'selected' : ''}}>
+                                        Menunggu
+                                    </option>
+                                    <option value="belum selesai" {{ old('status') == 'belum selesai' ? 'selected' : ''}}>
+                                        Belum Selesai
+                                    </option>
+                                    <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : ''}}>
+                                        Selesai
+                                    </option>
+                                </select>
+                                @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-sm-6">
                                 <label for="jumlah_ac_input" class="form-label">Jumlah AC yang ingin diperbaiki <span class="text-danger">*</span></label>
                                 <input

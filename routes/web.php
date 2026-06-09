@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AbsensiAdminController;
+use App\Http\Controllers\AbsensiTeknisiController;
 use App\Http\Controllers\AdminSPKController;
 use App\Http\Controllers\DepartementController;
 use App\Http\Controllers\DetailacController;
@@ -14,18 +16,19 @@ use App\Http\Controllers\ReportPerbaikanController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SPKAprovalController;
 use App\Http\Controllers\SPKController;
+use App\Http\Controllers\Superadmin\AbsensiKaryawanController as SuperadminAbsensiKaryawanController;
 use App\Http\Controllers\Superadmin\DashboardController;
-use App\Http\Controllers\Superadmin\HistoryController as SuperadminHistoryController;
-use App\Http\Controllers\Superadmin\SPKController as SuperadminSPKController;
-use App\Http\Controllers\Superadmin\ReportController as SuperadminReportController;
-use App\Http\Controllers\Superadmin\ReportPerbaikanController as SuperadminReportPerbaikanController;
-use App\Http\Controllers\Superadmin\MerkACController as SuperadminMerkACController;
-use App\Http\Controllers\Superadmin\JenisACController as SuperadminJenisACController;
-use App\Http\Controllers\Superadmin\DetailACController as SuperadminDetailACController;
 use App\Http\Controllers\Superadmin\DepartementController as SuperadminDepartementController;
-use App\Http\Controllers\Superadmin\RuanganController as SuperadminRuanganController;
+use App\Http\Controllers\Superadmin\DetailACController as SuperadminDetailACController;
+use App\Http\Controllers\Superadmin\HistoryController as SuperadminHistoryController;
+use App\Http\Controllers\Superadmin\JenisACController as SuperadminJenisACController;
+use App\Http\Controllers\Superadmin\MerkACController as SuperadminMerkACController;
 use App\Http\Controllers\Superadmin\PenggunaController as SuperadminPenggunaController;
+use App\Http\Controllers\Superadmin\ReportController as SuperadminReportController;
 use App\Http\Controllers\Superadmin\ReportHPPController as SuperadminReportHPPController;
+use App\Http\Controllers\Superadmin\ReportPerbaikanController as SuperadminReportPerbaikanController;
+use App\Http\Controllers\Superadmin\RuanganController as SuperadminRuanganController;
+use App\Http\Controllers\Superadmin\SPKController as SuperadminSPKController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +49,8 @@ Route::middleware(['Role:Teknisi'])->group(function () {
     Route::get('/data-ac/detail/{id}', [UserController::class, 'detail'])->name('detail.ac');
     Route::get('/input-data-spk', [SPKController::class, 'create'])->name('formcreatespk');
     Route::post('/input-data-spk/store', [SPKController::class, 'store'])->name('spk.store');
+    Route::get('/absensi/karyawan', [AbsensiTeknisiController::class, 'index'])->name('absensi.index');
+    Route::post('/absensi/karyawan/store', [AbsensiTeknisiController::class, 'store'])->name('absensi.store');
     // Route::get('/input-data-ac', [UserController::class, 'create'])->name('formcreate');
     // Route::post('/input-data-ac/store', [UserController::class, 'store'])->name('ac.store');
 
@@ -87,6 +92,7 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::get('/superadmin/report/dokumentasi', [SuperadminReportController::class, 'index'])->name('superadmin.report');
     Route::get('/superadmin/report/dokumentasi/data', [SuperadminReportController::class, 'getDokumentasi'])->name('superadmin.report.data');
     Route::get('/superadmin/report/dokumentasi/export', [SuperadminReportController::class, 'exportPdf'])->name('superadmin.report.export');
+    Route::get('/superadmin/report/check-status', [SuperadminReportController::class, 'checkStatus'])->name('superadmin.report.checkStatus');
     Route::get('/superadmin/report/perbaikan', [SuperadminReportPerbaikanController::class, 'index'])->name('superadmin.reportperbaikan');
     Route::get('/superadmin/report/perbaikan/data', [SuperadminReportPerbaikanController::class, 'getReport'])->name('superadmin.perbaikan.data');
     Route::get('/superadmin/report/perbaikan/export', [SuperadminReportPerbaikanController::class, 'exportPdf'])->name('superadmin.reportpdf');
@@ -144,7 +150,10 @@ Route::middleware(['Role:Superadmin'])->group(function () {
     Route::post('/superadmin/pengguna/store', [SuperadminPenggunaController::class, 'store'])->name('superadmin.pengguna.store');
     Route::get('/superadmin/pengguna/{id}/edit', [SuperadminPenggunaController::class, 'edit'])->name('superadmin.pengguna.edit');
     Route::put('/superadmin/pengguna/{id}', [SuperadminPenggunaController::class, 'update'])->name('superadmin.pengguna.update');
-    Route::delete('/superadmin/pengguna/{id}', [SuperadminPenggunaController::class, 'destroy'])->name('superadmin.penguna.destroy');
+    Route::delete('/superadmin/pengguna/{id}', [SuperadminPenggunaController::class, 'destroy'])->name('superadmin.pengguna.destroy');
+
+    Route::get('/superadmin/absensi/karyawan', [SuperadminAbsensiKaryawanController::class, 'index'])->name('superadmin.absensi.karyawan');
+    Route::get('/superadmin/absensi/karyawan/data', [SuperadminAbsensiKaryawanController::class, 'data'])->name('superadmin.absensi.data');
 
 
 
@@ -307,6 +316,10 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     // Pengguna Routes
     Route::get('/admin/pengguna', [PenggunaController::class, 'index'])->name('pengguna')->middleware('Role:Admin');
     Route::get('/admin/pengguna/data', [PenggunaController::class, 'getData'])->name('pengguna.data')->middleware('Role:Admin');
+
+    // ================================ Absensi Admin =============================
+    Route::get('/admin/absensi', [AbsensiAdminController::class, 'index'])->name('admin.absensi');
+    Route::post('/admin/absensi', [AbsensiAdminController::class, 'store'])->name('admin.absensi.store');
 
     // Create Pengguna Form Route
     // Route::get('/admin/pengguna/create', [PenggunaController::class, 'create'])->name('pengguna.create')->middleware('Role:Admin');

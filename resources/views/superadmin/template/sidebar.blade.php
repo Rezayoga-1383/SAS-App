@@ -116,9 +116,9 @@
 						<a class="sidebar-link" href="{{ route('superadmin.pengguna') }}">Data User</a>
 					</li>
 
-					{{-- <li class="sidebar-item">
-						<a class="sidebar-link" href="#">Absensi Karyawan</a>
-					</li> --}}
+					<li class="sidebar-item {{ request()->routeIs('superadmin.absensi.karyawan') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('superadmin.absensi.karyawan') }}">Absensi Karyawan</a>
+					</li>
 				</ul>
 			</li>
 		</ul>

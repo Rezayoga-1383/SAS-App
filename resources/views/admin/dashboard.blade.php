@@ -259,6 +259,31 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
+	@if(isset($hppPendingCount) && $hppPendingCount > 0)
+
+		@php
+			$spkList = $hppPending->pluck('no_spk')->take(10)->implode(', ');
+		@endphp
+
+		Swal.fire({
+			icon: 'warning',
+			title: 'Reminder HPP',
+			html: `
+				Terdapat <b>{{ $hppPendingCount }}</b> SPK yang belum diinput HPP.
+				<br><br>
+				SPK : <b>{{ $spkList }}</b>
+				<br><br>
+				Mohon segera input HPP untuk SPK tersebut, Terimakasih!
+			`,
+			confirmButtonText: 'Lihat SPK'
+		}).then((result) => {
+			if(result.isConfirmed){
+				window.location.href = "{{ route('admin.spk') }}";
+			}
+		});
+	
+	@endif
+	
     let chartCuci, chartPerbaikan, chartGanti, chartCek;
 
     function createChart(canvasId) {

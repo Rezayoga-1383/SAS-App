@@ -111,10 +111,20 @@
 					<li class="sidebar-item {{ request()->routeIs('pengguna') ? 'active' : '' }}">
 						<a class="sidebar-link" href="{{ route('pengguna') }}">Data User</a>
 					</li>
+				</ul>
+			</li>
 
-					{{-- <li class="sidebar-item">
-						<a class="sidebar-link" href="#">Absensi Karyawan</a>
-					</li> --}}
+			{{-- Absensi Admin --}}
+			<li class="sidebar-item {{ request()->routeIs('admin.absensi') ? 'active' : '' }}">
+				<a data-bs-target="#absensi" data-bs-toggle="collapse" class="sidebar-link">
+					<i data-feather="user-check"></i>
+					<span class="align-middle fw-bolder">Absensi</span>
+				</a>
+
+				<ul id="absensi" class="sidebar-dropdown list-unstyled collapse">
+					<li class="sidebar-item {{ request()->routeIs('admin.absensi') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('admin.absensi') }}">Absensi Admin</a>
+					</li>
 				</ul>
 			</li>
 		</ul>

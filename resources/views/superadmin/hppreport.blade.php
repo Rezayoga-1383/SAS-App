@@ -71,7 +71,7 @@
                                 </thead>
                                 <tbody id="table-body">
                                     <tr>
-                                        <td colspan="8" class="text-center">Silahkan filter data</td>
+                                        <td colspan="8" class="text-center">Silahkan pilih tanggal terlebih dahulu</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -155,7 +155,15 @@ document.addEventListener('DOMContentLoaded', function (){
         document.getElementById('start_date').value = '';
         document.getElementById('end_date').value = '';
         document.getElementById('jenis_service').value = '';
-        loadData();
+
+        document.getElementById('table-body').innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center">
+                    Silahkan pilih tanggal terlebih dahulu
+                </td>
+            </tr>
+        `;
+        // loadData();
     });
 
     document.getElementById('exportPdf').addEventListener('click', function (e) {
@@ -182,11 +190,11 @@ document.addEventListener('DOMContentLoaded', function (){
         if (jenis) {
             url.searchParams.append('jenis_service', jenis);
         }
-        
+
         window.open(url.toString(), '_blank');
     });
 
-    loadData();
+    // loadData();
 });
 </script>
 @endpush

@@ -109,6 +109,8 @@ $(document).ready(function() {
         let end_date = $('#end_date').val();
         let jenis_service = $('#jenis_service').val();
 
+        $('#documentationContainer').html('<p class="text-center">Loading...</p>');
+
         $.ajax({
             url: "{{ route('superadmin.report.data') }}",
             type: "GET",
@@ -129,7 +131,7 @@ $(document).ready(function() {
 
                 $('#noResultsMessage').addClass('d-none');
 
-                response.forEach(function(item) {
+                response.slice(0, 50).forEach(function(item) {
 
                     let fotoKolase = item.foto_kolase 
                         ? `/storage/${item.foto_kolase}` 
@@ -157,14 +159,18 @@ $(document).ready(function() {
 
                                         <div class="col-6">
                                             <label class="small text-muted">Foto Kolase</label>
-                                            <img src="${fotoKolase}" 
-                                                 class="img-fluid rounded border">
+                                            <img src="${fotoKolase}"
+                                                class="img-fluid rounded border"
+                                                loading="lazy"
+                                                style="height:120px; object-fit:cover;">
                                         </div>
 
                                         <div class="col-6">
                                             <label class="small text-muted">Kartu History</label>
-                                            <img src="${fotoHistory}" 
-                                                 class="img-fluid rounded border">
+                                            <img src="${fotoHistory}"
+                                                class="img-fluid rounded border"
+                                                loading="lazy"
+                                                style="height:120px; object-fit:cover;"
                                         </div>
 
                                     </div>
@@ -177,6 +183,11 @@ $(document).ready(function() {
                     container.append(card);
                 });
 
+            },
+            error: function() {
+                $('#documentationContainer').html(
+                    '<p class="text-danger text-center">Gagal memuat data</p>'
+                );
             }
         });
     }
@@ -194,15 +205,15 @@ $(document).ready(function() {
     });
 
     // ================= EXPORT PDF =================
-    $('#exportPdf').click(function(e) {
+    // $('#exportPdf').click(function(e) {
 
-        if (!isFilterValid()) {
-            e.preventDefault(); // stop link
-            showErrorAlert();
-            return;
-        }
+    //     if (!isFilterValid()) {
+    //         e.preventDefault(); // stop link
+    //         showErrorAlert();
+    //         return;
+    //     }
 
-    });
+    // });
 
     // ================= RESET =================
     $('#reset').click(function() {
@@ -227,6 +238,95 @@ $(document).ready(function() {
         $('#exportPdf').attr('href', url);
     }
 
+    // ==================== Status Report =================
+    let checking = false;
+
+    function checkReportStatus() {
+        if (checking) return;
+        checking = true;
+
+        let interval = setInterval(function () {
+            $.ajax({
+                url: "{{ route('superadmin.report.checkStatus') }}",
+                type: "GET",
+                success: function(res) {
+                    if (res.status === 'done') {
+
+                        clearInterval(interval);
+                        checking = false;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Report Siap!',
+                            text: 'PDF sudah selesai dimuat',
+                            allowOutsideClick: false,
+                            showCancelButton: false,
+                            confirmButtonText: 'Download',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open('/storage/reports/' + res.file, '_blank');
+                                Swal.close();
+                            }
+                        });
+                    }
+                }
+            });
+        }, 5000);
+    }
+
+    // ================= Export PDF ======================
+    $('#exportPdf').click(function(e) {
+
+        e.preventDefault();
+
+        if (!isFilterValid()) {
+            showErrorAlert();
+            return;
+        }
+
+        let start_date = $('#start_date').val();
+        let end_date = $('#end_date').val();
+        let jenis_service = $('#jenis_service').val();
+
+        Swal.fire({
+            title: 'Sedang Memproses...',
+            text: 'report sedang dibuat, mohon tunggu',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: "{{ route('superadmin.report.export') }}",
+            type: "GET",
+            data: {
+                start_date: start_date,
+                end_date: end_date,
+                jenis_service: jenis_service
+            },
+            success: function(res) {
+                if (res.status === 'error') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.message
+                    });
+                    return;
+                }
+
+                checkReportStatus();
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi error saat generate report'
+                });
+            }
+        });
+    });
 });
 </script>
 @endpush

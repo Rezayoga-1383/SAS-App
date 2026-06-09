@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Departement;
 use App\Models\DetailAC;
 use App\Models\JenisAC;
+use App\Models\LogService;
 use App\Models\LogServiceDetail;
 use App\Models\MerkAC;
 use App\Models\Ruangan;
@@ -97,7 +98,28 @@ class LoginController extends Controller
         $jumlahdepartement          = Departement::count();
         $jumlahruangan              = Ruangan::count();
 
-        return view('admin.dashboard', compact('datajenis','datamerk', 'jumlahjenis', 'jumlahmerk', 'jumlahdepartement', 'jumlahruangan'));
+        // Pop Up Reminder HPP
+        $hppPending = collect();
+        $hppPendingCount = 0;
+
+        if (in_array(Auth::id(), [18, 22])) {
+
+            $hppPending = LogService::where('status', LogService::STATUS_SELESAI)
+                ->whereDoesntHave('hppDetail')
+                ->whereDate('tanggal', '>=', '2026-04-01')
+                ->orderBy('tanggal')
+                ->select('no_spk', 'tanggal')
+                ->get();
+            
+            $hppPendingCount = $hppPending->count();
+
+            $hppPendingPreview = $hppPending
+                ->take(10)
+                ->pluck('no_spk')
+                ->implode(', ');
+        }
+
+        return view('admin.dashboard', compact('datajenis','datamerk', 'jumlahjenis', 'jumlahmerk', 'jumlahdepartement', 'jumlahruangan', 'hppPending', 'hppPendingCount'));
     }
 
     public function chartData(Request $request)

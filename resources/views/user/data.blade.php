@@ -73,8 +73,9 @@
                 <li><a href="/data-spk">Data SPK</a></li>
             @endif
             <li><a href="/input-data-spk">Form Input SPK</a></li>
-            <li></li>
+            <li><a href="{{ route('absensi.index') }}">Absensi</a></li>
           </ul>
+
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf
             <button type="submit" class="btn btn-outline-primary btn-sm">Keluar</button>
