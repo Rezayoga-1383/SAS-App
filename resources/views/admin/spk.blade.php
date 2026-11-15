@@ -31,10 +31,12 @@
 									<label class="form-label small mb-1">Jenis Service</label>
 									<select id="jenis_service" class="form-select form-select-sm">
 										<option value="">Semua</option>
-										<option value="cuci ac">Cuci AC</option>
-										<option value="perbaikan">Perbaikan</option>
-										<option value="cek ac">Cek AC</option>
-										<option value="ganti unit">Ganti Unit</option>
+										<option value="Cuci AC">Cuci AC</option>
+										<option value="Perbaikan">Perbaikan</option>
+										<option value="Cek AC">Cek AC</option>
+										<option value="Ganti Unit">Ganti Unit</option>
+										<option value="Bongkar Pasang">Bongkar Pasang</option>
+										<option value="Lanjutan Pekerjaan">Lanjutan Pekerjaan</option>
 									</select>
 								</div>
 

@@ -74,7 +74,7 @@
                 <li><a href="/data-spk" class="active">Data SPK</a></li>
             @endif
             <li><a href="/input-data-spk">Form Input SPK</a></li>
-            <li></li>
+            <li><a href="{{ route('absensi.index') }}">Absensi</a></li>
           </ul>
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf
@@ -137,6 +137,15 @@
                             </div>
                             <div class="col-12 col-sm-auto">
                                 <input type="date" id="endDate" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-12 col-sm-auto">
+                                <select id="filterStatus" class="form-select form-select-sm">
+                                    <option value="">-- Semua Status --</option>
+                                    <option value="menunggu">Menunggu</option>
+                                    <option value="disetujui">Disetujui</option>
+                                    <option value="belum selesai">Belum Selesai</option>
+                                    <option value="selesai">Selesai</option>
+                                </select>
                             </div>
                             <div class="col-12 col-sm-auto mt-3 mt-sm-0 ms-sm-auto">
                                 <button id="btnFilter" class="btn btn-primary btn-sm w-100"><i class="bi bi-search"></i> Filter</button>
@@ -286,8 +295,9 @@
             ajax: {
                 url: "{{ route('spk.data.teknisi') }}",
                 data: function(d) {
-                    d.start_date = $('#startDate').val();
-                    d.end_date = $('#endDate').val();
+                    d.start_date    = $('#startDate').val();
+                    d.end_date      = $('#endDate').val();
+                    d.status        = $('#filterStatus').val();
                 }
             },
             columns : [
@@ -302,15 +312,14 @@
                 { data: 'aksi', orderable: false, searchable: false},
             ],
             drawCallback: function() {
-                // ✅ Agar feather icon muncul kembali setelah DataTables refresh
                 feather.replace();
             }
         });
 
-        // ✅ Filter button actions
+        // Filter button actions
         $('#btnFilter').click(function() {
-            let startDate = $('#startDate').val();
-            let endDate = $('#endDate').val();
+            let startDate   = $('#startDate').val();
+            let endDate         = $('#endDate').val();
 
             if (!startDate || !endDate) {
                 Swal.fire({
@@ -327,6 +336,11 @@
         $('#btnReset').click(function() {
             $('#startDate').val('');
             $('#endDate').val('');
+            $('#filterStatus').val('');
+            table.ajax.reload();
+        });
+
+        $('#filterStatus').change(function() {
             table.ajax.reload();
         });
 
@@ -340,12 +354,12 @@
                 success: function(response) {
                   // console.log(response);
 
-                    // ✅ Teknisi
+                    // Teknisi
                     let teknisi = Array.isArray(response.teknisi) && response.teknisi.length > 0
                         ? response.teknisi.map(t => t.nama).join(', ')
                         : '-';
 
-                    // ✅ Status
+                    // Status
                     let statusBadge = '';
                     if (response.status === 'menunggu') {
                         statusBadge = '<span class="badge bg-warning text-dark">Menunggu</span>';
@@ -380,7 +394,24 @@
                         `;
                     }
 
-                    // ✅ Gambar SPK (file utama)
+                    let parentSpkHtml = '';
+                    if (response.parent_spk) {
+                        parentSpkHtml = `
+                            <tr>
+                                <th>Lanjutan dari SPK</th>
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        <i class="bi bi-link-45deg"></i> No. SPK: ${response.parent_spk.no_spk}
+                                    </span>
+                                    <small class="d-block text-muted mt-1">
+                                        Tanggal: ${response.parent_spk.tanggal ?? '-'}
+                                    </small>
+                                </td>
+                            </tr>
+                        `;
+                    }
+
+                    // Gambar SPK (file utama)
                     let fileSpk = response.file_spk 
                         ? `<a href="/storage/${response.file_spk}" class="glightbox" data-gallery="gallery-spk">
                                <img src="/storage/${response.file_spk}" class="img-fluid mb-3 rounded shadow-sm" style="width: 120px; height: 120px; object-fit: cover; cursor: zoom-in;">
@@ -467,6 +498,7 @@
                                     <td>${keteranganBadge}</td>
                                 </tr>
                                 ${catatanHtml}
+                                ${parentSpkHtml}
                             </table>
 
                             <div class="text-center mt-4">

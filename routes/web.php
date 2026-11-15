@@ -16,6 +16,7 @@ use App\Http\Controllers\ReportPerbaikanController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SPKAprovalController;
 use App\Http\Controllers\SPKController;
+use App\Http\Controllers\ExportDataACController;
 use App\Http\Controllers\Superadmin\AbsensiKaryawanController as SuperadminAbsensiKaryawanController;
 use App\Http\Controllers\Superadmin\DashboardController;
 use App\Http\Controllers\Superadmin\DepartementController as SuperadminDepartementController;
@@ -261,6 +262,7 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
     // ================================ Detail AC ==================================
     // Detail AC Routes
     Route::get('/admin/detail-ac', [DetailacController::class, 'index'])->name('detail-ac')->middleware('Role:Admin');
+    
     Route::get('/admin/detail-ac/data', [DetailacController::class, 'getData'])->name('detail-ac.data')->middleware('Role:Admin');
 
     // Show Detail AC Route
@@ -277,6 +279,10 @@ Route::middleware(['Role:Admin', 'pending.hpp'])->group(function () {
 
     // Delete Detail AC Route
     Route::delete('/admin/detail-ac/{id}', [DetailacController::class, 'destroy'])->name('detail-ac.destroy')->middleware('Role:Admin');
+
+    // Export Detail AC Route
+    Route::get('/detail-ac/export', [ExportDataACController::class, 'export'])
+    ->name('detail-ac.export')->middleware('Role:Admin');
 
     // ================================ Departement ==================================
     // Departement Routes

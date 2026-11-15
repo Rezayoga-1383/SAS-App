@@ -111,7 +111,38 @@
                                 @enderror
                             </div>
 
-                             <!-- Dynamic AC Input Section -->
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status <span class="text-danger">*</span> </label>
+                                <select name="status" id="status" required class="form-select form-control-md @error('status') is-invalid @enderror">
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="menunggu" {{ old('status', $spk->status) == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                    <option value="belum selesai" {{ old('status', $spk->status) == 'belum selesai' ? 'selected' : '' }}>Belum Selesai</option>
+                                    <option value="selesai" {{ old('status', $spk->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                </select>
+                                @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- SPK Referensi - Lanjutan Pekerjaan --}}
+                            <div class="mb-3" id="parent_spk_wrapper"
+                                style="{{ $spk->parent_spk_id ? 'display:block;' : 'display:none;' }}">
+                                <label for="parent_spk_id" class="form-label">SPK Referensi <span class="text-danger">*</span></label>
+                                <select name="parent_spk_id" id="parent_spk_id"
+                                    class="form-select @error('parent_spk_id') is-invalid @enderror">
+                                    <option value="">-- Pilih SPK Referensi --</option>
+                                    @foreach($spkReferensi as $ref)
+                                        <option value="{{ $ref->id }}" {{ $spk->parent_spk_id == $ref->id ? 'selected' : '' }}>
+                                            {{ $ref->no_spk }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('parent_spk_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Dynamic AC Input Section -->
                             <div class="mb-3">
                                 <label for="jumlah_ac_input" class="form-label">Jumlah AC <span class="text-danger">*</span> </label>
                                 <input type="number" id="jumlah_ac_input" name="jumlah_ac_input" 
@@ -614,6 +645,13 @@ jumlahInput.addEventListener('input', () => {
 
 checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
 
+// event SPK Referensi
+document.addEventListener('change', function(e) {
+    if (e.target.matches('select[name="kategori_pekerjaan[]"]')) {
+        toggleParentSpk();
+    }
+});
+
 document.getElementById('add_ac_btn').addEventListener('click', function(){
 
     addAcForm();
@@ -635,12 +673,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     generateAcForms(jumlahAwal);
-
     updateCheckboxLimit();
-
     updateAcOptions();
-
     updateJumlahAcInput();
+
+    setTimeout(() => toggleParentSpk(), 100);
 
     $('.select2').select2({
         placeholder: '-- Pilih No AC --',
@@ -649,5 +686,34 @@ document.addEventListener('DOMContentLoaded', () => {
         minimumResultsForSearch: 0
     });
 });
+
+// Toggle SPK Referensi
+function toggleParentSpk() {
+    const wrapper       = document.getElementById('parent_spk_wrapper');
+    const parentSelect  = document.getElementById('parent_spk_id');
+
+    if (!wrapper) return;
+
+    const kategoriSelects = document.querySelectorAll('select[name="kategori_pekerjaan[]"]');
+
+    let isLanjutan = false;
+    kategoriSelects.forEach(select => {
+        if (
+            select.value &&
+            select.value.trim() === 'Lanjutan Pekerjaan'
+        ) {
+            isLanjutan = true;
+        }
+    });
+
+    if (isLanjutan) {
+        wrapper.style.display = 'block';
+        parentSelect.setAttribute('required', 'required');
+    } else {
+        wrapper.style.display = 'none';
+        parentSelect.removeAttribute('required');
+        parentSelect.value = '';    
+    }
+}
 </script>
 @endpush

@@ -115,7 +115,7 @@ class SPKController extends Controller
 
     public function create()
     {
-        $acdetail   = DetailAC::all();
+        $acdetail       = DetailAC::all();
         $departement    = Departement::all();
         $pengguna       = Pengguna::all();
         $teknisi        = Pengguna::where('role', 'Teknisi')->get();
@@ -124,10 +124,13 @@ class SPKController extends Controller
             'Cuci AC',
             'Perbaikan',
             'Cek AC',
-            'Ganti Unit'
+            'Ganti Unit',
+            'Survey',
+            'Bongkar Pasang',
+            'Lanjutan Pekerjaan'
         ];
-
-        return view('superadmin.formcreatespk', compact('acdetail', 'departement', 'pengguna', 'teknisi', 'admin', 'kategoriPekerjaan'));
+        $spkReferensi = LogService::whereIn('status', [LogService::STATUS_DISETUJUI, LogService::STATUS_BELUM_SELESAI,])->get();
+        return view('superadmin.formcreatespk', compact('acdetail', 'departement', 'pengguna', 'teknisi', 'admin', 'kategoriPekerjaan', 'spkReferensi'));
     }
 
     public function store(Request $request)
@@ -136,9 +139,17 @@ class SPKController extends Controller
             'acdetail_ids'              => 'required|array|min:1',
             'acdetail_ids.*'            => 'required|exists:acdetail,id',
 
-            'kategori_pekerjaan.*'      => 'required|in:Cuci AC, Perbaikan, Cek AC, Ganti Unit',
+            'kategori_pekerjaan.*'      => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit,Survey,Bongkar Pasang,Lanjutan Pekerjaan',
+            'parent_spk_id'             => [
+                Rule::requiredIf(function () use ($request) {
+                    return collect($request->kategori_pekerjaan)
+                        ->contains('Lanjutan Pekerjaan');
+                }),
+                'nullable',
+                'exists:log_service,id',
+            ],
 
-            'no_spk'                    => 'required|digits:4|unique:log_service, no_spk',
+            'no_spk'                    => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'                   => 'required|date',
             'waktu_mulai'               => 'required|date_format:H:i',
             'waktu_selesai'             => 'required|after:waktu_mulai|date_format:H:i',
@@ -147,6 +158,8 @@ class SPKController extends Controller
 
             'teknisi'                   => 'required|array|min:1',
             'teknisi.*'                 => 'required|exists:pengguna,id',
+
+            'status'                    => 'required|in:menunggu,belum selesai,selesai',      
 
             'jumlah_ac_input'           => 'required|integer|min:1',
 
@@ -176,6 +189,9 @@ class SPKController extends Controller
 
             'kategori_pekerjaan.*.required' => 'Kategori Pekerjaan Wajib Dipilih',
 
+            'parent_spk_id.required'        => 'SPK Referensi wajib dipilih untuk lanjutan pekerjaan',
+            'parent_spk_id.exists'          => 'SPK Referensi tidak ditemukan',
+
             'no_spk.required'               => 'Nomor SPK Wajib Diisi',
             'no_spk.unique'                 => 'Nomor SPK Sudah Digunakan',
             'no_spk.digits'                 => 'Nomor SPK Harus Terdiri Dari 4 Digit Angka',
@@ -183,12 +199,14 @@ class SPKController extends Controller
             'tanggal.required'              => 'Tanggal SPK Wajib Diisi',
             'waktu_mulai.required'          => 'Waktu Mulai Wajib Diisi',
             'waktu_selesai.required'        => 'Waktu Selesai Wajib Diisi',
-            'waktu_selesai.after'           => 'Waktu selesai harus setelah waktu mulai',
+            // 'waktu_selesai.after'           => 'Waktu selesai harus setelah waktu mulai',
 
             'jumlah_orang.required'         => 'Jumlah Teknisi Wajib Diisi',
             'teknisi.required'              => 'Teknisi Wajib Dipilih',
             'teknisi.*.required'            => 'Teknisi Wajib Dipilih',
             'teknisi.*.exists'              => 'Teknisi Tidak Valid',
+
+            'status.required'               => 'Status SPK Wajib Diisi',
 
             'jumlah_ac_input.required'      => 'Jumlah AC Wajib Diisi',
 
@@ -220,6 +238,19 @@ class SPKController extends Controller
             'file_spk.max'                  => 'Ukuran File SPK Maks 2 MB',
         ]);
 
+        $mulai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_mulai']);
+        $selesai = \Carbon\Carbon::createFromFormat('H:i', $validated['waktu_selesai']);
+
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            $selesai->addDay();
+        }
+
+        if($selesai->lessThanOrEqualTo($mulai)) {
+            return back()->withErrors([
+                'waktu_selesai' => 'Waktu selesai harus setelah waktu mulai'
+            ])-withInput();
+        }
+
         DB::beginTransaction();
         
         try {
@@ -236,6 +267,8 @@ class SPKController extends Controller
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
                 'file_spk'      => $fileSpkTemp,
+                'status'        => $validated['status'],
+                'parent_spk_id' => $request->parent_spk_id,
             ]);
 
             $detailInsert = [];
@@ -281,6 +314,22 @@ class SPKController extends Controller
 
             $spk->teknisi()->sync($validated['teknisi']);
 
+            $isLanjutan = collect($validated['kategori_pekerjaan'])
+                ->contains('Lanjutan Pekerjaan');
+            
+            if ($isLanjutan && !empty($request->parent_spk_id)) {
+                $parentSpk = LogService::find($request->parent_spk_id);
+
+                if ($parentSpk) {
+                    if ($validated['status'] === 'selesai') {
+                        $parentSpk->status = LogService::STATUS_SELESAI;
+                    } elseif ($validated['status'] === 'belum selesai') {
+                        $parentSpk->status = LogService::STATUS_BELUM_SELESAI;
+                    }
+                    $parentSpk->save();
+                }
+            }
+
             DB::commit();
 
             return redirect()
@@ -303,6 +352,7 @@ class SPKController extends Controller
             'units.historyImages',
             'details',
             'teknisi',
+            'parentspk',
         ])->findorFail($id);
 
         $acdetail = DetailAC::all();
@@ -310,7 +360,12 @@ class SPKController extends Controller
         $pengguna = Pengguna::all();
         $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
-        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit'];
+        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit', 'Survey', 'Bongkar Pasang', 'Lanjutan Pekerjaan'];
+
+        $spkReferensi = LogService::whereIn('status', [
+            LogService::STATUS_DISETUJUI,
+            LogService::STATUS_BELUM_SELESAI,
+        ])->where('id', '!=', $id)->get();
 
         $existingAcData = $spk->units->map(function($unit) use ($spk){
             $detail = $spk->details->where('acdetail_id', $unit->acdetail_id)->first();
@@ -329,7 +384,7 @@ class SPKController extends Controller
             ];
         });
         return view('superadmin.formeditspk', compact(
-            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData', 'kategoriPekerjaan'
+            'spk', 'acdetail', 'departement', 'pengguna', 'admin', 'teknisi', 'existingAcData', 'kategoriPekerjaan', 'spkReferensi'
         ));
     }
 
@@ -347,7 +402,7 @@ class SPKController extends Controller
             'no_spk' => [
                 'required',
                 'digits:4',
-                Rule::unique('log_service', 'no_spk')->ignore($id),
+                Rule::unique('log_service','no_spk')->ignore($id),
             ],
 
             'tanggal'            => 'required|date',
@@ -366,7 +421,18 @@ class SPKController extends Controller
             'jenis_pekerjaan.*'  => 'required|string',
 
             'kategori_pekerjaan' => 'required|array|min:1',
-            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
+            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit,Survey,Bongkar Pasang,Lanjutan Pekerjaan',
+
+            'parent_spk_id'      => [
+                Rule::requiredIf(function () use ($request) {
+                    return collect($request->kategori_pekerjaan)
+                        ->contains('Lanjutan Pekerjaan');
+                }),
+                'nullable',
+                'exists:log_service,id',
+            ],
+
+            'status'             => 'required|in:menunggu,belum selesai,selesai',
 
             'history_image'      => 'nullable|array',
             'history_image.*'    => 'nullable|image|mimes:jpg,jpeg|max:10240',
@@ -395,6 +461,8 @@ class SPKController extends Controller
             if ($request->hasFile('file_spk')) {
                 // Di controller jangan hapus existing file spk dulu agar tetep tampil sampai job kelar
                 $fileSpkTemp = $request->file('file_spk')->store('temp_spk_images', 'public');
+            } elseif ($spk->file_spk && !str_ends_with($spk->file_spk, '.webp')) {
+                $fileSpkTemp = $spk->file_spk;
             }
 
             /* ================= FORMAT WAKTU ================= */
@@ -412,6 +480,8 @@ class SPKController extends Controller
                 'mengetahui'    => $validated['mengetahui'],
                 'hormat_kami'   => $validated['hormat_kami'],
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
+                'status'        => $validated['status'],
+                'parent_spk_id' => $request->parent_spk_id,
             ]);
 
            /* ================= AMBIL DATA LAMA ================= */
@@ -481,6 +551,12 @@ class SPKController extends Controller
                     $path = $request->file("history_image.$i")
                         ->store('temp_spk_images', 'public');
                     $historyPathsToProcess[$unit->id] = $path;
+                } else {
+                    $existingHistory = $unit->historyImages->first();
+                    if ($existingHistory && $existingHistory->image_path
+                        && !str_ends_with($existingHistory->image_path, '.webp')) {
+                        $historyPathsToProcess[$unit->id] = $existingHistory->image_path;    
+                    }
                 }
 
                 /* ================= HAPUS FOTO KOLOSA (TOMBOL HAPUS) ================= */
@@ -499,10 +575,16 @@ class SPKController extends Controller
                     }
                 }
 
-                /* ================= FOTO KOLOSA ================= */
+                /* ================= FOTO KOLASE ================= */
                 if ($request->hasFile("foto_kolase.$i")) {
                     $path = $request->file("foto_kolase.$i")->store('temp_spk_images', 'public');
                     $kolasePathsToProcess[$unit->id] = $path;
+                } else {
+                    $existingKolase = $unit->images->first();
+                    if ($existingKolase && $existingKolase->image_path
+                        && !str_ends_with($existingKolase->image_path, '.webp')) {
+                        $kolasePathsToProcess[$unit->id] = $existingKolase->image_path;
+                    }
                 }
             }
 
@@ -532,6 +614,27 @@ class SPKController extends Controller
 
             /* ================= SYNC TEKNISI ================= */
             $spk->teknisi()->sync($validated['teknisi']);
+
+            $isLanjutan = collect($validated['kategori_pekerjaan'])
+                ->contains('Lanjutan Pekerjaan');
+            
+            if ($isLanjutan && !empty($request->parent_spk_id)) {
+                $parentSpk = LogService::find($request->parent_spk_id);
+
+                if ($parentSpk) {
+                    if ($validated['status'] === 'selesai') {
+                        $parentSpk->status = LogService::STATUS_SELESAI;
+                    } elseif ($validated['status'] === 'belum selesai') {
+                        $parentSpk->status = LogService::STATUS_BELUM_SELESAI;
+                    }
+                    $parentSpk->save();
+                }
+            }
+
+            if (!$isLanjutan) {
+                $spk->parent_spk_id = null;
+                $spk->save();
+            }
 
             DB::commit();
 
@@ -570,7 +673,7 @@ class SPKController extends Controller
                 'units.acdetail',
             ])->findOrFail($id);
 
-            if ($spk->fle_spk && Storage::disk('public')->exists($spk->file_spk)) {
+            if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
                 Storage::disk('public')->delete($spk->file_spk);
             }
 

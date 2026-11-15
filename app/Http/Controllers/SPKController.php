@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessSPKImages;
 use App\Models\Departement;
 use App\Models\DetailAC;
 use App\Models\LogService;
@@ -9,10 +10,8 @@ use App\Models\LogServiceDetail;
 use App\Models\LogServiceUnit;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-// use Illuminate\Support\Facades\Storage;
-use App\Jobs\ProcessSPKImages;
+use Illuminate\Validation\Rule;
 
 class SPKController extends Controller
 {
@@ -22,8 +21,10 @@ class SPKController extends Controller
         $departement= Departement::all();
         $teknisi    = Pengguna::where('role', 'Teknisi')->get();
         $admin      = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
-        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit'];
-        return view('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin', 'kategoriPekerjaan'));
+        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit', 'Survey', 'Bongkar Pasang', 'Lanjutan Pekerjaan'];
+        
+        $spkReferensi = LogService::whereIn('status', [LogService::STATUS_DISETUJUI, LogService::STATUS_BELUM_SELESAI,])->get();
+        return view('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin', 'kategoriPekerjaan', 'spkReferensi'));
     }
 
     public function store(Request $request)
@@ -33,7 +34,15 @@ class SPKController extends Controller
         $validated = $request->validate([
             'acdetail_ids'       => 'required|array|min:1',
             'acdetail_ids.*'     => 'required|exists:acdetail,id',
-            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
+            'kategori_pekerjaan.*' => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit,Survey,Bongkar Pasang,Lanjutan Pekerjaan',
+            'parent_spk_id'      => [
+                Rule::requiredIf(function () use ($request) {
+                    return collect($request->kategori_pekerjaan)
+                        ->contains('Lanjutan Pekerjaan');
+                }),
+                'nullable',
+                'exists:log_service,id',
+            ],
             'no_spk'             => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'            => 'required|date',
             'waktu_mulai'        => 'required|date_format:H:i',
@@ -61,6 +70,9 @@ class SPKController extends Controller
             'acdetail_ids.*.exists'         => 'Nomor AC tidak valid',
 
             'kategori_pekerjaan.*.required' => 'Kategori Pekerjaan wajib dipilih',
+
+            'parent_spk_id.required'        => 'SPK Referensi wajib dipilih untuk lanjutan pekerjaan',
+            'parent_spk_id.exists'          => 'SPK Referensi tidak ditemukan',
 
             'no_spk.required'               => 'Nomor SPK wajib diisi',
             'no_spk.unique'                 => 'Nomor SPK sudah digunakan',
@@ -121,6 +133,8 @@ class SPKController extends Controller
             ])->withInput();
         }
 
+        // dd($request->all());
+
         DB::beginTransaction();
 
         try {
@@ -139,6 +153,7 @@ class SPKController extends Controller
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
                 'file_spk'      => $fileSpkTemp, // simpan sementara
                 'status'        => $validated['status'],
+                'parent_spk_id' => $request->parent_spk_id,
             ]);
 
             // ---------------- Bulk insert detail & unit ----------------
@@ -186,6 +201,23 @@ class SPKController extends Controller
 
             // ---------------- Sync teknisi ----------------
             $spk->teknisi()->sync($validated['teknisi']);
+
+            // Update status parent SPK jika Lanjutan Pekerjaan
+            $isLanjutan = collect($validated['kategori_pekerjaan'])
+                ->contains('Lanjutan Pekerjaan');
+            
+            if ($isLanjutan && !empty($request->parent_spk_id)) {
+                $parentSpk = LogService::find($request->parent_spk_id);
+
+                if ($parentSpk) {
+                    if ($validated['status'] === 'selesai') {
+                        $parentSpk->status = LogService::STATUS_SELESAI;
+                    } elseif ($validated['status'] === 'belum selesai') {
+                        $parentSpk->status = LogService::STATUS_BELUM_SELESAI;
+                    }
+                    $parentSpk->save();
+                }
+            }
 
             DB::commit();
 

@@ -10,9 +10,34 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DetailacController extends Controller
 {
+
+    public function export()
+    {
+        $data = DetailAC::query()
+            ->leftJoin('ruangan', 'ruangan.id', '=', 'acdetail.id_ruangan')
+            ->leftJoin('departement', 'departement.id', '=', 'ruangan.id_departement')
+            ->select('acdetail.*')
+            ->with([
+                'merkac',
+                'jenisac',
+                'ruangan.departement'
+            ])
+            ->orderBy('departement.nama_departement', 'asc')
+            ->orderBy('ruangan.nama_ruangan', 'asc')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.reportdataac', compact('data'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download(
+            'Data_Detail_AC_' . date('Ymd_His') . '.pdf'
+        );
+    }
+
     public function index()
     {
         return view('admin.detail-ac');

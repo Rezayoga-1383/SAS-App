@@ -11,9 +11,17 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-4" id="top-content">
 							<h5 class="card-title m-0">Data Detail AC</h5>
-							<a href="{{ route('detail-ac.create') }}">
-                                <button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i><strong>Tambah Data</strong></button>
-                            </a>
+
+							<div class="d-flex gap-2">
+
+								{{-- Download Excel --}}
+								<a href="{{ route('detail-ac.export') }}">
+									<button class="btn btn-md btn-success"><i class="align-middle" data-feather="download"></i><strong> Download Data</strong></button>
+								</a>
+								<a href="{{ route('detail-ac.create') }}">
+									<button class="btn btn-md btn-primary"><i class="align-middle" data-feather="plus-square"></i><strong>Tambah Data</strong></button>
+								</a>
+							</div>
 						</div>
 						@if(session('success'))
 						<script>

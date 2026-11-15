@@ -46,6 +46,10 @@ class SPKAprovalController extends Controller
             $query->whereDate('tanggal', '<=', $request->end_date);
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         $query->latest();
 
         return DataTables::of($query)
@@ -208,7 +212,8 @@ class SPKAprovalController extends Controller
             'units.acdetail.ruangan.departement',
             'units.images',
             'units.historyImages',
-            'details'
+            'details',
+            'parentSpk',
         ])->find($id);
 
         if (!$spk){

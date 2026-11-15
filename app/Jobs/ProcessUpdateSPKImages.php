@@ -81,8 +81,9 @@ class ProcessUpdateSPKImages implements ShouldQueue
             if ($spkWebpPath) {
                 $spk = LogService::find($this->spkId);
                 if ($spk) {
-                    if ($spk->file_spk && Storage::disk('public')->exists($spk->file_spk)) {
-                        Storage::disk('public')->delete($spk->file_spk);
+                    if ($spk->file_spk && $spk->file_spk !== $this->fileSpkTemp
+                        && Storage::disk('public')->exists($spk->file_spk)) {
+                        Storage::disk('public')->delete($spk->file_spk);    
                     }
                     $spk->file_spk = $spkWebpPath;
                     $spk->save();
@@ -90,14 +91,26 @@ class ProcessUpdateSPKImages implements ShouldQueue
             }
         }
 
-        // ---------------- BERSIHKAN FILE TEMP ----------------
-        foreach ($this->historyPaths as $path) {
-            if (Storage::disk('public')->exists($path)) Storage::disk('public')->delete($path);
+        // ---------------- Clean Temp File ----------------
+        // History Image
+        foreach ($this->historyPaths as $unitId => $path) {
+            if (str_starts_with($path, 'temp_spk_images')
+                && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
         }
-        foreach ($this->kolasePaths as $path) {
-            if (Storage::disk('public')->exists($path)) Storage::disk('public')->delete($path);
+
+        // Kolase Image
+        foreach ($this->kolasePaths as $unitId => $path) {
+            if (str_starts_with($path, 'temp_spk_images')
+                && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
         }
-        if ($this->fileSpkTemp && Storage::disk('public')->exists($this->fileSpkTemp)) {
+
+        // SPK
+        if ($this->fileSpkTemp && str_starts_with($this->fileSpkTemp, 'temp_spk_images')
+            && Storage::disk('public')->exists($this->fileSpkTemp)) {
             Storage::disk('public')->delete($this->fileSpkTemp);
         }
     }

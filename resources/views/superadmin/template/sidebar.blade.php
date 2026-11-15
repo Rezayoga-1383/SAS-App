@@ -40,6 +40,9 @@
 						</a>
 
 						<ul id="report" class="sidebar-dropdown list-unstyled collapse ps-3">
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="#">SPK</a>
+							</li>
 							<li class="sidebar-item {{ request()->routeIs('superadmin.report') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('superadmin.report') }}">Dokumentasi</a>
 							</li>

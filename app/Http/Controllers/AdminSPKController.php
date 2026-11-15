@@ -94,10 +94,13 @@ class AdminSPKController extends Controller
             'Cuci AC',
             'Perbaikan',
             'Cek AC',
-            'Ganti Unit'
+            'Ganti Unit',
+            'Survey',
+            'Bongkar Pasang',
+            'Lanjutan Pekerjaan'
         ];
-
-        return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin', 'kategoriPekerjaan'));
+        $spkReferensi = LogService::whereIn('status', [LogService::STATUS_DISETUJUI, LogService::STATUS_BELUM_SELESAI,])->get();
+        return view('admin.formtambahspk', compact('acdetail','departement','pengguna', 'teknisi', 'admin', 'kategoriPekerjaan', 'spkReferensi'));
     }
 
     public function getData(Request $request)
@@ -191,7 +194,15 @@ class AdminSPKController extends Controller
             'acdetail_ids'              => 'required|array|min:1',
             'acdetail_ids.*'            => 'required|exists:acdetail,id',
 
-            'kategori_pekerjaan.*'        => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit',
+        'kategori_pekerjaan.*'          => 'required|in:Cuci AC,Perbaikan,Cek AC,Ganti Unit,Survey,Bongkar Pasang,Lanjutan Pekerjaan',
+            'parent_spk_id'             => [
+                Rule::requiredIf(function () use ($request) {
+                    return collect($request->kategori_pekerjaan)
+                        ->contains('Lanjutan Pekerjaan');
+                }),
+                'nullable',
+                'exists:log_service,id',
+            ],
 
             'no_spk'                    => 'required|digits:4|unique:log_service,no_spk',
             'tanggal'                   => 'required|date',
@@ -237,6 +248,9 @@ class AdminSPKController extends Controller
             'acdetail_ids.*.exists'     => 'Nomor AC tidak valid.',
 
             'kategori_pekerjaan.*.required' => 'Kategori Pekerjaan wajib dipilih',
+
+            'parent_spk_id.required'    => 'SPK Referensi wajib dipilih untuk lanjutan pekerjaan',
+            'parent_spk_id.exists'      => 'SPK Referensi tidak ditemukan',
 
             // ===== NOMOR SPK =====
             'no_spk.required'           => 'Nomor SPK wajib diisi.',
@@ -325,6 +339,7 @@ class AdminSPKController extends Controller
                 'pelaksana_ttd' => $validated['pelaksana_ttd'],
                 'file_spk'      => $fileSpkTemp,
                 'status'        => $validated['status'],
+                'parent_spk_id' => $request->parent_spk_id,
             ]);
 
             // ================= LOOP SETIAP AC =================
@@ -372,6 +387,17 @@ class AdminSPKController extends Controller
             // ================= TEKNISI =================
             $spk->teknisi()->sync($validated['teknisi']);
 
+            $isLanjutan = collect($validated['kategori_pekerjaan'])
+                ->contains('Lanjutan Pekerjaan');
+            
+            if ($isLanjutan && !empty($request->parent_spk_id)) {
+                $parentSpk = LogService::find($request->parent_spk_id);
+
+                if ($parentSpk) {
+                    if ($validated['status']);
+                }
+            }
+
             DB::commit();
 
             return redirect()
@@ -413,7 +439,7 @@ class AdminSPKController extends Controller
         $pengguna = Pengguna::all();
         $admin = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         $teknisi = Pengguna::where('role', 'Teknisi')->get();
-        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit'];
+        $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit', 'Bongkar Pasang', 'Lanjutan Pekerjaan'];
 
         // ==== Persiapkan existing data untuk JS ====
         $existingAcData = $spk->units->map(function($unit) use ($spk){

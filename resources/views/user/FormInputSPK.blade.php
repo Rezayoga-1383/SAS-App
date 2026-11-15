@@ -70,7 +70,7 @@
                 <li><a href="/data-spk">Data SPK</a></li>
             @endif
             <li><a href="/input-data-spk" class="active">Form Input SPK</a></li>
-            <li></li>
+            <li><a href="{{ route('absensi.index') }}">Absensi</a></li>
           </ul>
           <form action="{{ route('logout') }}" method="post" class="me-3">
             @csrf
@@ -234,6 +234,35 @@
                 @error('status')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+              </div>
+              
+              <div class="col-sm-6"
+                id="parent_spk_wrapper"
+                style="{{ in_array('Lanjutan Pekerjaan', old('kategori_pekerjaan', [])) || $errors->has('parent_spk_id') ? 'display:block;' : 'display:none;' }}"
+
+                <label for="parent_spk_id" class="form-label">
+                  SPK Referensi <span class="text-danger">*</span>
+                </label>
+
+                <select 
+                  name="parent_spk_id" 
+                  id="parent_spk_id"
+                  class="form-select @error('parent_spk_id') is-invalid @enderror">
+
+                  <option value="">-- Pilih SPK Referensi --</option>
+
+                  @foreach($spkReferensi as $spk)
+                    <option value="{{ $spk->id }}"
+                      {{ old('parent_spk_id') == $spk->id ? 'selected' : '' }}>
+                      {{ $spk->no_spk }}
+                    </option>
+                  @endforeach
+                </select>
+                @if($errors->has('parent_spk_id'))
+                  <div class="text-danger mt-1">
+                    {{ $errors->first('parent_spk_id') }}
+                  </div>
+                @endif
               </div>
               
               <div class="col-sm-6">
@@ -520,7 +549,7 @@
                     Kategori Pekerjaan <span class="text-danger">*</span>
                 </label>
                 <select name="kategori_pekerjaan[]" 
-                        class="form-select ${errKategori ? 'is-invalid' : ''}">
+                        class="form-select kategori-pekerjaan ${errKategori ? 'is-invalid' : ''}">
                     <option value="">-- Pilih Kategori Pekerjaan --</option>
                     ${kategoriData.map(k => 
                         `<option value="${k}" ${oldKategori == k ? 'selected' : ''}>
@@ -616,15 +645,59 @@
     }
   }
 
+  // Tampilkan/Hide Parent SPK berdasarkan kategori pekerjaan
+  function toggleParentSpk() {
+    const wrapper = document.getElementById('parent_spk_wrapper');
+    const parentSelect = document.getElementById('parent_spk_id');
+
+    if (!wrapper) return;
+
+    const kategoriSelects = document.querySelectorAll(
+      'select[name="kategori_pekerjaan[]"]'
+    );
+
+    let isLanjutan = false;
+
+    kategoriSelects.forEach(select => {
+      if (
+        select.value &&
+        select.value.trim() === 'Lanjutan Pekerjaan'
+      ) {
+        isLanjutan = true;
+      }
+    });
+
+    if (isLanjutan) {
+      wrapper.style.display = 'block';
+      parentSelect.setAttribute('required', 'required');
+    } else {
+      wrapper.style.display = 'none';
+      parentSelect.removeAttribute('required');
+      parentSelect.value = '';
+    }
+  }
+
   // Event listeners
   jumlahAcInput.addEventListener('input', generateAcForms);
   checkboxes.forEach(cb => cb.addEventListener('change', updateCheckboxLimit));
   jumlahOrangInput.addEventListener('input', updateCheckboxLimit);
 
+  document.addEventListener('change', function(e) {
+
+    if (e.target.matches('select[name="kategori_pekerjaan[]"]')) {
+      toggleParentSpk();
+    }
+
+  });
+
   // Initialize saat halaman pertama kali dibuka
   document.addEventListener('DOMContentLoaded', () => {
     generateAcForms();
     updateCheckboxLimit();
+    
+    setTimeout(() => {
+      toggleParentSpk();
+    }, 100);
   });
 
 function initSelect2() {

@@ -16,22 +16,39 @@ class CheckPendingSpk
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check()) {
+        if (auth()->check() && auth()->id() == 8) {
 
-            if (auth()->id() == 8) {
-                $hasPending = LogService::where('status', 'menunggu')->exists();
+            $hasPending = LogService::where('status', 'menunggu')->exists();
 
-                if ($hasPending 
-                    && !$request->is('data-spk*') 
-                    && !$request->is('spk*')
-                    && !$request->ajax() // ✅ skip AJAX
-                ) {
-                    return redirect('/data-spk')->with(
-                        'warning',
-                        'Anda harus menyelesaikan SPK yang masih menunggu!'
-                    );
+            if ($hasPending && !$request->ajax()) {
+
+                $allowedPaths = [
+                    'data-spk',
+                    'spk/*',
+                    'check-pending-spk',
+                    'absensi/karyawan',
+                    'absensi/karyawan/store',
+                ];
+
+                $allowed = false;
+
+                foreach ($allowedPaths as $path) {
+                    if ($request->is($path)) {
+                        $allowed = true;
+                        break;
+                    }
+                }
+
+                if (!$allowed) {
+                    return redirect()
+                        ->route('spk.index')
+                        ->with(
+                            'warning',
+                            'Masih terdapat SPK yang berstatus menunggu. Silahkan selesaikan SPK terlebih dahulu'
+                        );
                 }
             }
+            
         }
         return $next($request);
     }

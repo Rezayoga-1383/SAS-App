@@ -30,6 +30,7 @@ class LogService extends Model
         'status',
         'keterangan_spk',
         'catatan_spk',
+        'parent_spk_id',
     ];
 
     protected $attributes = [
@@ -59,6 +60,16 @@ class LogService extends Model
     public function details()
     {
         return $this->hasMany(LogServiceDetail::class, 'log_service_id');
+    }
+
+    public function parentspk()
+    {
+        return $this->belongsTo(LogService::class, 'parent_spk_id');
+    }
+
+    public function childspk()
+    {
+        return $this->hasMany(LogService::class, 'parent_spk_id');
     }
 
     // Helper
