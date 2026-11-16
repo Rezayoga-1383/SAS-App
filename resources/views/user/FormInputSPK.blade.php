@@ -236,7 +236,7 @@
                 @enderror
               </div>
               
-              <div class="col-sm-6"
+              <div class="col-sm-6">
                 id="parent_spk_wrapper"
                 style="{{ in_array('Lanjutan Pekerjaan', old('kategori_pekerjaan', [])) || $errors->has('parent_spk_id') ? 'display:block;' : 'display:none;' }}"
 
