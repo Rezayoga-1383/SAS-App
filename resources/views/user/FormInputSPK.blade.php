@@ -224,6 +224,9 @@
                   <option value="menunggu" {{ old('status') == 'menunggu' ? 'selected' : '' }}>
                     Menunggu
                   </option>
+                  <option value="disetujui" {{ old('status') == 'disetujui' ? 'selected' : '' }}>
+                    Disetujui
+                  </option>
                   <option value="belum selesai" {{ old('status') == 'belum selesai' ? 'selected' : '' }}>
                     Belum Selesai
                   </option>
@@ -236,9 +239,9 @@
                 @enderror
               </div>
               
-              <div class="col-sm-6">
+              <div class="col-sm-6"
                 id="parent_spk_wrapper"
-                style="{{ in_array('Lanjutan Pekerjaan', old('kategori_pekerjaan', [])) || $errors->has('parent_spk_id') ? 'display:block;' : 'display:none;' }}"
+                style="{{ in_array('Lanjutan Pekerjaan', old('kategori_pekerjaan', [])) || $errors->has('parent_spk_id') ? 'display:block;' : 'display:none;' }}">
 
                 <label for="parent_spk_id" class="form-label">
                   SPK Referensi <span class="text-danger">*</span>
@@ -247,9 +250,9 @@
                 <select 
                   name="parent_spk_id" 
                   id="parent_spk_id"
-                  class="form-select @error('parent_spk_id') is-invalid @enderror">
+                  class="form-select select2-parent-spk @error('parent_spk_id') is-invalid @enderror">
 
-                  <option value="">-- Pilih SPK Referensi --</option>
+                  <option value=""></option>
 
                   @foreach($spkReferensi as $spk)
                     <option value="{{ $spk->id }}"
@@ -700,20 +703,37 @@
     }, 100);
   });
 
+// Inisialisasi Select2 untuk Nomor AC
 function initSelect2() {
-  $('.select-no').select2({
-    placeholder: '-- Pilih No AC --',
-    allowClear: true,
-    width: '100%'
-  });
+    $('.select-no').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2({
+                placeholder: '-- Pilih No AC --',
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
 }
 
-// Inisialisasi Select2 untuk Searching Kepada
-    $('.select2').select2({
-        placeholder: "-- Pilih Kepada --",
+// Inisialisasi Select2 setelah halaman siap
+$(document).ready(function () {
+
+    // Searching Kepada
+    $('#kepada').select2({
+        placeholder: '-- Pilih Kepada --',
         allowClear: true,
-        width: '100%' // pastikan full width
+        width: '100%'
     });
+
+    // Searching SPK Referensi
+    $('#parent_spk_id').select2({
+        placeholder: '-- Cari Nomor SPK Referensi --',
+        allowClear: true,
+        width: '100%',
+        dropdownParent: $('#parent_spk_wrapper')
+    });
+});
 </script>
 
 @if (auth()->check() && auth()->id() == 8)
@@ -726,7 +746,7 @@ document.addEventListener("DOMContentLoaded", function() {
               Swal.fire({
                   icon: 'warning',
                   title: 'SPK Belum Diapprove',
-                  text: 'Masih ada SPK degan status menunggu. Silahkan approve terlebih dahulu.',
+                  text: 'Masih ada SPK dengan status menunggu. Silahkan approve terlebih dahulu.',
                   confirmButtonText: 'Ke Halaman SPK',
                   allowOutsideClick: false,
                   allowEscapeKey: false

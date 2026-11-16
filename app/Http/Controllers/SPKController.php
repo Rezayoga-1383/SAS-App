@@ -23,7 +23,11 @@ class SPKController extends Controller
         $admin      = Pengguna::whereIn('nama', ['Siti Aliyatur Rofi Ah', 'Nurul'])->get();
         $kategoriPekerjaan = ['Cuci AC', 'Perbaikan', 'Cek AC', 'Ganti Unit', 'Survey', 'Bongkar Pasang', 'Lanjutan Pekerjaan'];
         
-        $spkReferensi = LogService::whereIn('status', [LogService::STATUS_DISETUJUI, LogService::STATUS_BELUM_SELESAI,])->get();
+        $spkReferensi = LogService::whereIn('status', [LogService::STATUS_MENUNGGU, LogService::STATUS_BELUM_SELESAI,])->get();
+        // dd(
+        //     $spkReferensi->count(),
+        //     $spkReferensi->pluck('no_spk', 'id')
+        // );
         return view('user.FormInputSPK', compact('acdetail', 'departement', 'teknisi', 'admin', 'kategoriPekerjaan', 'spkReferensi'));
     }
 
@@ -50,7 +54,7 @@ class SPKController extends Controller
             'jumlah_orang'       => 'required|integer|min:1',
             'teknisi'            => 'required|array|min:1',
             'teknisi.*'          => 'required|exists:pengguna,id',
-            'status'             => 'required|in:menunggu,belum selesai,selesai',
+            'status'             => 'required|in:menunggu,disetujui,belum selesai,selesai',
             'keluhan'            => 'required|array|min:1',
             'keluhan.*'          => 'required|string',
             'jenis_pekerjaan'    => 'required|array|min:1',
